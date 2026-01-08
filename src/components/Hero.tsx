@@ -96,14 +96,19 @@ export default function Hero() {
                     variants={itemVariants}
                     className="relative"
                 >
-                    {/* Background grey text */}
-                    <h1 className="font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] text-white/10 select-none">
+                    {/* Mobile: Fully visible text (no spotlight needed) */}
+                    <h1 className="md:hidden font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] text-white select-none">
                         E-SUMMIT
                     </h1>
 
-                    {/* Revealed text with gradient - NOW RELATIVE TO TEXT */}
+                    {/* Desktop: Background grey text */}
+                    <h1 className="hidden md:block font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] text-white/10 select-none">
+                        E-SUMMIT
+                    </h1>
+
+                    {/* Desktop: Revealed text with gradient spotlight */}
                     <h1
-                        className="absolute inset-0 font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] bg-clip-text text-transparent select-none"
+                        className="hidden md:block absolute inset-0 font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] bg-clip-text text-transparent select-none"
                         style={{
                             backgroundImage: `radial-gradient(300px circle at ${textMousePosition.x}px ${textMousePosition.y}px, #ffffff, rgba(204, 255, 0, 0.8), transparent)`,
                             WebkitBackgroundClip: 'text',

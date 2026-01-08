@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 const scheduleData = [
     {
         day: 'Day 1',
-        date: 'March 14, 2026',
+        date: 'January 30, 2026',
         events: [
             { time: '09:00', title: 'Registration & Welcome', highlight: false },
             { time: '10:30', title: 'Opening Ceremony', highlight: true },
@@ -17,13 +17,24 @@ const scheduleData = [
     },
     {
         day: 'Day 2',
-        date: 'March 15, 2026',
+        date: 'January 31, 2026',
         events: [
             { time: '09:00', title: 'Pitch Perfect Prelims', highlight: false },
             { time: '12:00', title: 'Startup Expo Opens', highlight: true },
-            { time: '14:00', title: 'Hackathon Finale', highlight: true },
-            { time: '17:00', title: 'Pitch Perfect Finals', highlight: false },
-            { time: '19:00', title: 'Awards Ceremony', highlight: true },
+            { time: '14:00', title: 'Hackathon Continues', highlight: false },
+            { time: '17:00', title: 'Speaker Sessions', highlight: false },
+            { time: '19:00', title: 'Cultural Night', highlight: true },
+        ],
+    },
+    {
+        day: 'Day 3',
+        date: 'February 1, 2026',
+        events: [
+            { time: '09:00', title: 'Hackathon Finale', highlight: true },
+            { time: '12:00', title: 'Pitch Perfect Finals', highlight: true },
+            { time: '15:00', title: 'Panel Discussion', highlight: false },
+            { time: '17:00', title: 'Awards Ceremony', highlight: true },
+            { time: '19:00', title: 'Closing Ceremony', highlight: true },
         ],
     },
 ];
@@ -89,8 +100,8 @@ export default function Schedule() {
 
                                         {/* Dot */}
                                         <div className={`w-3 h-3 rounded-full ${event.highlight
-                                                ? 'bg-[#ccff00] shadow-[0_0_10px_rgba(204,255,0,0.5)]'
-                                                : 'bg-white/20'
+                                            ? 'bg-[#ccff00] shadow-[0_0_10px_rgba(204,255,0,0.5)]'
+                                            : 'bg-white/20'
                                             }`} />
 
                                         {/* Title */}
