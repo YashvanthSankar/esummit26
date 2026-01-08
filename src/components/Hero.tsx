@@ -67,13 +67,6 @@ export default function Hero() {
             ref={containerRef}
             className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden"
         >
-            {/* Spotlight Effect - follows mouse across entire section */}
-            <div
-                className="pointer-events-none absolute inset-0 z-10"
-                style={{
-                    background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(204, 255, 0, 0.06), transparent 40%)`,
-                }}
-            />
 
             {/* Content */}
             <motion.div
@@ -82,53 +75,56 @@ export default function Hero() {
                 animate="visible"
                 className="relative z-20 text-center max-w-[95vw]"
             >
-                {/* Monospace Subtext */}
-                <motion.p
-                    variants={itemVariants}
-                    className="font-mono text-xs sm:text-sm text-[#ccff00]/70 mb-6 tracking-[0.3em]"
-                >
-                    IIITDM KANCHEEPURAM PRESENTS
-                </motion.p>
+                {/* Monospace Subtext - Hidden since logo includes the text */}
+                {/* Logo itself contains "IIITDM Kancheepuram's" */}
 
-                {/* Main Headline with Spotlight Reveal */}
+                {/* Main Logo with Spotlight Reveal */}
                 <motion.div
                     ref={textRef}
                     variants={itemVariants}
                     className="relative"
                 >
-                    {/* Mobile: Fully visible text (no spotlight needed) */}
-                    <h1 className="md:hidden font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] text-white select-none">
-                        E-SUMMIT
-                    </h1>
+                    {/* Mobile: Fully visible logo (no spotlight needed) */}
+                    <div className="md:hidden flex justify-center">
+                        <img
+                            src="/logo-esummit.png"
+                            alt="E-Summit '26"
+                            className="w-full max-w-[320px] h-auto select-none"
+                            draggable={false}
+                        />
+                    </div>
 
-                    {/* Desktop: Background grey text */}
-                    <h1 className="hidden md:block font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] text-white/10 select-none">
-                        E-SUMMIT
-                    </h1>
+                    {/* Desktop: Dim background logo */}
+                    <div className="hidden md:flex justify-center">
+                        <img
+                            src="/logo-esummit.png"
+                            alt="E-Summit '26"
+                            className="w-full max-w-[700px] h-auto select-none opacity-10"
+                            draggable={false}
+                        />
+                    </div>
 
-                    {/* Desktop: Revealed text with gradient spotlight */}
-                    <h1
-                        className="hidden md:block absolute inset-0 font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] bg-clip-text text-transparent select-none"
+                    {/* Desktop: Revealed logo with mask spotlight */}
+                    <div
+                        className="hidden md:flex absolute inset-0 justify-center items-center"
                         style={{
-                            backgroundImage: `radial-gradient(300px circle at ${textMousePosition.x}px ${textMousePosition.y}px, #ffffff, rgba(204, 255, 0, 0.8), transparent)`,
-                            WebkitBackgroundClip: 'text',
+                            maskImage: `radial-gradient(350px circle at ${textMousePosition.x}px ${textMousePosition.y}px, black 0%, transparent 80%)`,
+                            WebkitMaskImage: `radial-gradient(350px circle at ${textMousePosition.x}px ${textMousePosition.y}px, black 0%, transparent 80%)`,
                         }}
                     >
-                        E-SUMMIT
-                    </h1>
+                        <img
+                            src="/logo-esummit.png"
+                            alt="E-Summit '26"
+                            className="w-full max-w-[700px] h-auto select-none"
+                            draggable={false}
+                        />
+                    </div>
                 </motion.div>
 
-                {/* Year with glow */}
-                <motion.div variants={itemVariants} className="relative mt-[-1rem]">
-                    <h2 className="font-heading text-[clamp(4rem,15vw,18rem)] leading-[0.85] tracking-[-0.05em] text-[#ccff00] text-glow select-none">
-                        &apos;26
-                    </h2>
-                </motion.div>
-
-                {/* Tagline */}
+                {/* Tagline - Already in logo, but keeping for additional emphasis */}
                 <motion.p
                     variants={itemVariants}
-                    className="font-body text-lg sm:text-xl text-white/50 mt-8 max-w-xl mx-auto"
+                    className="font-body text-base sm:text-lg md:text-xl text-white/50 mt-8 max-w-xl mx-auto"
                 >
                     The Premier Entrepreneurship Summit of South India
                 </motion.p>
