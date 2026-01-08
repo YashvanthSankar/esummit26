@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Code, Lightbulb, Mic, Users, Trophy, Rocket } from 'lucide-react';
+import { ArrowUpRight, Code, Lightbulb, Mic, Users, Trophy, Rocket } from 'lucide-react';
 
 const events = [
     {
@@ -9,48 +9,48 @@ const events = [
         title: 'Hackathon',
         description: '48-hour coding marathon to build innovative solutions',
         icon: Code,
-        color: '#ccff00',
-        size: 'large',
+        image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-8 row-span-2',
     },
     {
         id: 2,
         title: 'Pitch Perfect',
-        description: 'Present your startup idea to top VCs and investors',
+        description: 'Present your startup idea to top VCs',
         icon: Lightbulb,
-        color: '#6495ED',
-        size: 'medium',
+        image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=400&fit=crop',
+        span: 'col-span-4 row-span-1',
     },
     {
         id: 3,
-        title: 'Panel Discussion',
-        description: 'Industry leaders share insights on entrepreneurship',
-        icon: Mic,
-        color: '#ff6b6b',
-        size: 'medium',
+        title: 'IPL Auction',
+        description: 'Experience the thrill of bidding wars',
+        icon: Trophy,
+        image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&h=400&fit=crop',
+        span: 'col-span-4 row-span-1',
     },
     {
         id: 4,
-        title: 'Networking',
-        description: 'Connect with founders, mentors, and fellow entrepreneurs',
-        icon: Users,
-        color: '#4ecdc4',
-        size: 'small',
+        title: 'Keynote Sessions',
+        description: 'Learn from industry titans',
+        icon: Mic,
+        image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-6 row-span-1',
     },
     {
         id: 5,
         title: 'Startup Expo',
-        description: 'Showcase your product to thousands of attendees',
+        description: 'Showcase your product',
         icon: Rocket,
-        color: '#f7b731',
-        size: 'small',
+        image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-3 row-span-1',
     },
     {
         id: 6,
-        title: 'Awards Ceremony',
-        description: 'Recognition for the most innovative ventures',
-        icon: Trophy,
-        color: '#a55eea',
-        size: 'medium',
+        title: 'Networking',
+        description: 'Connect with founders',
+        icon: Users,
+        image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-3 row-span-1',
     },
 ];
 
@@ -58,21 +58,16 @@ const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-        },
+        transition: { staggerChildren: 0.1 },
     },
 };
 
 const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 40 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: {
-            duration: 0.6,
-            ease: [0.23, 1, 0.32, 1],
-        },
+        transition: { duration: 0.6, ease: [0.23, 1, 0.32, 1] as [number, number, number, number] },
     },
 };
 
@@ -84,15 +79,14 @@ export default function EventsGrid() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="text-center mb-16"
+                className="mb-16"
             >
-                <h2 className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-[var(--text-primary)] mb-4 tracking-tight">
+                <p className="font-mono text-xs text-[#ccff00]/70 tracking-[0.3em] mb-4">
+                    WHAT WE OFFER
+                </p>
+                <h2 className="font-heading text-5xl sm:text-6xl md:text-7xl text-white">
                     Events
                 </h2>
-                <p className="text-xl text-[var(--text-muted)] font-body max-w-2xl mx-auto">
-                    Two days of innovation, inspiration, and incredible opportunities
-                </p>
             </motion.div>
 
             {/* Bento Grid */}
@@ -101,7 +95,7 @@ export default function EventsGrid() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                className="bento-grid auto-rows-[200px]"
             >
                 {events.map((event) => {
                     const Icon = event.icon;
@@ -109,51 +103,45 @@ export default function EventsGrid() {
                         <motion.div
                             key={event.id}
                             variants={cardVariants}
-                            whileHover={{ scale: 1.03, y: -8 }}
-                            className={`
-                bento-card relative p-8 rounded-3xl
-                bg-[var(--bg-secondary)] border border-[var(--accent-secondary)]/10
-                cursor-pointer group overflow-hidden
-                ${event.size === 'large' ? 'md:col-span-2 lg:col-span-2' : ''}
-              `}
-                            style={{
-                                boxShadow: `0 0 0 1px ${event.color}10`,
-                            }}
+                            className={`glass-card group relative rounded-3xl overflow-hidden ${event.span}`}
+                            data-hover="true"
                         >
-                            {/* Hover Gradient Overlay */}
-                            <div
-                                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                                style={{
-                                    background: `radial-gradient(circle at 50% 50%, ${event.color}08, transparent 70%)`,
-                                }}
-                            />
-
-                            {/* Icon */}
-                            <div
-                                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110"
-                                style={{ backgroundColor: `${event.color}15` }}
-                            >
-                                <Icon
-                                    className="w-7 h-7 transition-colors duration-300"
-                                    style={{ color: event.color }}
+                            {/* Background Image with Zoom */}
+                            <div className="absolute inset-0 overflow-hidden">
+                                <img
+                                    src={event.image}
+                                    alt={event.title}
+                                    className="w-full h-full object-cover img-zoom opacity-30"
                                 />
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
                             </div>
 
                             {/* Content */}
-                            <h3 className="text-2xl sm:text-3xl font-heading font-bold text-[var(--text-primary)] mb-3 group-hover:text-[var(--accent-primary)] transition-colors duration-300">
-                                {event.title}
-                            </h3>
-                            <p className="text-[var(--text-muted)] font-body text-lg leading-relaxed">
-                                {event.description}
-                            </p>
+                            <div className="relative h-full p-6 flex flex-col justify-end">
+                                {/* Icon */}
+                                <div className="absolute top-6 left-6">
+                                    <div className="w-12 h-12 rounded-xl glass-card flex items-center justify-center">
+                                        <Icon className="w-6 h-6 text-[#ccff00]" />
+                                    </div>
+                                </div>
 
-                            {/* Corner Accent */}
-                            <div
-                                className="absolute bottom-0 right-0 w-24 h-24 opacity-5 group-hover:opacity-10 transition-opacity duration-300"
-                                style={{
-                                    background: `linear-gradient(135deg, transparent 50%, ${event.color})`,
-                                }}
-                            />
+                                {/* Arrow - appears on hover */}
+                                <div className="absolute top-6 right-6 hover-arrow">
+                                    <div className="w-10 h-10 rounded-full bg-[#ccff00] flex items-center justify-center">
+                                        <ArrowUpRight className="w-5 h-5 text-[#050505]" />
+                                    </div>
+                                </div>
+
+                                {/* Title & Description */}
+                                <div>
+                                    <h3 className="font-heading text-2xl sm:text-3xl text-white title-lift mb-2">
+                                        {event.title}
+                                    </h3>
+                                    <p className="font-body text-white/50 text-sm line-clamp-2">
+                                        {event.description}
+                                    </p>
+                                </div>
+                            </div>
                         </motion.div>
                     );
                 })}

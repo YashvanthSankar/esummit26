@@ -1,99 +1,173 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import MagneticButton from './MagneticButton';
+import { useRef, useEffect, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { ExternalLink } from 'lucide-react';
+import CountdownTimer from './CountdownTimer';
 
 export default function Hero() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLDivElement>(null);
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+    const [textMousePosition, setTextMousePosition] = useState({ x: 0, y: 0 });
+
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            // For section-level spotlight
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                mouseX.set(x);
+                mouseY.set(y);
+                setMousePosition({ x, y });
+            }
+
+            // For text-level spotlight (relative to text element)
+            if (textRef.current) {
+                const textRect = textRef.current.getBoundingClientRect();
+                const textX = e.clientX - textRect.left;
+                const textY = e.clientY - textRect.top;
+                setTextMousePosition({ x: textX, y: textY });
+            }
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, [mouseX, mouseY]);
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.15,
+                delayChildren: 0.3,
+            },
+        },
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 80 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.8,
+                ease: [0.23, 1, 0.32, 1] as [number, number, number, number],
+            },
+        },
+    };
+
     return (
-        <section className="relative min-h-screen flex flex-col items-center justify-center px-6 grid-pattern overflow-hidden">
-            {/* Animated Background Gradients */}
-            <div className="absolute inset-0 overflow-hidden">
-                <motion.div
-                    className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-radial from-[var(--accent-secondary)]/10 to-transparent rounded-full blur-3xl"
-                    animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.5, 0.3],
-                    }}
-                    transition={{
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                    }}
-                />
-                <motion.div
-                    className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-radial from-[var(--accent-primary)]/5 to-transparent rounded-full blur-3xl"
-                    animate={{
-                        scale: [1.2, 1, 1.2],
-                        opacity: [0.2, 0.4, 0.2],
-                    }}
-                    transition={{
-                        duration: 10,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                    }}
-                />
-            </div>
+        <section
+            ref={containerRef}
+            className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden"
+        >
+            {/* Spotlight Effect - follows mouse across entire section */}
+            <div
+                className="pointer-events-none absolute inset-0 z-10"
+                style={{
+                    background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(204, 255, 0, 0.06), transparent 40%)`,
+                }}
+            />
 
-            {/* Main Content */}
-            <div className="relative z-10 text-center max-w-7xl mx-auto">
-                {/* Date Badge */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 mb-8 border border-[var(--accent-secondary)]/30 rounded-full bg-[var(--bg-secondary)]/50 backdrop-blur-sm"
-                >
-                    <span className="w-2 h-2 bg-[var(--accent-primary)] rounded-full animate-pulse" />
-                    <span className="text-sm text-[var(--text-muted)] font-body">
-                        March 2026 • IIITDM Kancheepuram
-                    </span>
-                </motion.div>
-
-                {/* Main Title */}
-                <motion.h1
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4 }}
-                    className="font-heading font-bold tracking-tighter leading-none mb-6"
-                >
-                    <span className="block text-6xl sm:text-8xl md:text-9xl lg:text-[12rem] text-[var(--text-primary)] glow-text">
-                        E-SUMMIT
-                    </span>
-                    <span className="block text-7xl sm:text-9xl md:text-[10rem] lg:text-[14rem] text-[var(--accent-primary)] glow-text">
-                        &apos;26
-                    </span>
-                </motion.h1>
-
-                {/* Subtitle */}
+            {/* Content */}
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="relative z-20 text-center max-w-[95vw]"
+            >
+                {/* Monospace Subtext */}
                 <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.6 }}
-                    className="text-xl sm:text-2xl md:text-3xl text-[var(--text-muted)] font-body font-light mb-12 tracking-wide"
+                    variants={itemVariants}
+                    className="font-mono text-xs sm:text-sm text-[#ccff00]/70 mb-6 tracking-[0.3em]"
                 >
-                    The Premier Entrepreneurship Summit
+                    IIITDM KANCHEEPURAM PRESENTS
                 </motion.p>
 
-                {/* CTA Buttons */}
+                {/* Main Headline with Spotlight Reveal */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.8 }}
-                    className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+                    ref={textRef}
+                    variants={itemVariants}
+                    className="relative"
                 >
-                    <MagneticButton variant="primary" href="#tickets">
+                    {/* Background grey text */}
+                    <h1 className="font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] text-white/10 select-none">
+                        E-SUMMIT
+                    </h1>
+
+                    {/* Revealed text with gradient - NOW RELATIVE TO TEXT */}
+                    <h1
+                        className="absolute inset-0 font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] bg-clip-text text-transparent select-none"
+                        style={{
+                            backgroundImage: `radial-gradient(300px circle at ${textMousePosition.x}px ${textMousePosition.y}px, #ffffff, rgba(204, 255, 0, 0.8), transparent)`,
+                            WebkitBackgroundClip: 'text',
+                        }}
+                    >
+                        E-SUMMIT
+                    </h1>
+                </motion.div>
+
+                {/* Year with glow */}
+                <motion.div variants={itemVariants} className="relative mt-[-1rem]">
+                    <h2 className="font-heading text-[clamp(4rem,15vw,18rem)] leading-[0.85] tracking-[-0.05em] text-[#ccff00] text-glow select-none">
+                        &apos;26
+                    </h2>
+                </motion.div>
+
+                {/* Tagline */}
+                <motion.p
+                    variants={itemVariants}
+                    className="font-body text-lg sm:text-xl text-white/50 mt-8 max-w-xl mx-auto"
+                >
+                    The Premier Entrepreneurship Summit of South India
+                </motion.p>
+
+                {/* Buttons */}
+                <motion.div
+                    variants={itemVariants}
+                    className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12"
+                >
+                    <motion.a
+                        href="#tickets"
+                        className="btn-primary inline-flex items-center gap-2 font-body"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.98 }}
+                        data-hover="true"
+                    >
                         Get Tickets
-                    </MagneticButton>
-                    <MagneticButton
-                        variant="outline"
+                    </motion.a>
+
+                    <motion.a
                         href="https://unstop.com"
-                        external
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-outline inline-flex items-center gap-2 font-body"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.98 }}
+                        data-hover="true"
                     >
                         Register on Unstop
-                    </MagneticButton>
+                        <ExternalLink className="w-4 h-4" />
+                    </motion.a>
                 </motion.div>
-            </div>
 
+                {/* Countdown Timer */}
+                <motion.div
+                    variants={itemVariants}
+                    className="mt-16"
+                >
+                    <CountdownTimer />
+                </motion.div>
+            </motion.div>
+
+            {/* Bottom gradient fade */}
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#050505] to-transparent z-10" />
         </section>
     );
 }

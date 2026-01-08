@@ -1,90 +1,29 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Clock, MapPin } from 'lucide-react';
 
 const scheduleData = [
     {
         day: 'Day 1',
         date: 'March 14, 2026',
         events: [
-            {
-                time: '09:00 AM',
-                title: 'Registration & Welcome Kit',
-                location: 'Main Entrance',
-                duration: '1 hour',
-            },
-            {
-                time: '10:00 AM',
-                title: 'Opening Ceremony',
-                location: 'Auditorium',
-                duration: '1.5 hours',
-                highlight: true,
-            },
-            {
-                time: '12:00 PM',
-                title: 'Keynote: Future of Indian Startups',
-                location: 'Main Stage',
-                duration: '1 hour',
-            },
-            {
-                time: '02:00 PM',
-                title: 'Hackathon Kickoff',
-                location: 'Innovation Hub',
-                duration: '48 hours',
-                highlight: true,
-            },
-            {
-                time: '04:00 PM',
-                title: 'Investor Panel Discussion',
-                location: 'Conference Hall A',
-                duration: '2 hours',
-            },
-            {
-                time: '07:00 PM',
-                title: 'Networking Dinner',
-                location: 'Open Ground',
-                duration: '3 hours',
-            },
+            { time: '09:00', title: 'Registration & Welcome', highlight: false },
+            { time: '10:30', title: 'Opening Ceremony', highlight: true },
+            { time: '12:00', title: 'Keynote: Future of Startups', highlight: false },
+            { time: '14:00', title: 'Hackathon Kickoff', highlight: true },
+            { time: '16:00', title: 'Investor Panel', highlight: false },
+            { time: '19:00', title: 'Networking Dinner', highlight: false },
         ],
     },
     {
         day: 'Day 2',
         date: 'March 15, 2026',
         events: [
-            {
-                time: '09:00 AM',
-                title: 'Pitch Perfect Prelims',
-                location: 'Conference Hall B',
-                duration: '3 hours',
-            },
-            {
-                time: '12:00 PM',
-                title: 'Startup Expo Opens',
-                location: 'Exhibition Hall',
-                duration: '6 hours',
-                highlight: true,
-            },
-            {
-                time: '02:00 PM',
-                title: 'Hackathon Finale & Judging',
-                location: 'Innovation Hub',
-                duration: '2 hours',
-                highlight: true,
-            },
-            {
-                time: '05:00 PM',
-                title: 'Pitch Perfect Finals',
-                location: 'Main Stage',
-                duration: '2 hours',
-            },
-            {
-                time: '07:00 PM',
-                title: 'Awards Ceremony & Closing',
-                location: 'Auditorium',
-                duration: '2 hours',
-                highlight: true,
-            },
+            { time: '09:00', title: 'Pitch Perfect Prelims', highlight: false },
+            { time: '12:00', title: 'Startup Expo Opens', highlight: true },
+            { time: '14:00', title: 'Hackathon Finale', highlight: true },
+            { time: '17:00', title: 'Pitch Perfect Finals', highlight: false },
+            { time: '19:00', title: 'Awards Ceremony', highlight: true },
         ],
     },
 ];
@@ -98,15 +37,14 @@ export default function Schedule() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
+                    className="mb-16"
                 >
-                    <h2 className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-[var(--text-primary)] mb-4 tracking-tight">
+                    <p className="font-mono text-xs text-[#ccff00]/70 tracking-[0.3em] mb-4">
+                        MARK YOUR CALENDAR
+                    </p>
+                    <h2 className="font-heading text-5xl sm:text-6xl md:text-7xl text-white">
                         Schedule
                     </h2>
-                    <p className="text-xl text-[var(--text-muted)] font-body max-w-2xl mx-auto">
-                        Two days packed with learning, building, and connecting
-                    </p>
                 </motion.div>
 
                 {/* Timeline */}
@@ -117,74 +55,59 @@ export default function Schedule() {
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: dayIndex * 0.2 }}
+                            transition={{ delay: dayIndex * 0.2 }}
                         >
                             {/* Day Header */}
                             <div className="flex items-center gap-4 mb-8">
-                                <div className="px-6 py-3 rounded-full bg-[var(--accent-primary)] text-[var(--text-dark)] font-heading font-bold text-xl">
+                                <span className="font-heading text-2xl text-[#ccff00]">
                                     {day.day}
-                                </div>
-                                <span className="text-[var(--text-muted)] font-body text-lg">
+                                </span>
+                                <span className="font-mono text-xs text-white/40 tracking-widest">
                                     {day.date}
                                 </span>
+                                <div className="flex-1 h-px bg-white/10" />
                             </div>
 
                             {/* Events */}
-                            <div className="relative">
-                                {/* Vertical Line */}
-                                <div className="absolute left-[23px] top-0 bottom-0 w-0.5 bg-gradient-to-b from-[var(--accent-secondary)] to-[var(--accent-primary)]" />
+                            <div className="space-y-4">
+                                {day.events.map((event, eventIndex) => (
+                                    <motion.div
+                                        key={event.title}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        whileInView={{ opacity: 1, x: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: eventIndex * 0.05 }}
+                                        className={`group glass-card rounded-xl p-4 flex items-center gap-6 ${event.highlight ? 'border-[#ccff00]/30' : ''
+                                            }`}
+                                        data-hover="true"
+                                    >
+                                        {/* Time */}
+                                        <span className={`font-mono text-sm w-16 ${event.highlight ? 'text-[#ccff00]' : 'text-white/40'
+                                            }`}>
+                                            {event.time}
+                                        </span>
 
-                                <div className="space-y-6">
-                                    {day.events.map((event, eventIndex) => (
+                                        {/* Dot */}
+                                        <div className={`w-3 h-3 rounded-full ${event.highlight
+                                                ? 'bg-[#ccff00] shadow-[0_0_10px_rgba(204,255,0,0.5)]'
+                                                : 'bg-white/20'
+                                            }`} />
+
+                                        {/* Title */}
+                                        <h3 className="font-heading text-lg text-white group-hover:text-[#ccff00] transition-colors flex-1">
+                                            {event.title}
+                                        </h3>
+
+                                        {/* Arrow on hover */}
                                         <motion.div
-                                            key={event.title}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            whileInView={{ opacity: 1, x: 0 }}
-                                            viewport={{ once: true }}
-                                            transition={{ duration: 0.4, delay: eventIndex * 0.1 }}
-                                            className="relative flex gap-6 group"
+                                            className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
-                                            {/* Timeline Dot */}
-                                            <div
-                                                className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 ${event.highlight
-                                                        ? 'bg-[var(--accent-primary)] text-[var(--text-dark)]'
-                                                        : 'bg-[var(--bg-secondary)] border-2 border-[var(--accent-secondary)]/30'
-                                                    }`}
-                                            >
-                                                <Clock className="w-5 h-5" />
-                                            </div>
-
-                                            {/* Event Card */}
-                                            <div
-                                                className={`flex-1 p-6 rounded-2xl transition-all duration-300 group-hover:translate-x-2 ${event.highlight
-                                                        ? 'bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30'
-                                                        : 'bg-[var(--bg-secondary)] border border-[var(--accent-secondary)]/10'
-                                                    }`}
-                                            >
-                                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                                                    <span
-                                                        className={`font-heading font-bold text-lg ${event.highlight
-                                                                ? 'text-[var(--accent-primary)]'
-                                                                : 'text-[var(--accent-secondary)]'
-                                                            }`}
-                                                    >
-                                                        {event.time}
-                                                    </span>
-                                                    <span className="text-sm text-[var(--text-muted)] font-body">
-                                                        {event.duration}
-                                                    </span>
-                                                </div>
-                                                <h3 className="text-xl font-heading font-bold text-[var(--text-primary)] mb-2">
-                                                    {event.title}
-                                                </h3>
-                                                <div className="flex items-center gap-2 text-[var(--text-muted)]">
-                                                    <MapPin className="w-4 h-4" />
-                                                    <span className="text-sm font-body">{event.location}</span>
-                                                </div>
-                                            </div>
+                                            <svg className="w-4 h-4 text-[#ccff00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
                                         </motion.div>
-                                    ))}
-                                </div>
+                                    </motion.div>
+                                ))}
                             </div>
                         </motion.div>
                     ))}

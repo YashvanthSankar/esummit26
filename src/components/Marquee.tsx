@@ -3,36 +3,57 @@
 import { motion } from 'framer-motion';
 
 interface MarqueeProps {
-    text?: string;
-    speed?: 'normal' | 'slow';
     className?: string;
 }
 
-export default function Marquee({
-    text = 'INNOVATE • INCUBATE • ELEVATE',
-    speed = 'normal',
-    className = '',
-}: MarqueeProps) {
-    const animationClass = speed === 'slow' ? 'animate-marquee-slow' : 'animate-marquee';
+export default function Marquee({ className = '' }: MarqueeProps) {
+    const text = 'INNOVATE • DESIGN • MANUFACTURE • BUILD • CREATE • DISRUPT • ';
 
     return (
-        <section className={`relative py-8 overflow-hidden border-y border-[var(--accent-secondary)]/20 bg-[var(--bg-secondary)] ${className}`}>
-            <div className="flex whitespace-nowrap">
-                <div className={`flex ${animationClass}`}>
+        <section className={`relative py-12 overflow-hidden ${className}`}>
+            {/* Forward marquee */}
+            <div className="flex whitespace-nowrap mb-4">
+                <div className="flex animate-marquee">
                     {[...Array(4)].map((_, i) => (
                         <span
                             key={i}
-                            className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-[var(--accent-primary)] mx-8 tracking-tight"
+                            className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-outline mx-4 hover:text-[#ccff00] transition-all cursor-default"
+                            data-hover="true"
                         >
                             {text}
                         </span>
                     ))}
                 </div>
-                <div className={`flex ${animationClass}`}>
+                <div className="flex animate-marquee">
                     {[...Array(4)].map((_, i) => (
                         <span
                             key={i}
-                            className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-[var(--accent-primary)] mx-8 tracking-tight"
+                            className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-outline mx-4 hover:text-[#ccff00] transition-all cursor-default"
+                            data-hover="true"
+                        >
+                            {text}
+                        </span>
+                    ))}
+                </div>
+            </div>
+
+            {/* Reverse marquee */}
+            <div className="flex whitespace-nowrap">
+                <div className="flex animate-marquee-reverse">
+                    {[...Array(4)].map((_, i) => (
+                        <span
+                            key={i}
+                            className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-white/5 mx-4"
+                        >
+                            {text}
+                        </span>
+                    ))}
+                </div>
+                <div className="flex animate-marquee-reverse">
+                    {[...Array(4)].map((_, i) => (
+                        <span
+                            key={i}
+                            className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-white/5 mx-4"
                         >
                             {text}
                         </span>
