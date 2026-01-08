@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+/* CSS Custom Properties */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --accent-primary: #ccff00;
+  --accent-secondary: #6495ED;
+  --text-primary: #ffffff;
+  --text-muted: #a3a3a3;
+  --text-dark: #0a0a0a;
+}
+
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-accent: var(--accent-primary);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-muted: var(--text-muted);
+  --font-heading: 'Bricolage Grotesque', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Space Grotesk', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Noise Texture Overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* Typography */
+.font-heading {
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+.font-body {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.animate-marquee-slow {
+  animation: marquee 35s linear infinite;
+}
+
+/* Magnetic Button Effect */
+.magnetic-btn {
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Card Hover Effects */
+.bento-card {
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.bento-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+/* Grayscale to Color Transition */
+.grayscale-hover {
+  filter: grayscale(100%);
+  transition: filter 0.5s ease;
+}
+
+.grayscale-hover:hover {
+  filter: grayscale(0%);
+}
+
+/* Timeline Connector */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent-secondary), var(--accent-primary));
+  transform: translateX(-50%);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* Selection */
+::selection {
+  background: var(--accent-primary);
+  color: var(--text-dark);
+}
+
+/* Glow Effect */
+.glow {
+  box-shadow: 0 0 60px rgba(204, 255, 0, 0.15);
+}
+
+.glow-text {
+  text-shadow: 0 0 40px rgba(204, 255, 0, 0.3);
+}
+
+/* Grid Pattern Background */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(100, 149, 237, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 149, 237, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
