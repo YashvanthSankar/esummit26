@@ -1,13 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Heart, Instagram, Twitter, Linkedin, Youtube } from 'lucide-react';
+import { Heart, Instagram, Linkedin } from 'lucide-react';
 
 const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Youtube, href: '#', label: 'YouTube' },
+    { icon: Instagram, href: 'https://www.instagram.com/ecell_iiitdm/', label: 'Instagram' },
+    { icon: Linkedin, href: 'https://www.linkedin.com/company/ecell-iiitdm/', label: 'LinkedIn' },
 ];
 
 export default function Footer() {
@@ -24,9 +22,40 @@ export default function Footer() {
                         <h3 className="font-heading text-3xl text-white mb-2">
                             E-SUMMIT <span className="text-[#a855f7]">&apos;26</span>
                         </h3>
-                        <p className="font-body text-white/40 text-sm max-w-xs">
+                        <p className="font-body text-white/40 text-sm max-w-xs mb-6">
                             The premier entrepreneurship summit of South India, hosted at IIITDM Kancheepuram.
                         </p>
+
+                        {/* Logos with background */}
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 w-fit">
+                            <a
+                                href="https://iiitdmk-ecell.vercel.app/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="transition-transform hover:scale-105"
+                                data-hover="true"
+                            >
+                                <img
+                                    src="/ecell.png"
+                                    alt="E-Cell IIITDM"
+                                    className="h-10 w-auto object-contain"
+                                />
+                            </a>
+                            <div className="h-8 w-px bg-white/20"></div>
+                            <a
+                                href="https://www.iiitdm.ac.in"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="transition-transform hover:scale-105 p-2 bg-white rounded-lg"
+                                data-hover="true"
+                            >
+                                <img
+                                    src="/iiitdm.png"
+                                    alt="IIITDM Kancheepuram"
+                                    className="h-10 w-auto object-contain"
+                                />
+                            </a>
+                        </div>
                     </motion.div>
 
                     {/* Quick Links */}
@@ -38,17 +67,60 @@ export default function Footer() {
                     >
                         <h4 className="font-heading text-lg text-white mb-4">Quick Links</h4>
                         <ul className="space-y-2">
-                            {['Events', 'Speakers', 'Schedule', 'Sponsors'].map((link) => (
-                                <li key={link}>
-                                    <a
-                                        href={`#${link.toLowerCase()}`}
-                                        className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
-                                        data-hover="true"
-                                    >
-                                        {link}
-                                    </a>
-                                </li>
-                            ))}
+                            <li>
+                                <a
+                                    href="#events"
+                                    className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
+                                    data-hover="true"
+                                >
+                                    Events
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="#speakers"
+                                    className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
+                                    data-hover="true"
+                                >
+                                    Speakers
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="#schedule"
+                                    className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
+                                    data-hover="true"
+                                >
+                                    Schedule
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="#sponsors"
+                                    className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
+                                    data-hover="true"
+                                >
+                                    Sponsors
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="/dashboard"
+                                    className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
+                                    data-hover="true"
+                                >
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="/login"
+                                    className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
+                                    data-hover="true"
+                                >
+                                    Login
+                                </a>
+                            </li>
                         </ul>
                     </motion.div>
 
