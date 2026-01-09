@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, Loader2, ExternalLink, RefreshCw, ZoomIn, Copy } from 'lucide-react';
 import { toast } from 'sonner';
+import AdminDock from '@/components/AdminDock';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -174,8 +175,12 @@ export default function VerifyPage() {
     }
 
     return (
-        <main className="min-h-screen bg-[#050505] p-6 lg:p-12 relative">
+        <main className="min-h-screen px-4 sm:px-6 py-8 sm:py-12 relative overflow-hidden">
+            {/* Background */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+
+            {/* Admin Dock */}
+            <AdminDock currentPage="verify" />
 
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="flex items-center justify-between mb-12">
