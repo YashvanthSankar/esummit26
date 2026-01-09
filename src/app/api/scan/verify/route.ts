@@ -60,7 +60,22 @@ export async function POST(request: Request) {
             });
         }
 
+        // Step B.1: Fetch Event Details (Name is required for logs)
+        const { data: eventData, error: eventError } = await supabase
+            .from('events')
+            .select('name')
+            .eq('id', eventId)
+            .single();
+
+        if (eventError || !eventData) {
+            return NextResponse.json({
+                success: false,
+                error: 'Invalid Event ID'
+            }, { status: 400 });
+        }
+
         // Step C: Check for duplicate scan
+        // We check using event_id because that's stricter for this specific scan type
         const { data: existingLog } = await supabase
             .from('event_logs')
             .select(`
@@ -97,11 +112,12 @@ export async function POST(request: Request) {
             .insert({
                 ticket_id: ticket.id,
                 event_id: eventId,
+                event_name: eventData.name, // Required field
                 scanned_by: user.id,
             });
 
         if (insertError) {
-            // Could be a race condition duplicate
+            // Could be a race condition duplicate (UNIQUE constraint on ticket_id + event_name)
             if (insertError.code === '23505') {
                 return NextResponse.json({
                     success: false,
