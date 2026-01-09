@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import QRCode from 'react-qr-code';
 import TicketCard from '@/components/TicketCard';
+import DashboardDock from '@/components/DashboardDock';
 import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { compressImage } from '@/lib/utils';
@@ -155,8 +156,16 @@ export default function DashboardPage() {
 
             if (insertError) throw insertError;
 
+            // Success - show message about verification
+            toast.success('Payment submitted successfully!', {
+                description: 'Your payment will be verified shortly. Check back later for your ticket.',
+                duration: 6000,
+            });
+
             // 3. Refresh data
-            window.location.reload();
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
 
         } catch (error: any) {
             console.error('Payment submission error:', error);
@@ -166,26 +175,66 @@ export default function DashboardPage() {
     };
 
     const handleDownloadTicket = async () => {
-        if (!ticketCardRef.current || !profile) return;
+        if (!ticketCardRef.current || !profile) {
+            toast.error('Ticket not ready. Please refresh the page.');
+            return;
+        }
         setDownloading(true);
 
         try {
+            console.log('[Download] Starting ticket download...');
+
+            // Suppress console errors from html2canvas about unsupported color functions
+            const originalError = console.error;
+            console.error = (...args) => {
+                if (args[0]?.includes?.('oklab') || args[0]?.includes?.('color function')) {
+                    return; // Suppress oklab errors
+                }
+                originalError(...args);
+            };
+
+            console.log('[Download] Rendering canvas...');
             const canvas = await html2canvas(ticketCardRef.current, {
                 backgroundColor: '#050505',
                 scale: 2,
                 useCORS: true,
+                allowTaint: true,
                 logging: false,
+                windowWidth: 360,
+                windowHeight: 600,
             });
 
-            const link = document.createElement('a');
-            const safeName = profile.full_name.replace(/[^a-zA-Z0-9]/g, '_');
-            link.download = `ESummit26_Ticket_${safeName}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        } catch (error) {
-            console.error('Download error:', error);
-            toast.error('Failed to download ticket. Please try again.');
-        } finally {
+            // Restore console.error
+            console.error = originalError;
+            console.log('[Download] Canvas rendered successfully');
+
+            // Convert to blob for better download handling
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    toast.error('Failed to generate ticket image.');
+                    setDownloading(false);
+                    return;
+                }
+
+                console.log('[Download] Creating download link...');
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const safeName = profile.full_name.replace(/[^a-zA-Z0-9]/g, '_');
+                link.download = `ESummit26_Ticket_${safeName}.png`;
+                link.href = url;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                console.log('[Download] Download triggered successfully');
+                toast.success('Ticket downloaded successfully!');
+                setDownloading(false);
+            }, 'image/png');
+
+        } catch (error: any) {
+            console.error('[Download] Error:', error);
+            toast.error(`Download failed: ${error.message || 'Unknown error'}`);
             setDownloading(false);
         }
     };
@@ -211,69 +260,60 @@ export default function DashboardPage() {
     }
 
     return (
-        <main className="min-h-screen px-6 py-12 relative overflow-hidden">
+        <main className="min-h-screen px-4 sm:px-6 py-8 sm:py-12 relative overflow-hidden">
             {/* Background */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
+            {/* Dock Navigation */}
+            <DashboardDock userName={profile?.full_name} />
+
             <div className="max-w-4xl mx-auto relative z-10">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-12">
-                    <div>
-                        <h1 className="font-heading text-4xl sm:text-5xl text-white">
-                            Dashboard
-                        </h1>
-                        <p className="font-body text-white/50 mt-2">
-                            Welcome back, {profile?.full_name || 'Participant'}!
-                        </p>
-                    </div>
-
-                    <button
-                        onClick={handleSignOut}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/30 transition-colors font-body text-sm"
-                    >
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                    </button>
+                <div className="mb-8 sm:mb-12">
+                    <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl text-white">
+                        Dashboard
+                    </h1>
+                    <p className="font-body text-white/50 mt-2 text-sm sm:text-base">
+                        Welcome back, {profile?.full_name || 'Participant'}!
+                    </p>
                 </div>
 
                 {/* Profile Card */}
-                <div className="glass-card rounded-3xl p-8 mb-8">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-[#a855f7]/10 flex items-center justify-center">
-                            <User className="w-6 h-6 text-[#a855f7]" />
-                        </div>
-                        <div>
-                            <h2 className="font-heading text-2xl text-white">Your Profile</h2>
-                            <span className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/20 mt-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
-                                <span className="font-mono text-[10px] text-[#a855f7] uppercase">
-                                    {profile?.role}
-                                </span>
-                            </span>
-                        </div>
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass-card rounded-3xl p-6 sm:p-8 mb-8 sm:mb-12"
+                >
+                    <div className="flex items-center gap-3 sm:gap-4 mb-6">
+                        <User className="w-6 h-6 sm:w-8 sm:h-8 text-[#a855f7]" />
+                        <h2 className="font-heading text-xl sm:text-2xl text-white">Your Profile</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-xl bg-white/5">
+                    <div className="inline-block px-3 py-1 rounded-full bg-[#a855f7]/10 border border-[#a855f7]/30 text-[#a855f7] text-xs font-mono mb-6">
+                        {profile?.role}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
                             <p className="font-mono text-xs text-white/40 mb-1">EMAIL</p>
-                            <p className="font-body text-white">{profile?.email}</p>
+                            <p className="font-body text-white text-sm sm:text-base break-all">{profile?.email}</p>
                         </div>
-                        <div className="p-4 rounded-xl bg-white/5">
+                        <div>
                             <p className="font-mono text-xs text-white/40 mb-1">PHONE</p>
-                            <p className="font-body text-white">{profile?.phone}</p>
+                            <p className="font-body text-white text-sm sm:text-base">{profile?.phone}</p>
                         </div>
-                        <div className="p-4 rounded-xl bg-white/5">
+                        <div>
                             <p className="font-mono text-xs text-white/40 mb-1">COLLEGE</p>
-                            <p className="font-body text-white">{profile?.college_name}</p>
+                            <p className="font-body text-white text-sm sm:text-base">{profile?.college_name}</p>
                         </div>
                         {profile?.roll_number && (
-                            <div className="p-4 rounded-xl bg-white/5">
+                            <div>
                                 <p className="font-mono text-xs text-white/40 mb-1">ROLL NUMBER</p>
-                                <p className="font-body text-white">{profile?.roll_number}</p>
+                                <p className="font-body text-white text-sm sm:text-base">{profile?.roll_number}</p>
                             </div>
                         )}
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Tickets Section */}
                 <div className="glass-card rounded-3xl p-8">

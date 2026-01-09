@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Search, User, Mail, Phone, Ticket } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import AdminDock from '@/components/AdminDock';
 
 interface UserData {
     id: string;
@@ -80,6 +81,9 @@ export default function UsersPage() {
 
     return (
         <main className="p-6 lg:p-12 space-y-8 min-h-screen bg-[#050505]">
+            {/* Admin Dock */}
+            <AdminDock currentPage="users" />
+
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="font-heading text-3xl text-white">All Users</h1>
@@ -139,8 +143,8 @@ export default function UsersPage() {
                                         <span className="font-bold text-white uppercase">{user.ticket.type} Pass</span>
                                     </div>
                                     <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase border ${user.ticket.status === 'paid' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
-                                            user.ticket.status === 'pending_verification' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
-                                                'bg-red-500/20 text-red-400 border-red-500/30'
+                                        user.ticket.status === 'pending_verification' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                            'bg-red-500/20 text-red-400 border-red-500/30'
                                         }`}>
                                         {user.ticket.status.replace('_', ' ')}
                                     </div>

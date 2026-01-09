@@ -4,53 +4,113 @@ import { motion } from 'framer-motion';
 import { ArrowUpRight, Code, Lightbulb, Mic, Users, Trophy, Rocket } from 'lucide-react';
 
 const events = [
+    // Flagship Events
     {
         id: 1,
-        title: 'Hackathon',
-        description: '48-hour coding marathon to build innovative solutions',
-        icon: Code,
-        image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop',
-        span: 'col-span-4 md:col-span-8 row-span-2',
+        title: 'Pitch',
+        description: 'Present your startup idea to top VCs',
+        prize: '₹30,000',
+        breakdown: '15k, 9k, 6k',
+        category: 'Flagship',
+        icon: Lightbulb,
+        image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-6 row-span-2',
     },
     {
         id: 2,
-        title: 'Pitch Perfect',
-        description: 'Present your startup idea to top VCs',
+        title: 'MUN',
+        description: 'Model United Nations - Debate and diplomacy',
+        prize: '₹30,000',
+        category: 'Flagship',
+        icon: Mic,
+        image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-6 row-span-2',
+    },
+    // Formal Events
+    {
+        id: 3,
+        title: 'Ideathon',
+        description: 'Innovative problem-solving competition',
+        prize: '₹18,000',
+        breakdown: '9k, 6k, 3k',
+        category: 'Formal',
         icon: Lightbulb,
-        image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=400&fit=crop',
+        image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
     },
     {
-        id: 3,
+        id: 4,
+        title: 'Quiz',
+        description: 'Test your knowledge across domains',
+        prize: '₹18,000',
+        category: 'Formal',
+        icon: Trophy,
+        image: 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=600&h=400&fit=crop',
+        span: 'col-span-4 row-span-1',
+    },
+    {
+        id: 5,
+        title: 'Case Study',
+        description: 'Solve real-world business challenges',
+        prize: '₹15,000',
+        breakdown: '7.5k, 5k, 2.5k',
+        category: 'Formal',
+        icon: Code,
+        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop',
+        span: 'col-span-4 row-span-1',
+    },
+    {
+        id: 6,
+        title: 'Best Manager',
+        description: 'Showcase your management skills',
+        prize: '₹12,000',
+        breakdown: '6k, 4k, 2k',
+        category: 'Formal',
+        icon: Users,
+        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-6 row-span-1',
+    },
+    {
+        id: 7,
+        title: 'Bid & Build',
+        description: 'Strategic bidding and resource management',
+        prize: '₹12,000',
+        category: 'Formal',
+        icon: Rocket,
+        image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
+        span: 'col-span-4 md:col-span-6 row-span-1',
+    },
+    // Informal Events
+    {
+        id: 8,
         title: 'IPL Auction',
         description: 'Experience the thrill of bidding wars',
+        prize: '₹12,000',
+        breakdown: '4k × 3',
+        category: 'Informal',
         icon: Trophy,
         image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
     },
     {
-        id: 4,
-        title: 'Keynote Sessions',
-        description: 'Learn from industry titans',
-        icon: Mic,
-        image: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop',
-        span: 'col-span-4 md:col-span-6 row-span-1',
+        id: 9,
+        title: 'Geoguessr',
+        description: 'Test your geography knowledge',
+        prize: '₹4,000',
+        category: 'Informal',
+        icon: Trophy,
+        image: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=600&h=400&fit=crop',
+        span: 'col-span-4 row-span-1',
     },
     {
-        id: 5,
-        title: 'Startup Expo',
-        description: 'Showcase your product',
-        icon: Rocket,
-        image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&h=400&fit=crop',
-        span: 'col-span-4 md:col-span-3 row-span-1',
-    },
-    {
-        id: 6,
-        title: 'Networking',
-        description: 'Connect with founders',
+        id: 10,
+        title: 'Kalabazaar',
+        description: 'Cultural marketplace and trading game',
+        prize: '₹4,000',
+        category: 'Informal',
         icon: Users,
-        image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&h=400&fit=crop',
-        span: 'col-span-4 md:col-span-3 row-span-1',
+        image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600&h=400&fit=crop',
+        span: 'col-span-4 row-span-1',
     },
 ];
 
@@ -125,12 +185,16 @@ export default function EventsGrid() {
                                     </div>
                                 </div>
 
-                                {/* Arrow - appears on hover */}
-                                <div className="absolute top-6 right-6 hover-arrow">
-                                    <div className="w-10 h-10 rounded-full bg-[#a855f7] flex items-center justify-center">
-                                        <ArrowUpRight className="w-5 h-5 text-[#050505]" />
+                                {/* Prize Badge */}
+                                {event.prize && (
+                                    <div className="absolute top-6 right-6">
+                                        <div className="px-3 py-1.5 rounded-full bg-[#a855f7]/20 border border-[#a855f7]/40 backdrop-blur-sm">
+                                            <span className="font-mono text-xs text-[#a855f7] font-bold">
+                                                {event.prize}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {/* Title & Description */}
                                 <div>
@@ -140,6 +204,11 @@ export default function EventsGrid() {
                                     <p className="font-body text-white/50 text-sm line-clamp-2">
                                         {event.description}
                                     </p>
+                                    {event.breakdown && (
+                                        <p className="font-mono text-xs text-[#a855f7]/60 mt-2">
+                                            {event.breakdown}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

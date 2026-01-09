@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Scanner } from '@yudiel/react-qr-scanner';
-import { ArrowLeft, ScanLine } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, XCircle, AlertTriangle, ArrowLeft, Ticket, Users, Trophy, ScanLine } from 'lucide-react';
+import AdminDock from '@/components/AdminDock';
 
 type Event = {
     id: string;
@@ -116,6 +117,9 @@ export default function AdminScanPage() {
     return (
         <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 relative">
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+
+            {/* Admin Dock */}
+            <AdminDock currentPage="scan" />
 
             <AnimatePresence mode="wait">
                 {!selectedEvent ? (
