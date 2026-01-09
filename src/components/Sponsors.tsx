@@ -3,14 +3,12 @@
 import { motion } from 'framer-motion';
 
 const sponsors = [
-    { name: 'Google', emoji: '🔵' },
-    { name: 'Microsoft', emoji: '🟦' },
-    { name: 'Amazon', emoji: '🟠' },
-    { name: 'Meta', emoji: '🔷' },
-    { name: 'Apple', emoji: '⚪' },
-    { name: 'Netflix', emoji: '🔴' },
-    { name: 'Spotify', emoji: '🟢' },
-    { name: 'Adobe', emoji: '🔺' },
+    { name: 'Unstop', logo: '/sponsors/unstop.png' },
+    { name: 'StockGro', logo: '/sponsors/stockgro.png' },
+    { name: 'GeeksforGeeks', logo: '/sponsors/gfg.png' },
+    { name: 'StartupNews.fyi', logo: '/sponsors/startupnewsfyi.png' },
+    { name: '2IIM', logo: '/sponsors/2iim.png' },
+    { name: 'RiKun', logo: '/sponsors/rikun.png' },
 ];
 
 export default function Sponsors() {
@@ -47,11 +45,20 @@ export default function Sponsors() {
                                 className="mx-6 group"
                                 data-hover="true"
                             >
-                                <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100">
-                                    <span className="text-4xl">{sponsor.emoji}</span>
-                                    <span className="font-heading text-lg text-white/70 group-hover:text-[#a855f7] transition-colors">
+                                <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 min-w-[200px] h-[120px] justify-center">
+                                    {/* <span className="text-4xl">{sponsor.emoji}</span> */}
+                                    <img
+                                        src={sponsor.logo}
+                                        alt={sponsor.name}
+                                        className="h-12 w-auto object-contain"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            e.currentTarget.parentElement!.innerText = sponsor.name; // Fallback to text
+                                        }}
+                                    />
+                                    {/* <span className="font-heading text-lg text-white/70 group-hover:text-[#a855f7] transition-colors">
                                         {sponsor.name}
-                                    </span>
+                                    </span> */}
                                 </div>
                             </div>
                         ))}
@@ -63,11 +70,16 @@ export default function Sponsors() {
                                 className="mx-6 group"
                                 data-hover="true"
                             >
-                                <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100">
-                                    <span className="text-4xl">{sponsor.emoji}</span>
-                                    <span className="font-heading text-lg text-white/70 group-hover:text-[#a855f7] transition-colors">
-                                        {sponsor.name}
-                                    </span>
+                                <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 min-w-[200px] h-[120px] justify-center">
+                                    <img
+                                        src={sponsor.logo}
+                                        alt={sponsor.name}
+                                        className="h-12 w-auto object-contain"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            e.currentTarget.parentElement!.innerText = sponsor.name;
+                                        }}
+                                    />
                                 </div>
                             </div>
                         ))}
@@ -86,7 +98,7 @@ export default function Sponsors() {
                     Interested in sponsoring E-Summit &apos;26?
                 </p>
                 <a
-                    href="mailto:sponsors@esummit.iiitdm.ac.in"
+                    href="mailto:ecell@iiitdm.ac.in"
                     className="btn-outline inline-flex items-center gap-2 font-body text-sm"
                     data-hover="true"
                 >
