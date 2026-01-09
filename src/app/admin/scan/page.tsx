@@ -49,16 +49,22 @@ export default function AdminScanPage() {
     const handleScan = async (result: string) => {
         if (!selectedEvent || scanResult.status === 'SUCCESS' || scanResult.status === 'DUPLICATE') return;
 
-        // Basic debounce/lock to prevent multiple hits
-        // In a real app we might want a "Scan Next" button to reset state
-        // For now, let's just process it.
-
         try {
+            // Parse QR code JSON: { s: "TICKET_...", type: "duo" }
+            let qrSecret: string;
+            try {
+                const qrData = JSON.parse(result);
+                qrSecret = qrData.s;
+            } catch {
+                // If not JSON, assume it's the raw secret
+                qrSecret = result;
+            }
+
             const response = await fetch('/api/scan/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    qrSecret: result,
+                    qrSecret: qrSecret,
                     eventId: selectedEvent.id
                 })
             });
@@ -85,11 +91,6 @@ export default function AdminScanPage() {
                 });
                 playAudio('error');
             }
-
-            // Auto-reset after 3 seconds for valid/invalid scans to allow next person? 
-            // The prompt says "Action: Insert a new row... Show GREEN Overlay".
-            // It doesn't specify auto-reset, but usually a button "Scan Next" is better or auto-reset.
-            // I'll add a "Scan Next" button for better UX.
 
         } catch (error) {
             setScanResult({ status: 'ERROR', message: 'Network or Server Error' });
@@ -191,7 +192,7 @@ export default function AdminScanPage() {
                             {/* Overlays */}
                             {scanResult.status !== 'IDLE' && (
                                 <div className={`absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 backdrop-blur-md ${scanResult.status === 'SUCCESS' ? 'bg-green-500/80' :
-                                        scanResult.status === 'DUPLICATE' ? 'bg-red-500/80' : 'bg-orange-500/80'
+                                    scanResult.status === 'DUPLICATE' ? 'bg-red-500/80' : 'bg-orange-500/80'
                                     }`}>
                                     <h3 className="text-3xl font-heading mb-2 uppercase tracking-tighter shadow-black drop-shadow-lg">
                                         {scanResult.status === 'SUCCESS' ? 'VERIFIED' : scanResult.status}

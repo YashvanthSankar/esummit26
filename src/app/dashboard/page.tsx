@@ -9,6 +9,7 @@ import html2canvas from 'html2canvas';
 import QRCode from 'react-qr-code';
 import TicketCard from '@/components/TicketCard';
 import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { compressImage } from '@/lib/utils';
 
 // Specific Configuration from Request
@@ -114,7 +115,7 @@ export default function DashboardPage() {
 
         // Validation: Expect EITHER UTR OR Payment Proof
         if (!utr && !paymentProof) {
-            alert('Please provide EITHER a Transaction UTR OR a Payment Screenshot to verify.');
+            toast.error('Please provide EITHER a Transaction UTR OR a Payment Screenshot to verify.');
             return;
         }
 
@@ -159,7 +160,7 @@ export default function DashboardPage() {
 
         } catch (error: any) {
             console.error('Payment submission error:', error);
-            alert(error.message || 'Failed to submit payment proof. Please try again.');
+            toast.error(error.message || 'Failed to submit payment proof. Please try again.');
             setUploading(false);
         }
     };
@@ -183,7 +184,7 @@ export default function DashboardPage() {
             link.click();
         } catch (error) {
             console.error('Download error:', error);
-            alert('Failed to download ticket. Please try again.');
+            toast.error('Failed to download ticket. Please try again.');
         } finally {
             setDownloading(false);
         }

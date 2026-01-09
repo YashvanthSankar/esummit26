@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, Loader2, ExternalLink, RefreshCw, ZoomIn, Copy } from 'lucide-react';
+import { toast } from 'sonner';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -148,7 +149,7 @@ export default function VerifyPage() {
 
         } catch (error) {
             console.error('Verification error:', error);
-            alert('Action failed. Please try again.');
+            toast.error('Action failed. Please try again.');
         } finally {
             setProcessing(null);
         }

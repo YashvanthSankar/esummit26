@@ -1,6 +1,4 @@
 import { Resend } from 'resend';
-import { createElement } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import PaymentApprovedEmail from './emails/payment-approved';
 import PaymentRejectedEmail from './emails/payment-rejected';
 
@@ -21,15 +19,11 @@ export async function sendPaymentApprovalEmail(
     amount: number
 ): Promise<EmailResult> {
     try {
-        const emailHtml = renderToStaticMarkup(
-            createElement(PaymentApprovedEmail, { userName, ticketType, amount })
-        );
-
         const { data, error } = await resend.emails.send({
             from: process.env.RESEND_FROM_EMAIL || 'E-Summit <noreply@esummit.iiitdm.ac.in>',
             to: [to],
             subject: '✅ Payment Approved - E-Summit \'26',
-            html: emailHtml,
+            react: PaymentApprovedEmail({ userName, ticketType, amount }) as React.ReactElement,
         });
 
         if (error) {
@@ -55,15 +49,11 @@ export async function sendPaymentRejectionEmail(
     amount: number
 ): Promise<EmailResult> {
     try {
-        const emailHtml = renderToStaticMarkup(
-            createElement(PaymentRejectedEmail, { userName, ticketType, amount })
-        );
-
         const { data, error } = await resend.emails.send({
             from: process.env.RESEND_FROM_EMAIL || 'E-Summit <noreply@esummit.iiitdm.ac.in>',
             to: [to],
             subject: '⚠️ Payment Verification Failed - E-Summit \'26',
-            html: emailHtml,
+            react: PaymentRejectedEmail({ userName, ticketType, amount }) as React.ReactElement,
         });
 
         if (error) {

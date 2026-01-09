@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { User, Phone, Building2, IdCard, ArrowRight, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function OnboardingPage() {
     const supabase = createClient();
@@ -77,7 +78,7 @@ export default function OnboardingPage() {
         } else {
             console.error(error);
             setSubmitting(false);
-            alert('Error updating profile. Please try again.');
+            toast.error('Error updating profile. Please try again.');
         }
     };
 
