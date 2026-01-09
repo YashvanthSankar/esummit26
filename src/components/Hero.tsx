@@ -149,7 +149,7 @@ export default function Hero() {
                     </motion.a>
 
                     <motion.a
-                        href="https://unstop.com"
+                        href="https://unstop.com/college-fests/e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-431947"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-outline inline-flex items-center gap-2 font-body"
