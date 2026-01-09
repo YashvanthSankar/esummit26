@@ -15,6 +15,7 @@ const events = [
         icon: Lightbulb,
         image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=400&fit=crop',
         span: 'col-span-4 md:col-span-6 row-span-2',
+        unstopLink: 'https://unstop.com/competitions/pitch-perfect-30-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-k-1620201',
     },
     {
         id: 2,
@@ -69,6 +70,7 @@ const events = [
         icon: Users,
         image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=400&fit=crop',
         span: 'col-span-4 md:col-span-6 row-span-1',
+        unstopLink: 'https://unstop.com/competitions/best-manager-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kanch-1620103',
     },
     {
         id: 7,
@@ -91,6 +93,7 @@ const events = [
         icon: Trophy,
         image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
+        unstopLink: 'https://unstop.com/events/ipl-auction-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-1620583',
     },
     {
         id: 9,
@@ -101,6 +104,7 @@ const events = [
         icon: Trophy,
         image: 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
+        unstopLink: 'https://unstop.com/quiz/geoguesser-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-1620597',
     },
     {
         id: 10,
@@ -159,12 +163,15 @@ export default function EventsGrid() {
             >
                 {events.map((event) => {
                     const Icon = event.icon;
+                    const unstopMainLink = 'https://unstop.com/college-fests/e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-431947';
+
                     return (
                         <motion.div
                             key={event.id}
                             variants={cardVariants}
-                            className={`glass-card group relative rounded-3xl overflow-hidden ${event.span}`}
+                            className={`glass-card group relative rounded-3xl overflow-hidden cursor-pointer ${event.span}`}
                             data-hover="true"
+                            onClick={() => window.open(event.unstopLink || unstopMainLink, '_blank')}
                         >
                             {/* Background Image with Zoom */}
                             <div className="absolute inset-0 overflow-hidden">
@@ -185,17 +192,6 @@ export default function EventsGrid() {
                                     </div>
                                 </div>
 
-                                {/* Prize Badge */}
-                                {event.prize && (
-                                    <div className="absolute top-6 right-6">
-                                        <div className="px-3 py-1.5 rounded-full bg-[#a855f7]/20 border border-[#a855f7]/40 backdrop-blur-sm">
-                                            <span className="font-mono text-xs text-[#a855f7] font-bold">
-                                                {event.prize}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-
                                 {/* Title & Description */}
                                 <div>
                                     <h3 className="font-heading text-2xl sm:text-3xl text-white title-lift mb-2">
@@ -204,12 +200,39 @@ export default function EventsGrid() {
                                     <p className="font-body text-white/50 text-sm line-clamp-2">
                                         {event.description}
                                     </p>
+                                    {/* Prize details temporarily hidden
                                     {event.breakdown && (
-                                        <p className="font-mono text-xs text-[#a855f7]/60 mt-2">
+                                        <p className="text-xs text-white/40 mt-1">
                                             {event.breakdown}
                                         </p>
                                     )}
+                                    
+                                    {event.prize && (
+                                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#a855f7]/10 border border-[#a855f7]/30 mt-3">
+                                            <span className="font-heading text-sm text-[#a855f7]">{event.prize}</span>
+                                        </div>
+                                    )}
+                                    */}
+
+                                    {/* Register Button */}
+                                    {event.unstopLink && (
+                                        <a
+                                            href={event.unstopLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#a855f7] hover:bg-[#9333ea] text-white text-sm font-bold transition-colors"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            Register on Unstop
+                                            <ArrowUpRight className="w-4 h-4" />
+                                        </a>
+                                    )}
                                 </div>
+                            </div>
+
+                            {/* Arrow Icon */}
+                            <div className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center group-hover:bg-[#a855f7] transition-all duration-300">
+                                <ArrowUpRight className="w-5 h-5 text-white/70 group-hover:text-white group-hover:rotate-45 transition-all duration-300" />
                             </div>
                         </motion.div>
                     );
