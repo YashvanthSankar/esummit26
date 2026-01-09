@@ -22,7 +22,7 @@ export default function Footer() {
                         viewport={{ once: true }}
                     >
                         <h3 className="font-heading text-3xl text-white mb-2">
-                            E-SUMMIT <span className="text-[#ccff00]">&apos;26</span>
+                            E-SUMMIT <span className="text-[#a855f7]">&apos;26</span>
                         </h3>
                         <p className="font-body text-white/40 text-sm max-w-xs">
                             The premier entrepreneurship summit of South India, hosted at IIITDM Kancheepuram.
@@ -42,7 +42,7 @@ export default function Footer() {
                                 <li key={link}>
                                     <a
                                         href={`#${link.toLowerCase()}`}
-                                        className="font-body text-white/40 hover:text-[#ccff00] transition-colors text-sm"
+                                        className="font-body text-white/40 hover:text-[#a855f7] transition-colors text-sm"
                                         data-hover="true"
                                     >
                                         {link}
@@ -68,7 +68,7 @@ export default function Footer() {
                                         key={social.label}
                                         href={social.href}
                                         aria-label={social.label}
-                                        className="glass-card w-10 h-10 rounded-xl flex items-center justify-center text-white/40 hover:text-[#ccff00] transition-colors"
+                                        className="glass-card w-10 h-10 rounded-xl flex items-center justify-center text-white/40 hover:text-[#a855f7] transition-colors"
                                         data-hover="true"
                                     >
                                         <Icon className="w-5 h-5" />
@@ -90,9 +90,28 @@ export default function Footer() {
                     <p className="font-body text-white/30 text-sm">
                         © 2026 E-Summit. All rights reserved.
                     </p>
+
+                    <div className="flex items-center gap-4">
+                        <a
+                            href="/terms"
+                            className="font-body text-white/30 hover:text-[#a855f7] transition-colors text-sm"
+                            data-hover="true"
+                        >
+                            Terms
+                        </a>
+                        <span className="text-white/20">•</span>
+                        <a
+                            href="/privacy"
+                            className="font-body text-white/30 hover:text-[#a855f7] transition-colors text-sm"
+                            data-hover="true"
+                        >
+                            Privacy
+                        </a>
+                    </div>
+
                     <p className="font-body text-white/30 text-sm flex items-center gap-2">
                         Made with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> by{' '}
-                        <span className="text-[#ccff00] font-semibold">E-Cell IIITDM</span>
+                        <span className="text-[#a855f7] font-semibold">E-Cell IIITDM</span>
                     </p>
                 </motion.div>
             </div>

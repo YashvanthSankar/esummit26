@@ -81,7 +81,7 @@ export default function EventsGrid() {
                 viewport={{ once: true }}
                 className="mb-16"
             >
-                <p className="font-mono text-xs text-[#ccff00]/70 tracking-[0.3em] mb-4">
+                <p className="font-mono text-xs text-[#a855f7]/70 tracking-[0.3em] mb-4">
                     WHAT WE OFFER
                 </p>
                 <h2 className="font-heading text-5xl sm:text-6xl md:text-7xl text-white">
@@ -121,13 +121,13 @@ export default function EventsGrid() {
                                 {/* Icon */}
                                 <div className="absolute top-6 left-6">
                                     <div className="w-12 h-12 rounded-xl glass-card flex items-center justify-center">
-                                        <Icon className="w-6 h-6 text-[#ccff00]" />
+                                        <Icon className="w-6 h-6 text-[#a855f7]" />
                                     </div>
                                 </div>
 
                                 {/* Arrow - appears on hover */}
                                 <div className="absolute top-6 right-6 hover-arrow">
-                                    <div className="w-10 h-10 rounded-full bg-[#ccff00] flex items-center justify-center">
+                                    <div className="w-10 h-10 rounded-full bg-[#a855f7] flex items-center justify-center">
                                         <ArrowUpRight className="w-5 h-5 text-[#050505]" />
                                     </div>
                                 </div>

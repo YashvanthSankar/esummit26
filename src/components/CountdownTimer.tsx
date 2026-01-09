@@ -58,11 +58,11 @@ export default function CountdownTimer() {
             {/* Event Info */}
             <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-white/50 font-body text-xs sm:text-sm">
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-[#ccff00]" />
+                    <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-[#a855f7]" />
                     <span>30-31 JAN & 1 FEB 2026</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
-                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#ccff00]" />
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#a855f7]" />
                     <span>CHENNAI, INDIA</span>
                 </div>
             </div>
@@ -95,7 +95,7 @@ export default function CountdownTimer() {
                             </div>
 
                             {/* Label */}
-                            <span className="mt-1 sm:mt-2 text-[8px] sm:text-[10px] md:text-xs font-heading font-bold tracking-wider sm:tracking-widest text-[#ccff00]/70">
+                            <span className="mt-1 sm:mt-2 text-[8px] sm:text-[10px] md:text-xs font-heading font-bold tracking-wider sm:tracking-widest text-[#a855f7]/70">
                                 {unit.label}
                             </span>
                         </div>
@@ -105,7 +105,7 @@ export default function CountdownTimer() {
                             <motion.span
                                 animate={{ opacity: [1, 0.3, 1] }}
                                 transition={{ duration: 1, repeat: Infinity }}
-                                className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-mono font-bold text-[#ccff00] mx-0.5 sm:mx-1 md:mx-2 -mt-4 sm:-mt-6"
+                                className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-mono font-bold text-[#a855f7] mx-0.5 sm:mx-1 md:mx-2 -mt-4 sm:-mt-6"
                                 style={{ fontFamily: "'JetBrains Mono', monospace" }}
                             >
                                 :

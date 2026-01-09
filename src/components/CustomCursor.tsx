@@ -91,7 +91,7 @@ export default function CustomCursor() {
                     }}
                     transition={{ duration: 0.2 }}
                 >
-                    <div className="w-3 h-3 bg-[#ccff00] rounded-full" />
+                    <div className="w-3 h-3 bg-[#a855f7] rounded-full" />
                 </motion.div>
             </motion.div>
 
@@ -104,7 +104,7 @@ export default function CustomCursor() {
                 }}
             >
                 <motion.div
-                    className="relative -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#ccff00]/50"
+                    className="relative -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#a855f7]/50"
                     animate={{
                         width: isHovering ? 60 : 0,
                         height: isHovering ? 60 : 0,

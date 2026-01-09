@@ -32,13 +32,6 @@ const speakers = [
         company: 'ZestMoney',
         image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop',
     },
-    {
-        id: 5,
-        name: 'Deepa Nair',
-        role: 'Managing Director',
-        company: 'Accel Partners',
-        image: 'https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&h=500&fit=crop',
-    },
 ];
 
 export default function SpeakersCarousel() {
@@ -76,7 +69,7 @@ export default function SpeakersCarousel() {
                     viewport={{ once: true }}
                     className="mb-16"
                 >
-                    <p className="font-mono text-xs text-[#ccff00]/70 tracking-[0.3em] mb-4">
+                    <p className="font-mono text-xs text-[#a855f7]/70 tracking-[0.3em] mb-4">
                         LEARN FROM THE BEST
                     </p>
                     <h2 className="font-heading text-5xl sm:text-6xl md:text-7xl text-white">
@@ -85,7 +78,7 @@ export default function SpeakersCarousel() {
                 </motion.div>
 
                 {/* Speakers Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {speakers.map((speaker, index) => (
                         <motion.div
                             key={speaker.id}
@@ -116,7 +109,7 @@ export default function SpeakersCarousel() {
                                     >
                                         {speaker.name}
                                     </motion.h3>
-                                    <p className="font-body text-sm text-[#ccff00]">
+                                    <p className="font-body text-sm text-[#a855f7]">
                                         {speaker.role}
                                     </p>
                                     <p className="font-body text-xs text-white/40">
