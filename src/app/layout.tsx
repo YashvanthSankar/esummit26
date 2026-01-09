@@ -19,7 +19,13 @@ export const metadata: Metadata = {
   },
 };
 
+import { Bricolage_Grotesque } from 'next/font/google';
 import CustomCursor from "@/components/CustomCursor";
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
+});
 
 export default function RootLayout({
   children,
@@ -28,12 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-      </head>
-      <body className="antialiased bg-[#050505]">
+      <body className={`antialiased bg-[#050505] ${bricolage.variable} font-sans`}>
         <CustomCursor />
         {children}
       </body>

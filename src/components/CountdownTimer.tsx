@@ -87,7 +87,7 @@ export default function CountdownTimer() {
                                             damping: 30,
                                         }}
                                         className="block text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-mono font-bold text-white text-center tabular-nums"
-                                        style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                                        style={{ fontVariantNumeric: 'tabular-nums' }}
                                     >
                                         {String(unit.value).padStart(2, '0')}
                                     </motion.span>
@@ -106,7 +106,7 @@ export default function CountdownTimer() {
                                 animate={{ opacity: [1, 0.3, 1] }}
                                 transition={{ duration: 1, repeat: Infinity }}
                                 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-mono font-bold text-[#a855f7] mx-0.5 sm:mx-1 md:mx-2 -mt-4 sm:-mt-6"
-                                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+                                style={{ opacity: 0 }}
                             >
                                 :
                             </motion.span>
