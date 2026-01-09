@@ -1,7 +1,7 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import { TICKET_PRICES } from '@/types/payment';
+import { TICKET_PRICES, UPI_CONFIG } from '@/types/payment';
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,9 +11,9 @@ import TicketCard from '@/components/TicketCard';
 import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { compressImage } from '@/lib/utils';
 
-// TODO: Replace with your actual UPI ID
-const UPI_ID = 'your-merchant-upi@bank';
-const RECIPIENT_NAME = 'E-Summit IIITDM';
+// Specific Configuration from Request
+const UPI_ID = UPI_CONFIG.VPA;
+const RECIPIENT_NAME = UPI_CONFIG.NAME;
 
 interface Profile {
     id: string;
@@ -29,9 +29,10 @@ interface UserTicket {
     id: string;
     type: 'solo' | 'duo' | 'quad';
     amount: number;
-    status: 'pending' | 'paid' | 'failed';
+    status: 'pending' | 'paid' | 'failed' | 'pending_verification' | 'rejected';
     qr_secret: string;
     pax_count: number;
+    utr?: string;
 }
 
 export default function DashboardPage() {
@@ -49,21 +50,31 @@ export default function DashboardPage() {
     const [selectedPass, setSelectedPass] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
+    const [utr, setUtr] = useState('');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
+                // Should be handled by middleware, but client-side backup:
                 window.location.href = '/login';
                 return;
             }
 
-            const { data: profileData } = await supabase
+            const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', user.id)
                 .single();
+
+            // Security: If no profile data (e.g. RLS failure or incomplete), don't show dashboard
+            if (profileError || !profileData) {
+                console.error('Profile load error:', profileError);
+                // Redirect to login or onboarding if profile is missing
+                window.location.href = '/login';
+                return;
+            }
 
             if (profileData) {
                 setProfile(profileData);
@@ -98,41 +109,52 @@ export default function DashboardPage() {
         }
     };
 
-
     const handleSubmitPayment = async () => {
-        if (!selectedPass || !paymentProof || !profile) return;
+        if (!selectedPass || !profile) return;
+
+        // Validation: Expect EITHER UTR OR Payment Proof
+        if (!utr && !paymentProof) {
+            alert('Please provide EITHER a Transaction UTR OR a Payment Screenshot to verify.');
+            return;
+        }
+
         setUploading(true);
 
         try {
-            // 1. Compress image
-            const compressedFile = await compressImage(paymentProof);
+            let screenshotPath = null;
 
-            // 2. Upload screenshot
-            const fileExt = 'jpg'; // We convert everything to JPEG
-            const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
-            const { error: uploadError, data: uploadData } = await supabase
-                .storage
-                .from('payment-proofs')
-                .upload(fileName, compressedFile);
+            // 1. Upload screenshot if exists
+            if (paymentProof) {
+                const compressedFile = await compressImage(paymentProof);
+                const fileExt = 'jpg';
+                const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
+                const { error: uploadError, data: uploadData } = await supabase
+                    .storage
+                    .from('payment-proofs')
+                    .upload(fileName, compressedFile);
 
-            if (uploadError) throw uploadError;
+                if (uploadError) throw uploadError;
+                screenshotPath = uploadData.path;
+            }
 
-            // 3. Create ticket record
+            // 2. Create ticket record with status 'pending_verification'
+            const ticketInfo = TICKET_PRICES[selectedPass];
             const { error: insertError } = await supabase
                 .from('tickets')
                 .insert({
                     user_id: profile.id,
                     type: selectedPass,
-                    amount: TICKET_PRICES[selectedPass].amount,
-                    status: 'pending',
-                    pax_count: TICKET_PRICES[selectedPass].pax,
-                    qr_secret: 'pending_' + Date.now(), // Temporary secret until approved
-                    screenshot_path: uploadData.path
+                    amount: ticketInfo.amount,
+                    status: 'pending_verification',
+                    pax_count: ticketInfo.pax,
+                    qr_secret: 'pending_' + Date.now(),
+                    screenshot_path: screenshotPath, // Can be null
+                    utr: utr || null // Can be null (empty string becomes null)
                 });
 
             if (insertError) throw insertError;
 
-            // 4. Refresh data
+            // 3. Refresh data
             window.location.reload();
 
         } catch (error: any) {
@@ -141,7 +163,6 @@ export default function DashboardPage() {
             setUploading(false);
         }
     };
-
 
     const handleDownloadTicket = async () => {
         if (!ticketCardRef.current || !profile) return;
@@ -173,6 +194,13 @@ export default function DashboardPage() {
         window.location.href = '/login';
     };
 
+    // Helper to generate UPI String
+    const getUPIString = () => {
+        if (!selectedPass) return '';
+        const amount = TICKET_PRICES[selectedPass].amount;
+        return `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(RECIPIENT_NAME)}&am=${amount}&tn=ESummit26`;
+    };
+
     if (loading) {
         return (
             <main className="min-h-screen flex items-center justify-center">
@@ -180,11 +208,6 @@ export default function DashboardPage() {
             </main>
         );
     }
-
-    const selectedTicketInfo = selectedPass ? TICKET_PRICES[selectedPass] : null;
-    const upiUrl = selectedTicketInfo
-        ? `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(RECIPIENT_NAME)}&am=${selectedTicketInfo.amount}&cu=INR`
-        : '';
 
     return (
         <main className="min-h-screen px-6 py-12 relative overflow-hidden">
@@ -253,100 +276,37 @@ export default function DashboardPage() {
 
                 {/* Tickets Section */}
                 <div className="glass-card rounded-3xl p-8">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-[#a855f7]/10 flex items-center justify-center">
-                            <Ticket className="w-6 h-6 text-[#a855f7]" />
-                        </div>
-                        <div>
-                            <h2 className="font-heading text-2xl text-white">
-                                {ticket ? 'Your Ticket' : 'Purchase Tickets'}
-                            </h2>
-                            <p className="font-body text-sm text-white/50">
-                                {ticket ? 'View your ticket status below' : 'Select a pass type to continue'}
-                            </p>
-                        </div>
-                    </div>
-
-                    {ticket ? (
-                        /* Ticket Display */
-                        ticket.status === 'paid' ? (
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="flex flex-col items-center"
-                            >
-                                <div className="mb-6">
-                                    <TicketCard
-                                        ref={ticketCardRef}
-                                        userName={profile?.full_name || ''}
-                                        rollNumber={profile?.roll_number || null}
-                                        ticketType={ticket.type}
-                                        qrSecret={ticket.qr_secret}
-                                        ticketId={ticket.id}
-                                        paxCount={ticket.pax_count}
-                                    />
-                                </div>
-                                <motion.button
-                                    onClick={handleDownloadTicket}
-                                    disabled={downloading}
-                                    whileHover={{ scale: downloading ? 1 : 1.02 }}
-                                    whileTap={{ scale: downloading ? 1 : 0.98 }}
-                                    className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#a855f7] to-[#7c3aed] text-white font-heading text-lg shadow-lg shadow-[#a855f7]/20 disabled:opacity-50"
-                                >
-                                    {downloading ? (
-                                        <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            Generating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Download className="w-5 h-5" />
-                                            Download Pass
-                                        </>
-                                    )}
-                                </motion.button>
-                            </motion.div>
-                        ) : (
-                            /* Pending State */
-                            <div className="text-center py-12">
-                                <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto mb-6">
-                                    <Clock className="w-10 h-10 text-yellow-500" />
-                                </div>
-                                <h3 className="font-heading text-2xl text-white mb-2">Verification Pending</h3>
-                                <p className="font-body text-white/60 max-w-md mx-auto">
-                                    Your payment screenshot has been uploaded and is waiting for admin approval.
-                                    This usually takes 24 hours.
-                                </p>
-                            </div>
-                        )
-                    ) : (
-                        /* Purchase Flow */
+                    {!ticket ? (
+                        // 1. NO TICKET -> BUY PASS UI
                         !showPaymentModal ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                {Object.entries(TICKET_PRICES).map(([type, info]) => (
-                                    <motion.button
-                                        key={type}
-                                        onClick={() => handleSelectPass(type)}
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className={`relative p-6 rounded-2xl border transition-all duration-300 text-left ${type === 'duo'
-                                            ? 'border-[#a855f7] bg-[#a855f7]/5'
-                                            : 'border-white/10 hover:border-white/30'
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <Users className="w-5 h-5 text-[#a855f7]" />
-                                            <span className="font-mono text-xs text-white/50">
-                                                {info.pax} {info.pax === 1 ? 'PERSON' : 'PEOPLE'}
-                                            </span>
-                                        </div>
-                                        <h3 className="font-heading text-xl text-white mb-2">{info.label}</h3>
-                                        <p className="font-heading text-3xl text-[#a855f7]">₹{info.amount}</p>
-                                    </motion.button>
-                                ))}
+                            <div>
+                                <h2 className="font-heading text-2xl text-white mb-6">Select a Pass</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    {Object.entries(TICKET_PRICES).map(([type, info]) => (
+                                        <motion.button
+                                            key={type}
+                                            onClick={() => handleSelectPass(type)}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className={`relative p-6 rounded-2xl border transition-all duration-300 text-left ${type === 'duo'
+                                                ? 'border-[#a855f7] bg-[#a855f7]/5'
+                                                : 'border-white/10 hover:border-white/30'
+                                                }`}
+                                        >
+                                            <h3 className="font-heading text-xl text-white mb-2">{info.label}</h3>
+                                            <p className="font-heading text-3xl text-[#a855f7]">₹{info.amount}</p>
+                                            <div className="flex items-center gap-2 mt-4">
+                                                <Users className="w-4 h-4 text-white/50" />
+                                                <span className="font-mono text-xs text-white/50">
+                                                    {info.pax} {info.pax === 1 ? 'PERSON' : 'PEOPLE'}
+                                                </span>
+                                            </div>
+                                        </motion.button>
+                                    ))}
+                                </div>
                             </div>
                         ) : (
-                            /* Payment Modal */
+                            // 2. PAYMENT MODAL
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -357,28 +317,51 @@ export default function DashboardPage() {
                                     className="flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-6 text-sm font-body"
                                 >
                                     <ArrowLeft className="w-4 h-4" />
-                                    Back to Plans
+                                    Change Plan
                                 </button>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-                                    {/* QR Code Section */}
+                                    {/* QR Code Column */}
                                     <div className="flex flex-col items-center p-6 rounded-2xl bg-white">
-                                        <h3 className="text-black font-heading text-xl mb-4 text-center">Scan to Pay ₹{selectedTicketInfo?.amount}</h3>
-                                        <div className="p-2 border-2 border-black rounded-lg mb-4">
-                                            <QRCode value={upiUrl} size={200} />
+                                        <h3 className="text-black font-heading text-xl mb-4 text-center">
+                                            Scan to Pay ₹{selectedPass && TICKET_PRICES[selectedPass].amount}
+                                        </h3>
+                                        <div className="p-2 border-2 border-black rounded-lg mb-4 bg-white">
+                                            <QRCode value={getUPIString()} size={200} />
                                         </div>
-                                        <p className="font-mono text-sm text-black/60 text-center break-all">
+                                        <p className="font-mono text-xs text-black/60 text-center break-all max-w-[200px]">
                                             {UPI_ID}
                                         </p>
                                     </div>
 
-                                    {/* Upload Section */}
+                                    {/* Upload Column */}
                                     <div>
                                         <h3 className="font-heading text-2xl text-white mb-2">Confirm Payment</h3>
                                         <p className="font-body text-white/50 text-sm mb-6">
-                                            After paying, upload the transaction screenshot here. Make sure the UTR/Transaction ID is visible.
+                                            1. Transfer the amount.<br />
+                                            2. Enter UTR/Reference ID.<br />
+                                            3. Upload screenshot.
                                         </p>
 
+                                        {/* UTR Input */}
+                                        <div className="mb-4">
+                                            <label className="block font-mono text-xs text-white/40 mb-2">UTR / REFERENCE NO.</label>
+                                            <input
+                                                type="text"
+                                                value={utr}
+                                                onChange={(e) => setUtr(e.target.value)}
+                                                placeholder="e.g. 432189012345"
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-[#a855f7]"
+                                            />
+                                        </div>
+
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="h-px bg-white/10 flex-1"></div>
+                                            <span className="text-white/40 text-xs font-mono">OR</span>
+                                            <div className="h-px bg-white/10 flex-1"></div>
+                                        </div>
+
+                                        {/* File Input */}
                                         <input
                                             type="file"
                                             accept="image/*"
@@ -386,32 +369,29 @@ export default function DashboardPage() {
                                             onChange={handleFileChange}
                                             className="hidden"
                                         />
-
                                         <div
                                             onClick={() => fileInputRef.current?.click()}
-                                            className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer transition-colors mb-6 ${paymentProof
+                                            className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors mb-6 ${paymentProof
                                                 ? 'border-[#a855f7] bg-[#a855f7]/5'
                                                 : 'border-white/20 hover:border-white/40 hover:bg-white/5'
                                                 }`}
                                         >
                                             {paymentProof ? (
-                                                <>
-                                                    <CheckCircle className="w-8 h-8 text-[#a855f7] mb-3" />
-                                                    <p className="font-body text-white text-center font-medium">{paymentProof.name}</p>
-                                                    <p className="font-body text-white/40 text-xs mt-1">Click to change</p>
-                                                </>
+                                                <div className="text-center">
+                                                    <CheckCircle className="w-8 h-8 text-[#a855f7] mx-auto mb-2" />
+                                                    <p className="font-body text-white text-sm truncate max-w-[200px]">{paymentProof.name}</p>
+                                                </div>
                                             ) : (
-                                                <>
-                                                    <Upload className="w-8 h-8 text-white/40 mb-3" />
-                                                    <p className="font-body text-white/70 text-center">Click to upload screenshot</p>
-                                                    <p className="font-body text-white/30 text-xs mt-1">JPG, PNG supported</p>
-                                                </>
+                                                <div className="text-center">
+                                                    <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
+                                                    <p className="font-body text-white/70 text-sm">Upload Screenshot</p>
+                                                </div>
                                             )}
                                         </div>
 
                                         <button
                                             onClick={handleSubmitPayment}
-                                            disabled={!paymentProof || uploading}
+                                            disabled={(!paymentProof && !utr) || uploading}
                                             className="w-full py-4 rounded-xl bg-[#a855f7] text-[#050505] font-heading text-lg font-bold hover:bg-[#9333ea] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                         >
                                             {uploading ? (
@@ -420,13 +400,73 @@ export default function DashboardPage() {
                                                     Uploading...
                                                 </span>
                                             ) : (
-                                                'Submit verification'
+                                                'Submit Verification'
                                             )}
                                         </button>
                                     </div>
                                 </div>
                             </motion.div>
                         )
+                    ) : ticket.status === 'paid' ? (
+                        // 3. PAID -> SHOW TICKET (QR)
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex flex-col items-center"
+                        >
+                            <div className="flex items-center gap-4 mb-8">
+                                <Ticket className="w-8 h-8 text-[#a855f7]" />
+                                <h2 className="font-heading text-3xl text-white">Your Ticket</h2>
+                            </div>
+
+                            <div className="mb-6">
+                                <TicketCard
+                                    ref={ticketCardRef}
+                                    userName={profile?.full_name || ''}
+                                    rollNumber={profile?.roll_number || null}
+                                    ticketType={ticket.type}
+                                    qrSecret={ticket.qr_secret}
+                                    ticketId={ticket.id}
+                                    paxCount={ticket.pax_count}
+                                />
+                            </div>
+
+                            <motion.button
+                                onClick={handleDownloadTicket}
+                                disabled={downloading}
+                                className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#a855f7] to-[#7c3aed] text-white font-heading text-lg shadow-lg shadow-[#a855f7]/20"
+                            >
+                                {downloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                                Download Pass
+                            </motion.button>
+                        </motion.div>
+                    ) : (
+                        // 4. PENDING VERIFICATION / REJECTED
+                        <div className="text-center py-12">
+                            {ticket.status === 'rejected' ? (
+                                <>
+                                    <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-6">
+                                        <AlertTriangle className="w-10 h-10 text-red-500" />
+                                    </div>
+                                    <h3 className="font-heading text-2xl text-white mb-2">Payment Rejected</h3>
+                                    <p className="font-body text-white/60 max-w-md mx-auto mb-8">
+                                        Your payment could not be verified. Please contact support.
+                                    </p>
+                                    {/* Option to retry could be added here by deleting the ticket record or updating it */}
+                                </>
+                            ) : (
+                                <>
+                                    <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto mb-6">
+                                        <Clock className="w-10 h-10 text-yellow-500" />
+                                    </div>
+                                    <h3 className="font-heading text-2xl text-white mb-2">Verification in Progress</h3>
+                                    <p className="font-body text-white/60 max-w-md mx-auto">
+                                        We are verifying your payment details (UTR: {ticket.utr}).<br />
+                                        This usually takes just a few hours.
+                                    </p>
+                                </>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

@@ -53,12 +53,13 @@ export async function updateSession(request: NextRequest) {
     if (user && !isPublicRoute && pathname !== '/onboarding') {
         const { data: profile, error } = await supabase
             .from('profiles')
-            .select('phone, college_name')
+            .select('phone, college_name, role')
             .eq('id', user.id)
             .single();
 
         // If profile doesn't exist OR is incomplete, redirect to onboarding
-        if (!profile || error || !profile.phone || !profile.college_name) {
+        // EXCEPTION: Admins can bypass this (they might not need ticket info)
+        if ((!profile || error || !profile.phone || !profile.college_name) && profile?.role !== 'admin') {
             const url = request.nextUrl.clone();
             url.pathname = '/onboarding';
             return NextResponse.redirect(url);
@@ -82,20 +83,38 @@ export async function updateSession(request: NextRequest) {
 
     // Redirect logged-in users away from login page
     if (user && pathname === '/login') {
-        const url = request.nextUrl.clone();
-        url.pathname = '/dashboard';
-        return NextResponse.redirect(url);
-    }
-
-    // Admin route protection
-    if (user && pathname.startsWith('/admin')) {
         const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .single();
 
+        const url = request.nextUrl.clone();
+        if (profile?.role === 'admin') {
+            url.pathname = '/admin';
+        } else {
+            url.pathname = '/dashboard';
+        }
+        return NextResponse.redirect(url);
+    }
+
+    // Admin route protection
+    if (user && pathname.startsWith('/admin')) {
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        console.log('[Middleware] Checking Admin Access:', {
+            path: pathname,
+            userId: user.id,
+            role: profile?.role,
+            error: error?.message
+        });
+
         if (profile?.role !== 'admin') {
+            console.log('[Middleware] Access Denied. Redirecting to /dashboard');
             const url = request.nextUrl.clone();
             url.pathname = '/dashboard';
             return NextResponse.redirect(url);

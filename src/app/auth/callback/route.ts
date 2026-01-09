@@ -24,15 +24,18 @@ export async function GET(request: Request) {
                     .eq('id', user.id)
                     .single();
 
-                // Only set role if not already set (new user) - preserve admin role!
-                if (!existingProfile?.role || existingProfile.role === 'external' || existingProfile.role === 'internal') {
-                    // Don't overwrite if already admin
-                    if (existingProfile?.role !== 'admin') {
-                        const isInternal = user.email?.endsWith('@iiitdm.ac.in');
-                        const role = isInternal ? 'internal' : 'external';
+
+                // CRITICAL: Always enforce 'internal' role for iiitdm.ac.in emails on login
+                // This handles cases where they might have been created as external first
+                if (existingProfile?.role !== 'admin') {
+                    const isInternal = user.email?.endsWith('@iiitdm.ac.in');
+                    const targetRole = isInternal ? 'internal' : (existingProfile?.role || 'external');
+
+                    // Only update if the role is different
+                    if (existingProfile?.role !== targetRole) {
                         await supabase
                             .from('profiles')
-                            .update({ role })
+                            .update({ role: targetRole })
                             .eq('id', user.id);
                     }
                 }
@@ -40,11 +43,12 @@ export async function GET(request: Request) {
                 // Check if profile is complete
                 const { data: profile } = await supabase
                     .from('profiles')
-                    .select('phone, college_name')
+                    .select('phone, college_name, role')
                     .eq('id', user.id)
                     .single();
 
-                if (!profile?.phone || !profile?.college_name) {
+                // If incomplete AND not admin, redirect to onboarding
+                if ((!profile?.phone || !profile?.college_name) && profile?.role !== 'admin') {
                     return NextResponse.redirect(`${origin}/onboarding`);
                 }
 
@@ -56,7 +60,7 @@ export async function GET(request: Request) {
                     .single();
 
                 if (roleData?.role === 'admin') {
-                    return NextResponse.redirect(`${origin}/admin/scan`);
+                    return NextResponse.redirect(`${origin}/admin`);
                 }
             }
 

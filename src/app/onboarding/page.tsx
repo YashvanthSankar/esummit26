@@ -52,21 +52,30 @@ export default function OnboardingPage() {
         setSubmitting(true);
 
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+            window.location.href = '/login';
+            return;
+        }
 
         const { error } = await supabase
             .from('profiles')
-            .update({
+            .upsert({
+                id: user.id,
+                email: user.email!, // Email is required for new rows
                 full_name: formData.full_name,
                 phone: formData.phone,
                 college_name: formData.college_name,
                 roll_number: isInternal ? formData.roll_number : null,
-            })
-            .eq('id', user.id);
+                updated_at: new Date().toISOString(),
+            }, {
+                onConflict: 'id'
+            });
 
         if (!error) {
-            router.push('/dashboard');
+            // Force reload to clear any cached middleware states
+            window.location.href = '/dashboard';
         } else {
+            console.error(error);
             setSubmitting(false);
             alert('Error updating profile. Please try again.');
         }

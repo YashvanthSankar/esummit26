@@ -1,17 +1,25 @@
--- Add screenshot_path to tickets table
-ALTER TABLE tickets ADD COLUMN screenshot_path TEXT;
+-- Add screenshot_path to tickets table if not exists
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'tickets' AND column_name = 'screenshot_path') THEN
+        ALTER TABLE tickets ADD COLUMN screenshot_path TEXT;
+    END IF;
+END $$;
 
--- Create storage bucket for payment proofs (run via dashboard or if extension enabled)
--- INSERT INTO storage.buckets (id, name, public) VALUES ('payment-proofs', 'payment-proofs', true);
+-- Add utr to tickets table
+ALTER TABLE tickets ADD COLUMN utr TEXT;
 
--- Policy to allow authenticated users to upload to payment-proofs
--- CREATE POLICY "Users can upload payment proofs" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'payment-proofs');
--- CREATE POLICY "Users can read payment proofs" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'payment-proofs');
-
--- Since we can't reliably create buckets/policies via migration without proper permissions/extensions setup,
--- we'll assume the user creates the bucket 'payment-proofs' manually in the dashboard.
+-- Update payment_status enum
+-- Postgres doesn't support 'IF NOT EXISTS' for enum values easily in a single block without complexity.
+-- We will attempt to add them. If they exist, it might error, but in a migration script we usually want idempotency.
+-- However, for the user's specific request 'pending_verification' and 'rejected', we will alter the type.
+ALTER TYPE payment_status ADD VALUE IF NOT EXISTS 'pending_verification';
+ALTER TYPE payment_status ADD VALUE IF NOT EXISTS 'rejected';
 
 -- Allow admins to update tickets (for verification)
+-- Dropping policy first to key idempotent
+DROP POLICY IF EXISTS "Admins can update all tickets" ON tickets;
+
 CREATE POLICY "Admins can update all tickets"
     ON tickets
     FOR UPDATE
