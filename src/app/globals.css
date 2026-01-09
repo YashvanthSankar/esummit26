@@ -23,8 +23,8 @@
   --color-accent: var(--accent-primary);
   --color-accent-secondary: var(--accent-secondary);
   --color-muted: var(--text-muted);
-  --font-heading: 'Bricolage Grotesque', sans-serif;
-  --font-body: 'Space Grotesk', sans-serif;
+  --font-heading: var(--font-bricolage), sans-serif;
+  --font-body: var(--font-bricolage), sans-serif;
 }
 
 /* Base Styles */
@@ -62,7 +62,7 @@ html.lenis body {
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-bricolage), sans-serif;
   overflow-x: hidden;
   position: relative;
 }
@@ -84,18 +84,18 @@ body::before {
 
 /* Typography - Aggressive & Modern */
 .font-heading {
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-bricolage), sans-serif;
   font-weight: 800;
   letter-spacing: -0.05em;
 }
 
 .font-body {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: var(--font-bricolage), sans-serif;
 }
 
 .font-mono {
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
-  letter-spacing: 0.2em;
+  font-family: var(--font-bricolage), monospace;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 

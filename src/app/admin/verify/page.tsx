@@ -73,6 +73,12 @@ export default function VerifyPage() {
         setProcessing(ticketId);
 
         try {
+            // Find the ticket data for email
+            const currentTicket = tickets.find(t => t.id === ticketId);
+            if (!currentTicket) {
+                throw new Error('Ticket not found');
+            }
+
             if (action === 'approve') {
                 // Generate secret: timestamp + random string
                 const secret = `TICKET_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
@@ -86,6 +92,27 @@ export default function VerifyPage() {
                     .eq('id', ticketId);
 
                 if (error) throw error;
+
+                // Send approval email
+                try {
+                    const response = await fetch('/api/email/send-approval', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            to: currentTicket.user?.email,
+                            userName: currentTicket.user?.full_name || 'User',
+                            ticketType: currentTicket.type,
+                            amount: currentTicket.amount,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        console.error('Email send failed, but ticket approved');
+                    }
+                } catch (emailError) {
+                    console.error('Email error:', emailError);
+                    // Don't fail the approval if email fails
+                }
             } else {
                 const { error } = await supabase
                     .from('tickets')
@@ -93,6 +120,27 @@ export default function VerifyPage() {
                     .eq('id', ticketId);
 
                 if (error) throw error;
+
+                // Send rejection email
+                try {
+                    const response = await fetch('/api/email/send-rejection', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            to: currentTicket.user?.email,
+                            userName: currentTicket.user?.full_name || 'User',
+                            ticketType: currentTicket.type,
+                            amount: currentTicket.amount,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        console.error('Email send failed, but ticket rejected');
+                    }
+                } catch (emailError) {
+                    console.error('Email error:', emailError);
+                    // Don't fail the rejection if email fails
+                }
             }
 
             // Remove from list

@@ -21,7 +21,6 @@ const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(
             <div
                 ref={ref}
                 className="w-[360px] bg-gradient-to-br from-[#0a0a0a] via-[#1a1a2e] to-[#0a0a0a] rounded-3xl overflow-hidden shadow-2xl"
-                style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
             >
                 {/* Header */}
                 <div className="bg-gradient-to-r from-[#a855f7] to-[#7c3aed] px-6 py-4">
