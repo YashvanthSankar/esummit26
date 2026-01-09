@@ -41,14 +41,24 @@ export async function GET(request: Request) {
                 }
 
                 // Check if profile is complete
-                const { data: profile } = await supabase
+                const { data: profile, error: profileError } = await supabase
                     .from('profiles')
                     .select('phone, college_name, role')
                     .eq('id', user.id)
                     .single();
 
+                console.log('[AuthCallback] Profile Check:', {
+                    id: user.id,
+                    email: user.email,
+                    phone: profile?.phone,
+                    college: profile?.college_name,
+                    role: profile?.role,
+                    error: profileError?.message
+                });
+
                 // If incomplete AND not admin, redirect to onboarding
                 if ((!profile?.phone || !profile?.college_name) && profile?.role !== 'admin') {
+                    console.log('[AuthCallback] Redirecting to Onboarding (Incomplete Profile)');
                     return NextResponse.redirect(`${origin}/onboarding`);
                 }
 
@@ -60,8 +70,11 @@ export async function GET(request: Request) {
                     .single();
 
                 if (roleData?.role === 'admin') {
+                    console.log('[AuthCallback] Redirecting to Admin');
                     return NextResponse.redirect(`${origin}/admin`);
                 }
+
+                console.log('[AuthCallback] Redirecting to Next/Dashboard');
             }
 
             return NextResponse.redirect(`${origin}${next}`);

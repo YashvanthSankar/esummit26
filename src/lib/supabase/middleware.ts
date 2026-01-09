@@ -57,6 +57,11 @@ export async function updateSession(request: NextRequest) {
             .eq('id', user.id)
             .single();
 
+        // LOGGING FOR DEBUGGING
+        if (pathname !== '/_next/image') {
+            console.log('[Middleware] Profile Check', { path: pathname, role: profile?.role, complete: !!(profile?.phone && profile?.college_name) });
+        }
+
         // If profile doesn't exist OR is incomplete, redirect to onboarding
         // EXCEPTION: Admins can bypass this (they might not need ticket info)
         if ((!profile || error || !profile.phone || !profile.college_name) && profile?.role !== 'admin') {

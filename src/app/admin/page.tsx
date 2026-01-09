@@ -27,8 +27,17 @@ export default function AdminOverview() {
             }
 
             // Explicit Admin Check
-            const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+            const { data: profile, error } = await supabase.from('profiles').select('email, role').eq('id', user.id).single();
+
+            console.log('[AdminPage] Role Check:', {
+                email: profile?.email,
+                role: profile?.role,
+                error: error?.message,
+                user_id: user.id
+            });
+
             if (profile?.role !== 'admin') {
+                console.warn('[AdminPage] Access Denied: User is not admin. Redirecting...');
                 window.location.href = '/dashboard';
                 return;
             }
