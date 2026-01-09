@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 
 import { Bricolage_Grotesque } from 'next/font/google';
 import CustomCursor from "@/components/CustomCursor";
+import ToastProvider from "@/components/ToastProvider";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased bg-[#050505] ${bricolage.variable} font-sans`}>
         <CustomCursor />
+        <ToastProvider />
         {children}
       </body>
     </html>
