@@ -6,6 +6,13 @@ export const metadata: Metadata = {
   description: "The premier entrepreneurship summit of South India. Join us for two days of innovation, inspiration, and incredible opportunities at IIITDM Kancheepuram.",
   keywords: ["E-Summit", "IIITDM", "Kancheepuram", "Entrepreneurship", "Startup", "Hackathon", "Innovation", "E-Cell"],
   authors: [{ name: "E-Cell IIITDM" }],
+  manifest: "/manifest.json",
+  themeColor: "#000000",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "E-Summit '26",
+  },
   openGraph: {
     title: "E-Summit '26 | IIITDM Kancheepuram",
     description: "The premier entrepreneurship summit of South India.",

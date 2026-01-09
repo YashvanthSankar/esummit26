@@ -1,0 +1,24 @@
+{
+    "name": "E-Summit '26",
+    "short_name": "E-Summit",
+    "description": "IIITDM Kancheepuram's E-Summit '26 - Connect, Collaborate, Create. Join us for an exciting entrepreneurship summit from Jan 30 - Feb 1.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#000000",
+    "theme_color": "#000000",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
