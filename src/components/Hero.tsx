@@ -71,7 +71,7 @@ export default function Hero() {
             <div
                 className="pointer-events-none absolute inset-0 z-10"
                 style={{
-                    background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(204, 255, 0, 0.06), transparent 40%)`,
+                    background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(168, 85, 247, 0.06), transparent 40%)`,
                 }}
             />
 
@@ -85,7 +85,7 @@ export default function Hero() {
                 {/* Monospace Subtext */}
                 <motion.p
                     variants={itemVariants}
-                    className="font-mono text-xs sm:text-sm text-[#ccff00]/70 mb-6 tracking-[0.3em]"
+                    className="font-mono text-xs sm:text-sm text-[#a855f7]/70 mb-6 tracking-[0.3em]"
                 >
                     IIITDM KANCHEEPURAM PRESENTS
                 </motion.p>
@@ -110,7 +110,7 @@ export default function Hero() {
                     <h1
                         className="hidden md:block absolute inset-0 font-heading text-[clamp(3rem,12vw,14rem)] leading-[0.85] tracking-[-0.05em] bg-clip-text text-transparent select-none"
                         style={{
-                            backgroundImage: `radial-gradient(300px circle at ${textMousePosition.x}px ${textMousePosition.y}px, #ffffff, rgba(204, 255, 0, 0.8), transparent)`,
+                            backgroundImage: `radial-gradient(300px circle at ${textMousePosition.x}px ${textMousePosition.y}px, #ffffff, rgba(168, 85, 247, 0.8), transparent)`,
                             WebkitBackgroundClip: 'text',
                         }}
                     >
@@ -120,7 +120,7 @@ export default function Hero() {
 
                 {/* Year with glow */}
                 <motion.div variants={itemVariants} className="relative mt-[-1rem]">
-                    <h2 className="font-heading text-[clamp(4rem,15vw,18rem)] leading-[0.85] tracking-[-0.05em] text-[#ccff00] text-glow select-none">
+                    <h2 className="font-heading text-[clamp(4rem,15vw,18rem)] leading-[0.85] tracking-[-0.05em] text-[#a855f7] text-glow select-none">
                         &apos;26
                     </h2>
                 </motion.div>
@@ -139,7 +139,7 @@ export default function Hero() {
                     className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12"
                 >
                     <motion.a
-                        href="#tickets"
+                        href="/dashboard"
                         className="btn-primary inline-flex items-center gap-2 font-body"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.98 }}

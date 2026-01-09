@@ -17,7 +17,7 @@ export default function Marquee({ className = '' }: MarqueeProps) {
                     {[...Array(4)].map((_, i) => (
                         <span
                             key={i}
-                            className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-outline mx-4 hover:text-[#ccff00] transition-all cursor-default"
+                            className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-outline mx-4 hover:text-[#a855f7] transition-all cursor-default"
                             data-hover="true"
                         >
                             {text}
@@ -28,7 +28,7 @@ export default function Marquee({ className = '' }: MarqueeProps) {
                     {[...Array(4)].map((_, i) => (
                         <span
                             key={i}
-                            className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-outline mx-4 hover:text-[#ccff00] transition-all cursor-default"
+                            className="text-5xl sm:text-6xl md:text-7xl font-heading font-bold text-outline mx-4 hover:text-[#a855f7] transition-all cursor-default"
                             data-hover="true"
                         >
                             {text}

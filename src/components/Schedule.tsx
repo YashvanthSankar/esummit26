@@ -50,7 +50,7 @@ export default function Schedule() {
                     viewport={{ once: true }}
                     className="mb-16"
                 >
-                    <p className="font-mono text-xs text-[#ccff00]/70 tracking-[0.3em] mb-4">
+                    <p className="font-mono text-xs text-[#a855f7]/70 tracking-[0.3em] mb-4">
                         MARK YOUR CALENDAR
                     </p>
                     <h2 className="font-heading text-5xl sm:text-6xl md:text-7xl text-white">
@@ -70,7 +70,7 @@ export default function Schedule() {
                         >
                             {/* Day Header */}
                             <div className="flex items-center gap-4 mb-8">
-                                <span className="font-heading text-2xl text-[#ccff00]">
+                                <span className="font-heading text-2xl text-[#a855f7]">
                                     {day.day}
                                 </span>
                                 <span className="font-mono text-xs text-white/40 tracking-widest">
@@ -88,24 +88,24 @@ export default function Schedule() {
                                         whileInView={{ opacity: 1, x: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: eventIndex * 0.05 }}
-                                        className={`group glass-card rounded-xl p-4 flex items-center gap-6 ${event.highlight ? 'border-[#ccff00]/30' : ''
+                                        className={`group glass-card rounded-xl p-4 flex items-center gap-6 ${event.highlight ? 'border-[#a855f7]/30' : ''
                                             }`}
                                         data-hover="true"
                                     >
                                         {/* Time */}
-                                        <span className={`font-mono text-sm w-16 ${event.highlight ? 'text-[#ccff00]' : 'text-white/40'
+                                        <span className={`font-mono text-sm w-16 ${event.highlight ? 'text-[#a855f7]' : 'text-white/40'
                                             }`}>
                                             {event.time}
                                         </span>
 
                                         {/* Dot */}
                                         <div className={`w-3 h-3 rounded-full ${event.highlight
-                                            ? 'bg-[#ccff00] shadow-[0_0_10px_rgba(204,255,0,0.5)]'
+                                            ? 'bg-[#a855f7] shadow-[0_0_10px_rgba(168,85,247,0.5)]'
                                             : 'bg-white/20'
                                             }`} />
 
                                         {/* Title */}
-                                        <h3 className="font-heading text-lg text-white group-hover:text-[#ccff00] transition-colors flex-1">
+                                        <h3 className="font-heading text-lg text-white group-hover:text-[#a855f7] transition-colors flex-1">
                                             {event.title}
                                         </h3>
 
@@ -113,7 +113,7 @@ export default function Schedule() {
                                         <motion.div
                                             className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
-                                            <svg className="w-4 h-4 text-[#ccff00]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg className="w-4 h-4 text-[#a855f7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                             </svg>
                                         </motion.div>

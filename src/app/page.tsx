@@ -9,7 +9,6 @@ import Sponsors from '@/components/Sponsors';
 import Footer from '@/components/Footer';
 import AnimatedGrid from '@/components/AnimatedGrid';
 import DockNavigation from '@/components/DockNavigation';
-import CustomCursor from '@/components/CustomCursor';
 import SmoothScroll from '@/components/SmoothScroll';
 
 export default function Home() {
@@ -18,9 +17,6 @@ export default function Home() {
       <main className="min-h-screen bg-[#050505] relative">
         {/* Background Grid */}
         <AnimatedGrid />
-
-        {/* Custom Cursor */}
-        <CustomCursor />
 
         {/* Dock Navigation */}
         <DockNavigation />

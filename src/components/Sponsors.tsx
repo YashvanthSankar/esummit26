@@ -23,7 +23,7 @@ export default function Sponsors() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                 >
-                    <p className="font-mono text-xs text-[#ccff00]/70 tracking-[0.3em] mb-4">
+                    <p className="font-mono text-xs text-[#a855f7]/70 tracking-[0.3em] mb-4">
                         OUR PARTNERS
                     </p>
                     <h2 className="font-heading text-5xl sm:text-6xl md:text-7xl text-white">
@@ -49,7 +49,7 @@ export default function Sponsors() {
                             >
                                 <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100">
                                     <span className="text-4xl">{sponsor.emoji}</span>
-                                    <span className="font-heading text-lg text-white/70 group-hover:text-[#ccff00] transition-colors">
+                                    <span className="font-heading text-lg text-white/70 group-hover:text-[#a855f7] transition-colors">
                                         {sponsor.name}
                                     </span>
                                 </div>
@@ -65,7 +65,7 @@ export default function Sponsors() {
                             >
                                 <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100">
                                     <span className="text-4xl">{sponsor.emoji}</span>
-                                    <span className="font-heading text-lg text-white/70 group-hover:text-[#ccff00] transition-colors">
+                                    <span className="font-heading text-lg text-white/70 group-hover:text-[#a855f7] transition-colors">
                                         {sponsor.name}
                                     </span>
                                 </div>

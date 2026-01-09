@@ -23,7 +23,7 @@ export default function AnimatedGrid() {
                         <path
                             d="M 60 0 L 0 0 0 60"
                             fill="none"
-                            stroke="rgba(204, 255, 0, 0.03)"
+                            stroke="rgba(168, 85, 247, 0.03)"
                             strokeWidth="0.5"
                             className="grid-line"
                         />
@@ -31,9 +31,9 @@ export default function AnimatedGrid() {
 
                     {/* Animated glowing lines */}
                     <linearGradient id="lineGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="rgba(204, 255, 0, 0)" />
-                        <stop offset="50%" stopColor="rgba(204, 255, 0, 0.5)" />
-                        <stop offset="100%" stopColor="rgba(204, 255, 0, 0)" />
+                        <stop offset="0%" stopColor="rgba(168, 85, 247, 0)" />
+                        <stop offset="50%" stopColor="rgba(168, 85, 247, 0.5)" />
+                        <stop offset="100%" stopColor="rgba(168, 85, 247, 0)" />
                     </linearGradient>
                 </defs>
 
@@ -101,7 +101,7 @@ export default function AnimatedGrid() {
             <motion.div
                 className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 rounded-full"
                 style={{
-                    background: 'radial-gradient(circle, rgba(204, 255, 0, 0.08) 0%, transparent 70%)',
+                    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%)',
                 }}
                 animate={{
                     scale: [1, 1.2, 1],
