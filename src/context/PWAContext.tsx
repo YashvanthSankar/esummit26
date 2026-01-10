@@ -28,27 +28,33 @@ export function PWAProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         // Check initial state
         setIsInstalled(getIsStandalone());
+        console.log('[PWA] Standalone mode:', getIsStandalone());
 
         // Listen for standalone mode changes
         const mediaQuery = window.matchMedia('(display-mode: standalone)');
         const handleModeChange = (e: MediaQueryListEvent) => {
             setIsInstalled(e.matches);
+            console.log('[PWA] Display mode changed:', e.matches);
         };
         mediaQuery.addEventListener('change', handleModeChange);
 
 
         const handleBeforeInstallPrompt = (e: Event) => {
+            console.log('[PWA] beforeinstallprompt event fired!');
             e.preventDefault();
             setDeferredPrompt(e as BeforeInstallPromptEvent);
         };
 
         const handleAppInstalled = () => {
+            console.log('[PWA] App installed!');
             setDeferredPrompt(null);
             setIsInstalled(true);
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
         window.addEventListener('appinstalled', handleAppInstalled);
+
+        console.log('[PWA] Event listeners registered');
 
         return () => {
             mediaQuery.removeEventListener('change', handleModeChange);
@@ -58,11 +64,13 @@ export function PWAProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const install = async () => {
+        console.log('[PWA] Install button clicked, deferredPrompt:', !!deferredPrompt);
         if (!deferredPrompt) return;
 
         await deferredPrompt.prompt();
 
         const { outcome } = await deferredPrompt.userChoice;
+        console.log('[PWA] User choice:', outcome);
 
         if (outcome === 'accepted') {
             setDeferredPrompt(null);

@@ -44,6 +44,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import CustomCursor from "@/components/CustomCursor";
 import ToastProvider from "@/components/ToastProvider";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { PWAProvider } from "@/context/PWAContext";
 
 const bricolage = Bricolage_Grotesque({
@@ -66,6 +67,7 @@ export default function RootLayout({
       </head>
       <body className={`antialiased bg-[#050505] ${bricolage.variable} font-sans`}>
         <PWAProvider>
+          <ServiceWorkerRegister />
           <CustomCursor />
           <ToastProvider />
           <PWAInstallPrompt />
