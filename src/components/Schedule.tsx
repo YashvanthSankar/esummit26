@@ -92,21 +92,16 @@ export default function Schedule() {
                                         whileInView={{ opacity: 1, x: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: eventIndex * 0.05 }}
-                                        className={`group glass-card rounded-xl p-4 flex items-center gap-6 ${event.highlight ? 'border-[#a855f7]/30' : ''
-                                            }`}
+                                        className="group glass-card rounded-xl p-4 flex items-center gap-6"
                                         data-hover="true"
                                     >
                                         {/* Time */}
-                                        <span className={`font-mono text-sm w-16 ${event.highlight ? 'text-[#a855f7]' : 'text-white/40'
-                                            }`}>
+                                        <span className="font-mono text-sm w-16 text-white/40">
                                             {event.time}
                                         </span>
 
                                         {/* Dot */}
-                                        <div className={`w-3 h-3 rounded-full ${event.highlight
-                                            ? 'bg-[#a855f7] shadow-[0_0_10px_rgba(168,85,247,0.5)]'
-                                            : 'bg-white/20'
-                                            }`} />
+                                        <div className="w-3 h-3 rounded-full bg-white/20" />
 
                                         {/* Title */}
                                         <h3 className="font-heading text-lg text-white group-hover:text-[#a855f7] transition-colors flex-1">
