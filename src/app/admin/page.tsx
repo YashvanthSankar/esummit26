@@ -142,7 +142,8 @@ export default function AdminOverview() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Charts Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                     {/* Sales Chart */}
                     <div className="glass-card p-6 rounded-2xl">
                         <h3 className="font-heading text-xl text-white mb-6">Ticket Sales by Type</h3>

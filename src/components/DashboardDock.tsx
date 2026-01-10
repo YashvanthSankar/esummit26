@@ -49,9 +49,9 @@ export default function DashboardDock({ userName, userRole }: DashboardDockProps
                 initial={{ x: 100, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.8, ease: [0.23, 1, 0.32, 1] as [number, number, number, number] }}
-                className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-[9999]"
+                className="hidden md:flex fixed right-4 top-1/2 -translate-y-1/2 z-[9999]"
             >
-                <div className="dock flex flex-col items-center gap-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl shadow-black/50">
+                <div className="dock flex flex-col items-center gap-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2.5 shadow-2xl shadow-black/60 ring-1 ring-black/50">
                     {dockItems.map((item, index) => {
                         const Icon = item.icon;
                         return (

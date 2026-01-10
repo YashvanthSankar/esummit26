@@ -13,7 +13,7 @@ const dockItems = [
 ];
 
 const actionItems = [
-    { icon: Ticket, label: 'Tickets', href: '/dashboard' },
+    { icon: Ticket, label: 'Dashboard', href: '/dashboard' },
     { icon: LogIn, label: 'Login', href: '/login' },
 ];
 
@@ -154,7 +154,7 @@ export default function DockNavigation() {
                                 {/* Divider */}
                                 <div className="h-px bg-white/10 my-4" />
 
-                                {/* Action buttons - Login & Tickets */}
+                                {/* Action buttons - Login & Dashboard */}
                                 <div className="grid grid-cols-2 gap-3">
                                     {actionItems.map((item, index) => {
                                         const Icon = item.icon;
