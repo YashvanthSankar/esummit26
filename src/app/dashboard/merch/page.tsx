@@ -93,13 +93,16 @@ export default function MerchPage() {
         }
     };
 
-    const getPaymentStatusBadge = (status: string | null) => {
-        switch (status) {
+    const getPaymentStatusBadge = (paymentStatus: string | null, orderStatus: string) => {
+        switch (paymentStatus) {
             case 'paid':
                 return (
                     <span className="text-green-400 text-xs font-bold">Payment Verified</span>
                 );
             case 'pending_verification':
+                if (orderStatus === 'confirmed' || orderStatus === 'delivered') {
+                    return <span className="text-green-400 text-xs font-bold">Payment Verified</span>;
+                }
                 return (
                     <span className="text-amber-400 text-xs font-bold">Verifying Payment</span>
                 );
@@ -175,7 +178,7 @@ export default function MerchPage() {
                                         </div>
                                         <div className="flex flex-col items-end gap-1">
                                             {getStatusBadge(order.status)}
-                                            {getPaymentStatusBadge(order.payment_status)}
+                                            {getPaymentStatusBadge(order.payment_status, order.status)}
                                         </div>
                                     </div>
 
@@ -193,14 +196,17 @@ export default function MerchPage() {
                                         </p>
                                     </div>
 
-                                    {order.payment_status === 'pending_verification' && order.status !== 'rejected' && (
-                                        <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                                            <p className="text-amber-300 text-sm">
-                                                ⏳ Payment verification in progress...
-                                                {order.payment_utr && <span className="block mt-1 font-mono">UTR: {order.payment_utr}</span>}
-                                            </p>
-                                        </div>
-                                    )}
+                                    {order.payment_status === 'pending_verification' &&
+                                        order.status !== 'rejected' &&
+                                        order.status !== 'confirmed' &&
+                                        order.status !== 'delivered' && (
+                                            <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                                                <p className="text-amber-300 text-sm">
+                                                    ⏳ Payment verification in progress...
+                                                    {order.payment_utr && <span className="block mt-1 font-mono">UTR: {order.payment_utr}</span>}
+                                                </p>
+                                            </div>
+                                        )}
 
                                     {order.status === 'confirmed' && (
                                         <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl">

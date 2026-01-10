@@ -3,22 +3,21 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Loader2, ExternalLink, RefreshCw, ZoomIn, Copy, Users } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, RefreshCw, ZoomIn, Copy, Search, Filter, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminDock from '@/components/AdminDock';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { main } from 'framer-motion/client';
 
 interface GroupMember {
     id: string;
     name: string;
     email: string;
     phone: string;
-    isRegistered: boolean; // True if user has signed up
+    isRegistered: boolean;
 }
 
-interface PendingTicket {
+interface PaymentTicket {
     id: string;
     type: string;
     amount: number;
@@ -30,7 +29,8 @@ interface PendingTicket {
     pending_name: string | null;
     pending_email: string | null;
     pending_phone: string | null;
-    groupMembers?: GroupMember[]; // All members in the booking group
+    status: 'paid' | 'pending_verification' | 'rejected' | 'pending';
+    groupMembers?: GroupMember[];
     user: {
         full_name: string;
         email: string;
@@ -42,48 +42,36 @@ interface PendingTicket {
 export default function VerifyPage() {
     const supabase = createClient();
     const [loading, setLoading] = useState(true);
-    const [tickets, setTickets] = useState<PendingTicket[]>([]);
+    const [allTickets, setAllTickets] = useState<PaymentTicket[]>([]);
     const [processing, setProcessing] = useState<string | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
 
-    const fetchPendingTickets = async () => {
+    const fetchTickets = async () => {
         setLoading(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            window.location.href = '/login';
-            return;
-        }
 
-        // Check admin role
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-
-        if (profile?.role !== 'admin') {
-            window.location.href = '/dashboard';
-            return;
-        }
-
-        // Fetch pending tickets with user details
-        // Only fetch tickets with screenshot/utr (main booking tickets, not linked ones)
         const { data, error } = await supabase
             .from('tickets')
             .select(`
                 *,
-                user:profiles(full_name, email, phone, college_name)
+                user:profiles!tickets_user_id_fkey(full_name, email, phone, college_name)
             `)
-            .eq('status', 'pending_verification')
-            .or('screenshot_path.not.is.null,utr.not.is.null')
-            .order('created_at', { ascending: true });
+            .or('screenshot_path.not.is.null,utr.not.is.null') // Only tickets with pass attempts
+            .order('created_at', { ascending: false }); // Newest first
+
+        if (error) {
+            console.error('Error fetching tickets:', error);
+            toast.error('Failed to load passes');
+            setLoading(false);
+            return;
+        }
 
         if (data) {
-            // For each ticket with a booking_group_id, fetch all group members
+            // Group logic (keep existing group logic)
             const ticketsWithGroupMembers = await Promise.all(
                 data.map(async (ticket: any) => {
                     if (ticket.booking_group_id) {
-                        // Fetch all tickets in this booking group
                         const { data: groupTickets } = await supabase
                             .from('tickets')
                             .select(`
@@ -92,7 +80,7 @@ export default function VerifyPage() {
                                 pending_email,
                                 pending_phone,
                                 user_id,
-                                user:profiles(full_name, email, phone)
+                                user:profiles!tickets_user_id_fkey(full_name, email, phone)
                             `)
                             .eq('booking_group_id', ticket.booking_group_id);
 
@@ -110,157 +98,103 @@ export default function VerifyPage() {
                 })
             );
 
-            setTickets(ticketsWithGroupMembers as any);
+            setAllTickets(ticketsWithGroupMembers as any);
         }
         setLoading(false);
     };
 
     useEffect(() => {
-        fetchPendingTickets();
-    }, [supabase]);
+        fetchTickets();
+    }, []);
 
     const handleVerify = async (ticketId: string, action: 'approve' | 'reject') => {
         setProcessing(ticketId);
 
         try {
-            // Find the ticket data for email
-            const currentTicket = tickets.find(t => t.id === ticketId);
-            if (!currentTicket) {
-                throw new Error('Ticket not found');
-            }
+            const currentTicket = allTickets.find(t => t.id === ticketId);
+            if (!currentTicket) throw new Error('Ticket not found');
 
             if (action === 'approve') {
-                // Check if this ticket is part of a booking group
                 if (currentTicket.booking_group_id) {
-                    // Approve all tickets in the booking group
-                    const { data: groupTickets, error: fetchError } = await supabase
+                    // Approve Group
+                    const { data: groupTickets } = await supabase
                         .from('tickets')
-                        .select('id, pending_email, pending_name, user:profiles(email, full_name)')
+                        .select('id, user:profiles(email, full_name), pending_email, pending_name')
                         .eq('booking_group_id', currentTicket.booking_group_id);
 
-                    if (fetchError) throw fetchError;
+                    if (!groupTickets) throw new Error('Group not found');
 
-                    // Update each ticket with a unique QR secret
-                    for (let i = 0; i < (groupTickets?.length || 0); i++) {
-                        const ticket = groupTickets![i];
+                    for (let i = 0; i < groupTickets.length; i++) {
+                        const ticket = groupTickets[i];
                         const secret = `TICKET_${Date.now()}_${i}_${Math.random().toString(36).substring(7).toUpperCase()}`;
 
                         await supabase
                             .from('tickets')
-                            .update({
-                                status: 'paid',
-                                qr_secret: secret
-                            })
+                            .update({ status: 'paid', qr_secret: secret })
                             .eq('id', ticket.id);
 
-                        // Send email to each attendee (if they have an account or pending email)
+                        // Email logic (fire and forget)
                         const email = (ticket.user as any)?.email || ticket.pending_email;
                         const name = (ticket.user as any)?.full_name || ticket.pending_name || 'User';
-
-                        if (email) {
-                            try {
-                                await fetch('/api/email/send-approval', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        to: email,
-                                        userName: name,
-                                        ticketType: currentTicket.type,
-                                        amount: currentTicket.amount,
-                                    }),
-                                });
-                            } catch (emailError) {
-                                console.error('Email error for', email, emailError);
-                            }
-                        }
+                        if (email) sendApprovalEmail(email, name, currentTicket.type, currentTicket.amount);
                     }
-
-                    toast.success(`Approved ${groupTickets?.length || 1} tickets in booking group`);
+                    toast.success(`Approved Group (${groupTickets.length} tickets)`);
                 } else {
-                    // Single ticket approval (original flow)
+                    // Approve Single
                     const secret = `TICKET_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
+                    await supabase.from('tickets').update({ status: 'paid', qr_secret: secret }).eq('id', ticketId);
 
-                    const { error } = await supabase
-                        .from('tickets')
-                        .update({
-                            status: 'paid',
-                            qr_secret: secret
-                        })
-                        .eq('id', ticketId);
-
-                    if (error) throw error;
-
-                    // Send approval email
-                    try {
-                        const response = await fetch('/api/email/send-approval', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                to: currentTicket.user?.email,
-                                userName: currentTicket.user?.full_name || 'User',
-                                ticketType: currentTicket.type,
-                                amount: currentTicket.amount,
-                            }),
-                        });
-
-                        if (!response.ok) {
-                            console.error('Email send failed, but ticket approved');
-                        }
-                    } catch (emailError) {
-                        console.error('Email error:', emailError);
-                    }
-
-                    toast.success('Ticket approved');
+                    const user = currentTicket.user;
+                    if (user?.email) sendApprovalEmail(user.email, user.full_name, currentTicket.type, currentTicket.amount);
+                    toast.success('Ticket Approved');
                 }
             } else {
-                // Rejection - also reject all tickets in booking group
+                // Reject logic
                 if (currentTicket.booking_group_id) {
-                    const { error } = await supabase
-                        .from('tickets')
-                        .update({ status: 'rejected' })
-                        .eq('booking_group_id', currentTicket.booking_group_id);
-
-                    if (error) throw error;
-                    toast.success('All tickets in booking group rejected');
+                    await supabase.from('tickets').update({ status: 'rejected' }).eq('booking_group_id', currentTicket.booking_group_id);
                 } else {
-                    const { error } = await supabase
-                        .from('tickets')
-                        .update({ status: 'rejected' })
-                        .eq('id', ticketId);
-
-                    if (error) throw error;
+                    await supabase.from('tickets').update({ status: 'rejected' }).eq('id', ticketId);
                 }
 
-                // Send rejection email to purchaser
-                try {
-                    const response = await fetch('/api/email/send-rejection', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            to: currentTicket.user?.email,
-                            userName: currentTicket.user?.full_name || 'User',
-                            ticketType: currentTicket.type,
-                            amount: currentTicket.amount,
-                        }),
-                    });
-
-                    if (!response.ok) {
-                        console.error('Email send failed, but ticket rejected');
-                    }
-                } catch (emailError) {
-                    console.error('Email error:', emailError);
-                }
+                const user = currentTicket.user;
+                if (user?.email) sendRejectionEmail(user.email, user.full_name, currentTicket.type, currentTicket.amount);
+                toast.success('Ticket Rejected');
             }
 
-            // Remove from list
-            setTickets(prev => prev.filter(t => t.id !== ticketId));
+            // Update local state without refetch
+            setAllTickets(prev => prev.map(t => {
+                if (t.id === ticketId || (t.booking_group_id && t.booking_group_id === currentTicket.booking_group_id)) {
+                    return { ...t, status: action === 'approve' ? 'paid' : 'rejected' };
+                }
+                return t;
+            }));
 
         } catch (error) {
             console.error('Verification error:', error);
-            toast.error('Action failed. Please try again.');
+            toast.error('Action failed');
         } finally {
             setProcessing(null);
         }
+    };
+
+    const sendApprovalEmail = async (to: string, userName: string, ticketType: string, amount: number) => {
+        try {
+            await fetch('/api/email/send-approval', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ to, userName, ticketType, amount }),
+            });
+        } catch (e) { console.error('Email failed', e); }
+    };
+
+    const sendRejectionEmail = async (to: string, userName: string, ticketType: string, amount: number) => {
+        try {
+            await fetch('/api/email/send-rejection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ to, userName, ticketType, amount }),
+            });
+        } catch (e) { console.error('Email failed', e); }
     };
 
     const getImageUrl = (path: string) => {
@@ -270,193 +204,179 @@ export default function VerifyPage() {
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        // Could show a toast here
+        toast.success('Copied!');
     };
 
-    if (loading) {
-        return (
-            <main className="min-h-screen bg-[#050505] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-[#a855f7] animate-spin" />
-            </main>
-        );
-    }
+    // Filter Logic
+    const filteredTickets = allTickets.filter(ticket => {
+        // 1. Status Filter
+        if (filter === 'pending' && ticket.status !== 'pending_verification') return false;
+        if (filter === 'approved' && ticket.status !== 'paid') return false;
+        if (filter === 'rejected' && ticket.status !== 'rejected') return false;
+
+        // 2. Search Filter
+        const search = searchTerm.toLowerCase();
+        const name = ticket.user?.full_name || ticket.pending_name || '';
+        const email = ticket.user?.email || ticket.pending_email || '';
+        const phone = ticket.user?.phone || ticket.pending_phone || '';
+        const utr = ticket.utr || '';
+
+        return name.toLowerCase().includes(search) ||
+            email.toLowerCase().includes(search) ||
+            phone.includes(search) ||
+            utr.toLowerCase().includes(search);
+    });
+
+    const stats = {
+        total: allTickets.length,
+        pending: allTickets.filter(t => t.status === 'pending_verification').length,
+        approved: allTickets.filter(t => t.status === 'paid').length,
+        rejected: allTickets.filter(t => t.status === 'rejected').length,
+        totalRevenue: allTickets.filter(t => t.status === 'paid').reduce((sum, t) => sum + t.amount, 0)
+    };
 
     return (
         <main className="min-h-screen bg-[#050505] relative">
-            {/* Background - subtle grid */}
             <div className="fixed inset-0 bg-[linear-gradient(rgba(168,85,247,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
-
-            {/* Gradient overlay */}
             <div className="fixed inset-0 bg-gradient-to-br from-[#050505] via-transparent to-[#050505]/80 pointer-events-none" />
 
-            {/* Admin Dock */}
             <AdminDock currentPage="verify" />
 
-            {/* Content Container - stays left of dock */}
             <div className="p-4 lg:p-8 mr-0 md:mr-20 relative z-10">
                 <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Header */}
+                    <div>
+                        <h1 className="font-heading text-4xl text-white mb-2">Pass Verification</h1>
+                        <p className="text-white/60">Review proofs and manage access</p>
+                    </div>
 
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <h1 className="font-heading text-4xl text-white mb-2">Payment Verification</h1>
-                            <p className="text-white/60 text-base">
-                                Pending: <span className="font-bold text-amber-400">{tickets.length}</span>
-                            </p>
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-[#0a0a0a]/90 border border-white/10 rounded-xl p-4">
+                            <p className="text-white/50 text-xs mb-1">Total Submissions</p>
+                            <p className="text-white text-2xl font-bold">{stats.total}</p>
+                        </div>
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                            <p className="text-amber-300/70 text-xs mb-1">Pending Review</p>
+                            <p className="text-amber-400 text-2xl font-bold">{stats.pending}</p>
+                        </div>
+                        <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4">
+                            <p className="text-green-300/70 text-xs mb-1">Approved</p>
+                            <p className="text-green-400 text-2xl font-bold">{stats.approved}</p>
+                        </div>
+                        <div className="bg-[#a855f7]/10 border border-[#a855f7]/30 rounded-xl p-4">
+                            <p className="text-[#a855f7]/70 text-xs mb-1">Revenue</p>
+                            <p className="text-[#a855f7] text-2xl font-bold">₹{stats.totalRevenue}</p>
+                        </div>
+                    </div>
+
+                    {/* Controls */}
+                    {/* Controls */}
+                    <div className="flex flex-wrap gap-3 mb-6">
+                        <div className="flex gap-2">
+                            {(['pending', 'approved', 'rejected', 'all'] as const).map((status) => (
+                                <button
+                                    key={status}
+                                    onClick={() => setFilter(status)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${filter === status
+                                        ? 'bg-[#a855f7] text-white'
+                                        : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
+                                        }`}
+                                >
+                                    {status === 'pending' ? 'To Review' : status}
+                                </button>
+                            ))}
                         </div>
 
-                        <button
-                            onClick={fetchPendingTickets}
-                            className="px-4 py-2.5 rounded-xl text-sm font-bold uppercase bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition-colors flex items-center gap-2"
-                        >
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                            <input
+                                type="text"
+                                placeholder="Search name, UTR..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-64 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[#a855f7]/50"
+                            />
+                        </div>
+                        <button onClick={fetchTickets} className="px-4 py-2 rounded-xl bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10">
                             <RefreshCw className="w-4 h-4" />
-                            Refresh
                         </button>
                     </div>
 
-                    {tickets.length === 0 ? (
+                    {/* List */}
+                    {loading ? (
+                        <div className="flex items-center justify-center py-16">
+                            <Loader2 className="w-8 h-8 text-[#a855f7] animate-spin" />
+                        </div>
+                    ) : filteredTickets.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 text-white/40">
                             <CheckCircle className="w-12 h-12 mb-3 opacity-50" />
-                            <p className="font-body text-base">All caught up! No pending verifications.</p>
+                            <p>No results found.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                            {tickets.map((ticket) => (
+                            {filteredTickets.map((ticket) => (
                                 <motion.div
                                     key={ticket.id}
                                     layout
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className="bg-white/[0.03] border border-white/10 rounded-xl p-4 flex flex-col lg:flex-row gap-4 items-start lg:items-center"
+                                    className={`border rounded-xl p-4 flex flex-col lg:flex-row gap-4 items-start lg:items-center ${ticket.status === 'paid' ? 'bg-green-500/5 border-green-500/20' :
+                                        ticket.status === 'rejected' ? 'bg-red-500/5 border-red-500/20' :
+                                            'bg-white/[0.03] border-white/10'
+                                        }`}
                                 >
-                                    {/* Screenshot Thumbnail */}
+                                    {/* Thumbnail */}
                                     <div className="relative group shrink-0">
-                                        <div className="w-28 h-28 rounded-xl overflow-hidden bg-black/50 border border-white/10 relative flex items-center justify-center">
+                                        <div className="w-20 h-20 rounded-xl overflow-hidden bg-black/50 border border-white/10 relative flex items-center justify-center">
                                             {ticket.screenshot_path ? (
-                                                <>
-                                                    <Image
-                                                        src={getImageUrl(ticket.screenshot_path)}
-                                                        alt="Payment Proof"
-                                                        fill
-                                                        className="object-cover"
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onClick={() => setSelectedImage(getImageUrl(ticket.screenshot_path))}>
-                                                        <ZoomIn className="w-6 h-6 text-white" />
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <div className="text-center p-2">
-                                                    <XCircle className="w-6 h-6 text-white/20 mx-auto" />
-                                                    <p className="text-white/30 text-xs mt-1">NO IMG</p>
+                                                <div className="relative w-full h-full cursor-pointer" onClick={() => setSelectedImage(getImageUrl(ticket.screenshot_path))}>
+                                                    <Image src={getImageUrl(ticket.screenshot_path)} alt="Proof" fill className="object-cover" />
                                                 </div>
+                                            ) : (
+                                                <div className="text-center p-2"><XCircle className="w-5 h-5 text-white/20 mx-auto" /></div>
                                             )}
                                         </div>
                                     </div>
 
-                                    {/* Details Grid */}
+                                    {/* Data */}
                                     <div className="flex-1 min-w-0 w-full">
-                                        <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mb-3">
-                                            {/* Purchaser Info */}
-                                            <div className="min-w-[180px]">
-                                                <p className="text-xs text-white/40 font-mono mb-1">PURCHASER</p>
-                                                <h3 className="font-heading text-base text-white truncate">
-                                                    {ticket.user?.full_name || 'Unknown'}
-                                                </h3>
-                                                <p className="text-sm text-white/50">{ticket.user?.phone}</p>
-                                            </div>
-
-                                            {/* Ticket Info */}
+                                        <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <p className="text-xs text-white/40 font-mono mb-1">TICKET</p>
-                                                <div className="flex items-center gap-3">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${ticket.type === 'quad' ? 'bg-purple-500/20 text-purple-400' :
-                                                        ticket.type === 'duo' ? 'bg-blue-500/20 text-blue-400' :
-                                                            'bg-white/10 text-white/70'
-                                                        }`}>
-                                                        {ticket.type}
-                                                    </span>
-                                                    <span className="font-heading text-lg text-white">₹{ticket.amount}</span>
-                                                    {ticket.groupMembers && ticket.groupMembers.length > 1 && (
-                                                        <span className="text-sm text-white/50">
-                                                            ({ticket.groupMembers.length}p)
-                                                        </span>
-                                                    )}
+                                                <h3 className="font-bold text-white truncate">{ticket.user?.full_name || 'Unknown'}</h3>
+                                                <div className="flex items-center gap-2 text-xs text-white/50">
+                                                    <span>{ticket.user?.phone}</span>
+                                                    <span>•</span>
+                                                    <span className="font-mono">{ticket.utr || 'No UTR'}</span>
                                                 </div>
                                             </div>
-
-                                            {/* Payment Info */}
-                                            <div className="min-w-[140px]">
-                                                <p className="text-xs text-white/40 font-mono mb-1">UTR & OWNER</p>
-                                                {ticket.utr ? (
-                                                    <div className="flex flex-col gap-1">
-                                                        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => copyToClipboard(ticket.utr)}>
-                                                            <p className="font-mono text-sm text-[#a855f7] truncate max-w-[120px]">{ticket.utr}</p>
-                                                            <Copy className="w-3 h-3 text-white/40 opacity-0 group-hover:opacity-100" />
-                                                        </div>
-                                                        {ticket.payment_owner_name && (
-                                                            <p className="text-xs text-white/60 truncate max-w-[120px]" title={ticket.payment_owner_name}>
-                                                                {ticket.payment_owner_name}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <p className="font-mono text-sm text-white/40">—</p>
-                                                )}
-                                                <p className="text-xs text-white/40 mt-1">
-                                                    {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
-                                                </p>
-                                            </div>
-
-                                            {/* Actions */}
-                                            <div className="flex gap-3 items-center ml-auto">
-                                                <button
-                                                    onClick={() => handleVerify(ticket.id, 'approve')}
-                                                    disabled={processing === ticket.id}
-                                                    className="px-4 py-2 rounded-lg bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 font-bold text-sm transition-colors flex items-center gap-2"
-                                                >
-                                                    {processing === ticket.id ? (
-                                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                                    ) : (
-                                                        <>
-                                                            <CheckCircle className="w-4 h-4" />
-                                                            {ticket.groupMembers && ticket.groupMembers.length > 1 ? `Approve ${ticket.groupMembers.length}` : 'Approve'}
-                                                        </>
-                                                    )}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleVerify(ticket.id, 'reject')}
-                                                    disabled={processing === ticket.id}
-                                                    className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-colors"
-                                                >
-                                                    <XCircle className="w-4 h-4" />
-                                                </button>
-                                            </div>
+                                            {ticket.status !== 'pending_verification' && (
+                                                <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${ticket.status === 'paid' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                                    }`}>
+                                                    {ticket.status}
+                                                </span>
+                                            )}
                                         </div>
 
-                                        {/* Group Members Section (Compact) */}
-                                        {ticket.groupMembers && ticket.groupMembers.length > 1 && (
-                                            <div className="border-t border-white/5 pt-2 mt-2">
-                                                <div className="flex flex-wrap gap-2">
-                                                    {ticket.groupMembers.map((member, index) => (
-                                                        <div
-                                                            key={member.id}
-                                                            className={`px-2 py-1 rounded text-[10px] flex items-center gap-1.5 ${member.isRegistered
-                                                                ? 'bg-green-500/10 border border-green-500/20'
-                                                                : 'bg-amber-500/10 border border-amber-500/20'
-                                                                }`}
-                                                        >
-                                                            <span className="text-white/70 truncate max-w-[120px]">{member.name}</span>
-                                                            <span className={`text-[8px] font-bold uppercase ${member.isRegistered
-                                                                ? 'text-green-400'
-                                                                : 'text-amber-400'
-                                                                }`}>
-                                                                {member.isRegistered ? '✓' : '?'}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                        <div className="flex items-center justify-between mt-2">
+                                            <div className="flex items-center gap-3">
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${ticket.type.includes('quad') ? 'border-purple-500/30 text-purple-400' : 'border-blue-500/30 text-blue-400'
+                                                    }`}>{ticket.type}</span>
+                                                <span className="font-heading text-white">₹{ticket.amount}</span>
                                             </div>
-                                        )}
+
+                                            {ticket.status === 'pending_verification' && (
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => handleVerify(ticket.id, 'approve')} disabled={processing === ticket.id} className="p-2 bg-green-500 hover:bg-green-600 rounded-lg text-white transition-colors">
+                                                        <CheckCircle className="w-4 h-4" />
+                                                    </button>
+                                                    <button onClick={() => handleVerify(ticket.id, 'reject')} disabled={processing === ticket.id} className="p-2 bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 rounded-lg text-red-400 transition-colors">
+                                                        <XCircle className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}
@@ -464,7 +384,6 @@ export default function VerifyPage() {
                     )}
                 </div>
 
-                {/* Lightbox */}
                 <AnimatePresence>
                     {selectedImage && (
                         <motion.div
@@ -472,15 +391,10 @@ export default function VerifyPage() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setSelectedImage(null)}
-                            className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+                            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 cursor-zoom-out"
                         >
-                            <div className="relative w-full max-w-4xl h-[80vh]">
-                                <Image
-                                    src={selectedImage}
-                                    alt="Full proof"
-                                    fill
-                                    className="object-contain"
-                                />
+                            <div className="relative w-full max-w-4xl h-[90vh]">
+                                <Image src={selectedImage} alt="Full proof" fill className="object-contain" />
                             </div>
                         </motion.div>
                     )}

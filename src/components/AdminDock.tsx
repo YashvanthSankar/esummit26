@@ -27,7 +27,7 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
         { id: 'accommodation', icon: Bed, label: 'Accommodation', href: '/admin/accommodation' },
         { id: 'merch', icon: ShoppingBag, label: 'Merch', href: '/admin/merch' },
         { id: 'bands', icon: Tag, label: 'Bands', href: '/admin/bands' },
-        { id: 'verify', icon: CheckCircle, label: 'Verify', href: '/admin/verify' },
+        { id: 'verify', icon: CheckCircle, label: 'Pass', href: '/admin/verify' },
         { id: 'scan', icon: QrCode, label: 'Scanner', href: '/admin/scan' },
         { id: 'users', icon: Users, label: 'Users', href: '/admin/users' },
     ];

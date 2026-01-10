@@ -38,6 +38,7 @@ interface UserTicket {
     pax_count: number;
     utr?: string;
     pending_name?: string;  // For tickets purchased for pending users
+    band_issued_at?: string | null;
 }
 
 export default function DashboardPage() {
@@ -736,6 +737,24 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-4 mb-8">
                                 <Ticket className="w-8 h-8 text-[#a855f7]" />
                                 <h2 className="font-heading text-3xl text-white">Your Ticket</h2>
+                            </div>
+
+                            {/* Band Status Badge */}
+                            <div className={`mb-8 px-6 py-3 rounded-full border flex items-center gap-3 ${ticket.band_issued_at
+                                    ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                                    : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                                }`}>
+                                {ticket.band_issued_at ? (
+                                    <>
+                                        <CheckCircle className="w-5 h-5" />
+                                        <span className="font-heading tracking-wide">BAND COLLECTED</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Clock className="w-5 h-5" />
+                                        <span className="font-heading tracking-wide">READY TO COLLECT</span>
+                                    </>
+                                )}
                             </div>
 
                             <div className="mb-6">
