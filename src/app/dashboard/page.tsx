@@ -766,13 +766,47 @@ export default function DashboardPage() {
                                 </>
                             ) : (
                                 <>
-                                    <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto mb-6">
+                                    <div className="w-20 h-20 rounded-full bg-yellow-500/10 flex items-center justify-center mx-auto mb-6 animate-pulse">
                                         <Clock className="w-10 h-10 text-yellow-500" />
                                     </div>
-                                    <h3 className="font-heading text-2xl text-white mb-2">Verification in Progress</h3>
-                                    <p className="font-body text-white/60 max-w-md mx-auto">
-                                        We are verifying your payment details (UTR: {ticket.utr}).<br />
-                                        This usually takes just a few hours.
+                                    <h3 className="font-heading text-2xl text-white mb-3">Payment Submitted Successfully! 🎉</h3>
+                                    <p className="font-body text-white/70 max-w-md mx-auto mb-4">
+                                        Your payment is being verified by our team.
+                                    </p>
+                                    
+                                    {ticket.utr && (
+                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
+                                            <span className="text-white/50 text-sm font-mono">UTR:</span>
+                                            <span className="text-white text-sm font-mono">{ticket.utr}</span>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="bg-[#a855f7]/5 border border-[#a855f7]/20 rounded-2xl p-6 max-w-md mx-auto mt-4">
+                                        <h4 className="font-heading text-lg text-[#a855f7] mb-3">What happens next?</h4>
+                                        <ul className="text-left space-y-3 text-white/60 text-sm font-body">
+                                            <li className="flex items-start gap-3">
+                                                <span className="w-6 h-6 rounded-full bg-[#a855f7]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                    <span className="text-[#a855f7] text-xs font-bold">1</span>
+                                                </span>
+                                                <span>Our team will verify your payment within <strong className="text-white">24 hours</strong></span>
+                                            </li>
+                                            <li className="flex items-start gap-3">
+                                                <span className="w-6 h-6 rounded-full bg-[#a855f7]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                    <span className="text-[#a855f7] text-xs font-bold">2</span>
+                                                </span>
+                                                <span>Once approved, your <strong className="text-white">ticket will be ready</strong> here</span>
+                                            </li>
+                                            <li className="flex items-start gap-3">
+                                                <span className="w-6 h-6 rounded-full bg-[#a855f7]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                                    <span className="text-[#a855f7] text-xs font-bold">3</span>
+                                                </span>
+                                                <span>Your <strong className="text-white">QR ticket</strong> will appear here for download</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <p className="text-white/40 text-xs mt-6 font-mono">
+                                        Check back later to download your ticket
                                     </p>
                                 </>
                             )}
