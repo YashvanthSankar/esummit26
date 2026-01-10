@@ -110,6 +110,9 @@ export default function OnboardingPage() {
                 })
             }).catch(err => console.log('[Sheets Sync] Background sync error:', err));
 
+            // Clear middleware profile cache before redirecting
+            await fetch('/api/profile/clear-cache', { method: 'POST' }).catch(() => {});
+
             // Force reload to clear any cached middleware states
             window.location.href = '/dashboard';
         } else {
