@@ -223,7 +223,7 @@ export default function AdminMerchPage() {
         <main className="min-h-screen bg-[#050505] relative overflow-hidden">
             <div className="fixed inset-0 bg-[linear-gradient(rgba(168,85,247,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
 
-            <AdminDock currentPage="dashboard" />
+            <AdminDock currentPage="merch" />
 
             <div className="px-4 sm:px-6 py-8 sm:py-12 mr-0 md:mr-20 relative z-10">
                 <div className="max-w-7xl mx-auto">

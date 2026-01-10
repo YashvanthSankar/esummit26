@@ -38,111 +38,31 @@ export async function GET() {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 
-        // Fetch tickets
-        const { data: tickets, error: ticketsError } = await supabase
-            .from('tickets')
-            .select('*')
-            .order('created_at', { ascending: false });
+        // OPTIMIZATION: Use server-side SQL function for high performance
+        // This replaces multiple queries + N+1 profile lookups with a single optimized query
 
-        if (ticketsError) throw ticketsError;
+        console.time('unified-view-rpc');
 
-        // Fetch merch orders
-        const { data: merchOrders, error: merchError } = await supabase
-            .from('merch_orders')
-            .select('*')
-            .order('created_at', { ascending: false });
+        const { data: unifiedData, error: rpcError } = await supabase
+            .rpc('get_unified_admin_view');
 
-        if (merchError) throw merchError;
+        console.timeEnd('unified-view-rpc');
 
-        // Fetch accommodation requests
-        const { data: accommodations, error: accomError } = await supabase
-            .from('accommodation_requests')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (accomError) throw accomError;
-
-        // Transform and merge data
-        const unifiedData: UnifiedRecord[] = [];
-
-        // Process tickets (need to join with profiles for user details)
-        if (tickets) {
-            for (const ticket of tickets) {
-                // Fetch profile for user details
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('full_name, email, phone')
-                    .eq('id', ticket.user_id)
-                    .single();
-
-                unifiedData.push({
-                    id: `ticket-${ticket.id}`,
-                    user_name: profile?.full_name || 'N/A',
-                    user_email: profile?.email || 'N/A',
-                    category: 'Ticket',
-                    type: ticket.type?.toUpperCase() || 'N/A',
-                    status: ticket.status === 'paid' ? 'Paid' : 
-                            ticket.status === 'pending_verification' ? 'Pending Verification' : 'Pending',
-                    fulfillment_status: ticket.status === 'paid' ? 'Issued' : 'Not Issued',
-                    amount: ticket.amount || 0,
-                    created_at: ticket.created_at,
-                    phone_number: profile?.phone || 'N/A'
-                });
-            }
+        if (rpcError) {
+            console.error('RPC Error:', rpcError);
+            throw rpcError;
         }
 
-        // Process merch orders
-        if (merchOrders) {
-            merchOrders.forEach(order => {
-                unifiedData.push({
-                    id: `merch-${order.id}`,
-                    user_name: order.name || 'N/A',
-                    user_email: order.email || 'N/A',
-                    category: 'Merchandise',
-                    type: order.bundle_type?.toUpperCase() || 'N/A',
-                    status: order.payment_status === 'paid' ? 'Paid' : 
-                            order.payment_status === 'pending_verification' ? 'Pending Verification' : 'Pending',
-                    fulfillment_status: order.status === 'delivered' ? 'Delivered' : 
-                                       order.status === 'confirmed' ? 'Confirmed' : 'Not Issued',
-                    amount: order.amount || 0,
-                    created_at: order.created_at,
-                    phone_number: order.phone_number || 'N/A'
-                });
-            });
-        }
-
-        // Process accommodation requests
-        if (accommodations) {
-            accommodations.forEach(accom => {
-                unifiedData.push({
-                    id: `accom-${accom.id}`,
-                    user_name: accom.name || 'N/A',
-                    user_email: accom.email || 'N/A',
-                    category: 'Accommodation',
-                    type: `${accom.gender?.toUpperCase()} - ${accom.date_of_arrival} to ${accom.date_of_departure}` || 'N/A',
-                    status: accom.payment_status === 'paid' ? 'Paid' : 
-                            accom.payment_status === 'pending_verification' ? 'Pending Verification' : 'Pending',
-                    fulfillment_status: accom.status === 'approved' ? 'Approved' : 
-                                       accom.status === 'rejected' ? 'Rejected' : 'Pending',
-                    amount: accom.payment_amount || 500,
-                    created_at: accom.created_at,
-                    phone_number: accom.phone_number || 'N/A'
-                });
-            });
-        }
-
-        // Sort by created_at descending
-        unifiedData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-        const response = NextResponse.json({ 
-            data: unifiedData, 
+        const response = NextResponse.json({
+            data: unifiedData || [],
             success: true,
-            cached_at: new Date().toISOString()
+            cached_at: new Date().toISOString(),
+            count: unifiedData?.length || 0
         });
-        
-        // Set cache headers: cache for 5 minutes, revalidate in background
-        response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
-        
+
+        // Set cache headers: cache for 30 seconds (fresh enough for admin)
+        response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=59');
+
         return response;
 
     } catch (error) {

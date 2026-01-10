@@ -165,7 +165,7 @@ export default function AdminOverview() {
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
             {/* Admin Dock */}
-            <AdminDock currentPage="dashboard" />
+            <AdminDock currentPage="admin" />
 
             <div className="max-w-7xl mx-auto relative z-10">
                 <h2 className="font-heading text-3xl sm:text-4xl text-white mb-8">Dashboard Overview</h2>

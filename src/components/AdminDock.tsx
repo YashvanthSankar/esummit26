@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 
 interface AdminDockProps {
     userName?: string;
-    currentPage?: 'dashboard' | 'verify' | 'scan' | 'users' | 'accommodation' | 'merch' | 'unified' | 'bands';
+    currentPage?: 'home' | 'dashboard' | 'admin' | 'verify' | 'scan' | 'users' | 'accommodation' | 'merch' | 'unified' | 'bands';
 }
 
 export default function AdminDock({ userName, currentPage }: AdminDockProps) {
@@ -20,16 +20,16 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
     };
 
     const dockItems = [
-        { icon: Home, label: 'Home', href: '/' },
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-        { icon: Shield, label: 'Admin', href: '/admin' },
-        { icon: Database, label: 'Unified View', href: '/admin/unified' },
-        { icon: Bed, label: 'Accommodation', href: '/admin/accommodation' },
-        { icon: ShoppingBag, label: 'Merch', href: '/admin/merch' },
-        { icon: Tag, label: 'Bands', href: '/admin/bands' },
-        { icon: CheckCircle, label: 'Verify', href: '/admin/verify' },
-        { icon: QrCode, label: 'Scanner', href: '/admin/scan' },
-        { icon: Users, label: 'Users', href: '/admin/users' },
+        { id: 'home', icon: Home, label: 'Home', href: '/' },
+        { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+        { id: 'admin', icon: Shield, label: 'Admin', href: '/admin' },
+        { id: 'unified', icon: Database, label: 'Unified View', href: '/admin/unified' },
+        { id: 'accommodation', icon: Bed, label: 'Accommodation', href: '/admin/accommodation' },
+        { id: 'merch', icon: ShoppingBag, label: 'Merch', href: '/admin/merch' },
+        { id: 'bands', icon: Tag, label: 'Bands', href: '/admin/bands' },
+        { id: 'verify', icon: CheckCircle, label: 'Verify', href: '/admin/verify' },
+        { id: 'scan', icon: QrCode, label: 'Scanner', href: '/admin/scan' },
+        { id: 'users', icon: Users, label: 'Users', href: '/admin/users' },
     ];
 
     return (
@@ -44,7 +44,7 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
                 <div className="dock flex flex-col items-center gap-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2.5 shadow-2xl shadow-black/60 ring-1 ring-black/50">
                     {dockItems.map((item, index) => {
                         const Icon = item.icon;
-                        const isActive = currentPage && item.href.includes(currentPage);
+                        const isActive = currentPage === item.id;
                         return (
                             <motion.a
                                 key={item.label}
@@ -140,7 +140,7 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
                                 <div className="grid grid-cols-3 gap-3 mb-4">
                                     {dockItems.map((item, index) => {
                                         const Icon = item.icon;
-                                        const isActive = currentPage && item.href.includes(currentPage);
+                                        const isActive = currentPage === item.id;
                                         return (
                                             <motion.a
                                                 key={item.label}
