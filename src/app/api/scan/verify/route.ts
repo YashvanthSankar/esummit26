@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { CacheKeys, getCached, setCached } from '@/lib/kv';
+import { CacheKeys, getCached, setCached } from '@/lib/redis';
 
 // Cache admin check for 5 minutes to reduce DB calls
 const adminCache = new Map<string, { isAdmin: boolean; name: string; expires: number }>();
