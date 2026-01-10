@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Check, Smartphone } from 'lucide-react';
+import { Download, Check } from 'lucide-react';
 import { usePWA } from '@/context/PWAContext';
+import Image from 'next/image';
 
 export default function InstallApp() {
     const { isInstallable, isInstalled, install } = usePWA();
@@ -33,10 +34,17 @@ export default function InstallApp() {
                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#a855f7]/10 rounded-full blur-3xl" />
 
                     <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-                        {/* Icon */}
+                        {/* Icon - Using actual PWA icon */}
                         <div className="flex-shrink-0">
-                            <div className="w-20 h-20 rounded-2xl bg-[#a855f7]/20 border border-[#a855f7]/30 flex items-center justify-center">
-                                <Smartphone className="w-10 h-10 text-[#a855f7]" />
+                            <div className="w-20 h-20 rounded-2xl bg-[#a855f7]/20 border border-[#a855f7]/30 flex items-center justify-center overflow-hidden">
+                                <Image 
+                                    src="/icon-192x192.png" 
+                                    alt="E-Summit App Icon" 
+                                    width={80} 
+                                    height={80}
+                                    className="w-full h-full object-cover"
+                                    unoptimized
+                                />
                             </div>
                         </div>
 

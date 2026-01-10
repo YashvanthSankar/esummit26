@@ -220,6 +220,9 @@ export default function DockNavigation() {
                                         );
                                     })}
                                 </div>
+
+                                {/* Install App Button */}
+                                <MobileInstallButton />
                             </div>
                         </motion.nav>
                     </>
