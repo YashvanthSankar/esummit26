@@ -46,7 +46,7 @@ export default function AdminOverview() {
             // Fetch all tickets
             const { data: tickets } = await supabase
                 .from('tickets')
-                .select('amount, type, status, created_at, booking_group_id, screenshot_path, utr, user:profiles(full_name), pending_name, pending_email');
+                .select('id, amount, type, status, created_at, booking_group_id, screenshot_path, utr, user:profiles(full_name), pending_name, pending_email');
 
             if (tickets) {
                 // Calculate Stats
