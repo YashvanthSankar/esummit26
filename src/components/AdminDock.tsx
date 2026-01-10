@@ -37,7 +37,7 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
                 transition={{ delay: 0.5, duration: 0.8, ease: [0.23, 1, 0.32, 1] as [number, number, number, number] }}
                 className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-[9999]"
             >
-                <div className="dock flex flex-col items-center gap-2">
+                <div className="dock flex flex-col items-center gap-2 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl shadow-black/50">
                     {dockItems.map((item, index) => {
                         const Icon = item.icon;
                         const isActive = currentPage && item.href.includes(currentPage);
@@ -120,7 +120,7 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
                             transition={{ duration: 0.3 }}
                             className="md:hidden fixed bottom-24 left-0 right-0 z-[9998] px-6"
                         >
-                            <div className="glass-card rounded-3xl p-6">
+                            <div className="bg-black/70 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/50">
                                 {userName && (
                                     <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
                                         <div className="w-10 h-10 rounded-full bg-[#a855f7]/20 flex items-center justify-center">
