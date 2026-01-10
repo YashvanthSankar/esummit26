@@ -70,6 +70,11 @@ export default function OnboardingPage() {
             return;
         }
 
+        // Force internal role for IIITDM emails regardless of user selection
+        const isIIITDMEmail = user.email?.endsWith('@iiitdm.ac.in') ?? false;
+        const userRole = isIIITDMEmail ? 'internal' : 'external';
+        const collegeName = isIIITDMEmail ? 'IIITDM Kancheepuram' : formData.college_name;
+
         const { error } = await supabase
             .from('profiles')
             .upsert({
@@ -77,14 +82,34 @@ export default function OnboardingPage() {
                 email: user.email!, // Email is required for new rows
                 full_name: formData.full_name,
                 phone: phoneValidation.formatted!, // Use validated and formatted phone
-                college_name: formData.college_name,
-                roll_number: isInternal ? formData.roll_number : null,
+                college_name: collegeName, // Auto-set for IIITDM emails
+                roll_number: isIIITDMEmail ? formData.roll_number : null,
+                role: userRole, // Set role based on email domain
                 updated_at: new Date().toISOString(),
             }, {
                 onConflict: 'id'
             });
 
         if (!error) {
+            // Sync to Google Sheets (fire and forget - don't block redirect)
+            fetch('/api/sync/sheets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'user',
+                    data: {
+                        id: user.id,
+                        email: user.email!,
+                        full_name: formData.full_name,
+                        phone: phoneValidation.formatted!,
+                        college_name: collegeName,
+                        roll_number: isIIITDMEmail ? formData.roll_number : null,
+                        role: userRole,
+                        created_at: new Date().toISOString(),
+                    }
+                })
+            }).catch(err => console.log('[Sheets Sync] Background sync error:', err));
+
             // Force reload to clear any cached middleware states
             window.location.href = '/dashboard';
         } else {
