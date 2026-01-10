@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { render } from '@react-email/render';
 import PaymentApprovedEmail from './emails/payment-approved';
 import PaymentRejectedEmail from './emails/payment-rejected';
+import * as React from 'react';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -48,7 +49,9 @@ export async function sendPaymentApprovalEmail(
         console.log('[Email] To:', to);
 
         // Render the React component to HTML
-        const emailHtml = await render(PaymentApprovedEmail({ userName, ticketType, amount }));
+        const emailHtml = await render(
+            React.createElement(PaymentApprovedEmail, { userName, ticketType, amount })
+        );
 
         const { data, error } = await resend.emails.send({
             from: fromEmail,
@@ -93,7 +96,9 @@ export async function sendPaymentRejectionEmail(
         console.log('[Email] To:', to);
 
         // Render the React component to HTML
-        const emailHtml = await render(PaymentRejectedEmail({ userName, ticketType, amount }));
+        const emailHtml = await render(
+            React.createElement(PaymentRejectedEmail, { userName, ticketType, amount })
+        );
 
         const { data, error } = await resend.emails.send({
             from: fromEmail,
