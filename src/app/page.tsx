@@ -10,7 +10,6 @@ import Footer from '@/components/Footer';
 import AnimatedGrid from '@/components/AnimatedGrid';
 import DockNavigation from '@/components/DockNavigation';
 import SmoothScroll from '@/components/SmoothScroll';
-import InstallAppButton from '@/components/InstallAppButton';
 import InstallApp from '@/components/InstallApp';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -62,8 +61,6 @@ export default function Home() {
 
           {/* Install App Section */}
           <InstallApp />
-
-          <InstallAppButton />
 
           {/* Footer */}
           <Footer />
