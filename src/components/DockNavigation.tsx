@@ -19,9 +19,9 @@ const actionItems = [
 ];
 
 function InstallButton() {
-    const { isInstallable, install } = usePWA();
+    const { isInstallable, isInstalled, install } = usePWA();
 
-    if (!isInstallable) return null;
+    if (!isInstallable || isInstalled) return null;
 
     return (
         <motion.button
@@ -45,17 +45,18 @@ function InstallButton() {
 }
 
 function MobileInstallButton() {
-    const { isInstallable, install } = usePWA();
+    const { isInstallable, isInstalled, install } = usePWA();
 
-    if (!isInstallable) return null;
+    if (!isInstallable || isInstalled) return null;
 
     return (
         <motion.button
             onClick={install}
-            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#a855f7]/10 text-[#a855f7] font-heading text-sm"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#a855f7] text-[#050505] font-heading text-sm mt-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
+            whileTap={{ scale: 0.95 }}
         >
             <Download className="w-5 h-5" />
             Install App
@@ -202,7 +203,7 @@ export default function DockNavigation() {
                                 <div className="h-px bg-white/10 my-4" />
 
                                 {/* Action buttons - Login & Dashboard */}
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="flex flex-col gap-3">
                                     {actionItems.map((item, index) => {
                                         const Icon = item.icon;
                                         return (
@@ -213,16 +214,17 @@ export default function DockNavigation() {
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 transition={{ delay: 0.3 + index * 0.05 }}
+                                                whileTap={{ scale: 0.95 }}
                                             >
                                                 <Icon className="w-5 h-5" />
                                                 {item.label}
                                             </motion.a>
                                         );
                                     })}
+                                    
+                                    {/* Install App Button */}
+                                    <MobileInstallButton />
                                 </div>
-
-                                {/* Install App Button */}
-                                <MobileInstallButton />
                             </div>
                         </motion.nav>
                     </>
