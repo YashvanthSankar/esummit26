@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Calendar, Users, Award, Mail, Menu, X, LogIn, Ticket } from 'lucide-react';
+import { Home, Calendar, Users, Award, Mail, Menu, X, LogIn, Ticket, Download } from 'lucide-react';
+import { usePWA } from '@/context/PWAContext';
 
 const dockItems = [
     { icon: Home, label: 'Home', href: '#hero' },
@@ -16,6 +17,51 @@ const actionItems = [
     { icon: Ticket, label: 'Dashboard', href: '/dashboard' },
     { icon: LogIn, label: 'Login', href: '/login' },
 ];
+
+function InstallButton() {
+    const { isInstallable, install } = usePWA();
+
+    if (!isInstallable) return null;
+
+    return (
+        <motion.button
+            onClick={install}
+            className="dock-item group relative p-3 rounded-xl hover:bg-[#a855f7]/20 transition-colors"
+            whileHover={{ x: -8, scale: 1.2 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 2 }} // Slightly later than others
+            data-hover="true"
+        >
+            <Download className="w-5 h-5 text-[#a855f7] group-hover:text-white transition-colors" />
+
+            {/* Tooltip */}
+            <span className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-[#a855f7] text-[#050505] text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Install App
+            </span>
+        </motion.button>
+    );
+}
+
+function MobileInstallButton() {
+    const { isInstallable, install } = usePWA();
+
+    if (!isInstallable) return null;
+
+    return (
+        <motion.button
+            onClick={install}
+            className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#a855f7]/10 text-[#a855f7] font-heading text-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+        >
+            <Download className="w-5 h-5" />
+            Install App
+        </motion.button>
+    );
+}
 
 export default function DockNavigation() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -91,6 +137,7 @@ export default function DockNavigation() {
                             </motion.a>
                         );
                     })}
+                    <InstallButton />
                 </div>
             </motion.nav>
 

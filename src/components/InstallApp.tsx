@@ -1,67 +1,18 @@
 'use client';
 
-import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Check, Smartphone } from 'lucide-react';
-
-interface BeforeInstallPromptEvent extends Event {
-    prompt: () => Promise<void>;
-    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
-
-// Check if running in standalone mode (installed PWA)
-function getIsStandalone() {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(display-mode: standalone)').matches;
-}
-
-function subscribeToStandalone(callback: () => void) {
-    if (typeof window === 'undefined') return () => { };
-    const mediaQuery = window.matchMedia('(display-mode: standalone)');
-    mediaQuery.addEventListener('change', callback);
-    return () => mediaQuery.removeEventListener('change', callback);
-}
+import { usePWA } from '@/context/PWAContext';
 
 export default function InstallApp() {
-    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+    const { isInstallable, isInstalled, install } = usePWA();
     const [installing, setInstalling] = useState(false);
 
-    const isInstalled = useSyncExternalStore(
-        subscribeToStandalone,
-        getIsStandalone,
-        () => false
-    );
-
-    useEffect(() => {
-        const handler = (e: Event) => {
-            e.preventDefault();
-            setDeferredPrompt(e as BeforeInstallPromptEvent);
-        };
-
-        window.addEventListener('beforeinstallprompt', handler);
-
-        const installHandler = () => {
-            setDeferredPrompt(null);
-        };
-        window.addEventListener('appinstalled', installHandler);
-
-        return () => {
-            window.removeEventListener('beforeinstallprompt', handler);
-            window.removeEventListener('appinstalled', installHandler);
-        };
-    }, []);
-
     const handleInstall = async () => {
-        if (!deferredPrompt) return;
-
         setInstalling(true);
         try {
-            await deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-
-            if (outcome === 'accepted') {
-                setDeferredPrompt(null);
-            }
+            await install();
         } catch (err) {
             console.error('Install error:', err);
         } finally {
@@ -109,7 +60,7 @@ export default function InstallApp() {
                                     <Check className="w-5 h-5" />
                                     <span className="font-bold">Installed</span>
                                 </div>
-                            ) : deferredPrompt ? (
+                            ) : isInstallable ? (
                                 <motion.button
                                     onClick={handleInstall}
                                     disabled={installing}

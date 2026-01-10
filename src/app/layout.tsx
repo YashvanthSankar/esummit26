@@ -44,6 +44,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import CustomCursor from "@/components/CustomCursor";
 import ToastProvider from "@/components/ToastProvider";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import { PWAProvider } from "@/context/PWAContext";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -64,12 +65,14 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className={`antialiased bg-[#050505] ${bricolage.variable} font-sans`}>
-        <CustomCursor />
-        <ToastProvider />
-        <PWAInstallPrompt />
-        {children}
-        <Analytics />
-        <SpeedInsights />
+        <PWAProvider>
+          <CustomCursor />
+          <ToastProvider />
+          <PWAInstallPrompt />
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </PWAProvider>
       </body>
     </html>
   );

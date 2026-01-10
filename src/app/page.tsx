@@ -11,6 +11,7 @@ import AnimatedGrid from '@/components/AnimatedGrid';
 import DockNavigation from '@/components/DockNavigation';
 import SmoothScroll from '@/components/SmoothScroll';
 import InstallApp from '@/components/InstallApp';
+import InstallAppButton from '@/components/InstallAppButton';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -61,6 +62,7 @@ export default function Home() {
 
           {/* Install App Section */}
           <InstallApp />
+          <InstallAppButton />
 
           {/* Footer */}
           <Footer />
