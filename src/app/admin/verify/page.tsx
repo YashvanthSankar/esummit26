@@ -280,7 +280,7 @@ export default function VerifyPage() {
     }
 
     return (
-        <main className="min-h-screen px-4 sm:px-6 py-8 sm:py-12 relative overflow-hidden">
+        <main className="min-h-screen px-4 py-4 sm:py-6 relative overflow-hidden">
             {/* Background */}
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
@@ -288,38 +288,38 @@ export default function VerifyPage() {
             <AdminDock currentPage="verify" />
 
             <div className="max-w-7xl mx-auto relative z-10">
-                <div className="flex items-center justify-between mb-12">
-                    <h1 className="font-heading text-3xl text-white">Payment Verification</h1>
-                    <div className="flex items-center gap-4">
-                        <span className="text-white/30 text-sm font-mono">{tickets.length} PENDING</span>
+                <div className="flex items-center justify-between mb-4">
+                    <h1 className="font-heading text-2xl text-white">Payment Verification</h1>
+                    <div className="flex items-center gap-3">
+                        <span className="text-white/30 text-xs font-mono">{tickets.length} PENDING</span>
                         <button
                             onClick={fetchPendingTickets}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors"
+                            className="p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-white transition-colors"
                         >
-                            <RefreshCw className="w-5 h-5" />
+                            <RefreshCw className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
 
                 {tickets.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-24 text-white/30">
-                        <CheckCircle className="w-16 h-16 mb-4 opacity-50" />
-                        <p className="font-body text-lg">All caught up! No pending verifications.</p>
+                    <div className="flex flex-col items-center justify-center py-16 text-white/30">
+                        <CheckCircle className="w-12 h-12 mb-3 opacity-50" />
+                        <p className="font-body text-sm">All caught up! No pending verifications.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 gap-3">
                         {tickets.map((ticket) => (
                             <motion.div
                                 key={ticket.id}
                                 layout
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className="glass-card rounded-2xl p-6 flex flex-col lg:flex-row gap-8 items-start lg:items-center"
+                                className="bg-white/[0.02] border border-white/5 rounded-lg p-3 flex flex-col lg:flex-row gap-4 items-start lg:items-center"
                             >
                                 {/* Screenshot Thumbnail */}
                                 <div className="relative group shrink-0">
-                                    <div className="w-full sm:w-48 h-64 sm:h-48 rounded-xl overflow-hidden bg-black/50 border border-white/10 relative flex items-center justify-center">
+                                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-black/50 border border-white/10 relative flex items-center justify-center">
                                         {ticket.screenshot_path ? (
                                             <>
                                                 <Image
@@ -329,13 +329,13 @@ export default function VerifyPage() {
                                                     className="object-cover"
                                                 />
                                                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onClick={() => setSelectedImage(getImageUrl(ticket.screenshot_path))}>
-                                                    <ZoomIn className="w-8 h-8 text-white" />
+                                                    <ZoomIn className="w-5 h-5 text-white" />
                                                 </div>
                                             </>
                                         ) : (
-                                            <div className="text-center p-4">
-                                                <p className="text-white/30 text-xs font-mono mb-2">NO SCREENSHOT</p>
-                                                <XCircle className="w-8 h-8 text-white/10 mx-auto" />
+                                            <div className="text-center p-2">
+                                                <XCircle className="w-5 h-5 text-white/10 mx-auto" />
+                                                <p className="text-white/20 text-[8px] mt-1">NO IMG</p>
                                             </div>
                                         )}
                                     </div>
@@ -343,107 +343,96 @@ export default function VerifyPage() {
 
                                 {/* Details Grid */}
                                 <div className="flex-1 min-w-0 w-full">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+                                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mb-2">
                                         {/* Purchaser Info */}
-                                        <div>
-                                            <p className="text-xs text-white/30 font-mono mb-1">PURCHASER</p>
-                                            <h3 className="font-heading text-lg text-white truncate mb-1">
-                                                {ticket.user?.full_name || 'Unknown User'}
+                                        <div className="min-w-[150px]">
+                                            <p className="text-[10px] text-white/30 font-mono">PURCHASER</p>
+                                            <h3 className="font-heading text-sm text-white truncate">
+                                                {ticket.user?.full_name || 'Unknown'}
                                             </h3>
-                                            <p className="font-body text-xs text-white/50">{ticket.user?.college_name}</p>
-                                            <p className="font-mono text-xs text-white/30 mt-1">{ticket.user?.phone}</p>
+                                            <p className="text-[10px] text-white/40 truncate">{ticket.user?.phone}</p>
                                         </div>
 
                                         {/* Ticket Info */}
                                         <div>
-                                            <p className="text-xs text-white/30 font-mono mb-1">TICKET</p>
-                                            <span className={`inline-block px-2 py-1 rounded text-xs font-bold uppercase mb-1 ${ticket.type === 'quad' ? 'bg-purple-500/20 text-purple-400' :
-                                                ticket.type === 'duo' ? 'bg-blue-500/20 text-blue-400' :
-                                                    'bg-white/10 text-white/70'
-                                                }`}>
-                                                {ticket.type}
-                                            </span>
-                                            <p className="font-heading text-xl text-white">₹{ticket.amount}</p>
-                                            {ticket.groupMembers && ticket.groupMembers.length > 1 && (
-                                                <p className="text-xs text-white/50 mt-1">
-                                                    <Users className="w-3 h-3 inline mr-1" />
-                                                    {ticket.groupMembers.length} attendees
-                                                </p>
-                                            )}
+                                            <p className="text-[10px] text-white/30 font-mono">TICKET</p>
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${ticket.type === 'quad' ? 'bg-purple-500/20 text-purple-400' :
+                                                    ticket.type === 'duo' ? 'bg-blue-500/20 text-blue-400' :
+                                                        'bg-white/10 text-white/70'
+                                                    }`}>
+                                                    {ticket.type}
+                                                </span>
+                                                <span className="font-heading text-sm text-white">₹{ticket.amount}</span>
+                                                {ticket.groupMembers && ticket.groupMembers.length > 1 && (
+                                                    <span className="text-[10px] text-white/40">
+                                                        ({ticket.groupMembers.length}p)
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Payment Info */}
-                                        <div>
-                                            <p className="text-xs text-white/30 font-mono mb-1">UTR / REF</p>
+                                        <div className="min-w-[120px]">
+                                            <p className="text-[10px] text-white/30 font-mono">UTR</p>
                                             {ticket.utr ? (
-                                                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => copyToClipboard(ticket.utr)}>
-                                                    <p className="font-mono text-lg text-[#a855f7] truncate">{ticket.utr}</p>
-                                                    <Copy className="w-3 h-3 text-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                <div className="flex items-center gap-1 group cursor-pointer" onClick={() => copyToClipboard(ticket.utr)}>
+                                                    <p className="font-mono text-xs text-[#a855f7] truncate max-w-[100px]">{ticket.utr}</p>
+                                                    <Copy className="w-2.5 h-2.5 text-white/30 opacity-0 group-hover:opacity-100" />
                                                 </div>
                                             ) : (
-                                                <p className="font-mono text-sm text-white/30 italic">Not Provided</p>
+                                                <p className="font-mono text-[10px] text-white/30">—</p>
                                             )}
-                                            <p className="font-mono text-xs text-white/30 mt-1">
+                                            <p className="text-[9px] text-white/30">
                                                 {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
                                             </p>
                                         </div>
 
-
                                         {/* Actions */}
-                                        <div className="flex gap-3 items-center">
+                                        <div className="flex gap-2 items-center ml-auto">
                                             <button
                                                 onClick={() => handleVerify(ticket.id, 'approve')}
                                                 disabled={processing === ticket.id}
-                                                className="flex-1 py-3 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                                                className="px-3 py-1.5 rounded-md bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 font-bold text-xs transition-colors flex items-center gap-1.5"
                                             >
                                                 {processing === ticket.id ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
                                                 ) : (
                                                     <>
-                                                        <CheckCircle className="w-4 h-4" /> Approve{ticket.groupMembers && ticket.groupMembers.length > 1 ? ' All' : ''}
+                                                        <CheckCircle className="w-3 h-3" />
+                                                        {ticket.groupMembers && ticket.groupMembers.length > 1 ? `Approve ${ticket.groupMembers.length}` : 'Approve'}
                                                     </>
                                                 )}
                                             </button>
                                             <button
                                                 onClick={() => handleVerify(ticket.id, 'reject')}
                                                 disabled={processing === ticket.id}
-                                                className="px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-sm transition-colors"
+                                                className="p-1.5 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-colors"
                                             >
-                                                <XCircle className="w-4 h-4" />
+                                                <XCircle className="w-3.5 h-3.5" />
                                             </button>
                                         </div>
                                     </div>
 
-                                    {/* Group Members Section (for Duo/Quad) */}
+                                    {/* Group Members Section (Compact) */}
                                     {ticket.groupMembers && ticket.groupMembers.length > 1 && (
-                                        <div className="border-t border-white/10 pt-4 mt-4">
-                                            <p className="text-xs text-white/30 font-mono mb-3 flex items-center gap-2">
-                                                <Users className="w-4 h-4" />
-                                                GROUP MEMBERS ({ticket.groupMembers.length})
-                                            </p>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                        <div className="border-t border-white/5 pt-2 mt-2">
+                                            <div className="flex flex-wrap gap-2">
                                                 {ticket.groupMembers.map((member, index) => (
                                                     <div 
                                                         key={member.id} 
-                                                        className={`p-3 rounded-lg border ${member.isRegistered 
-                                                            ? 'bg-green-500/5 border-green-500/20' 
-                                                            : 'bg-amber-500/5 border-amber-500/20'
+                                                        className={`px-2 py-1 rounded text-[10px] flex items-center gap-1.5 ${member.isRegistered 
+                                                            ? 'bg-green-500/10 border border-green-500/20' 
+                                                            : 'bg-amber-500/10 border border-amber-500/20'
                                                         }`}
                                                     >
-                                                        <div className="flex items-start justify-between mb-1">
-                                                            <span className="text-xs font-mono text-white/30">#{index + 1}</span>
-                                                            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${member.isRegistered 
-                                                                ? 'bg-green-500/20 text-green-400' 
-                                                                : 'bg-amber-500/20 text-amber-400'
-                                                            }`}>
-                                                                {member.isRegistered ? 'Registered' : 'Pending'}
-                                                            </span>
-                                                        </div>
-                                                        <p className="font-heading text-sm text-white truncate">{member.name}</p>
-                                                        <p className="text-xs text-white/50 truncate">{member.email}</p>
-                                                        {member.phone && (
-                                                            <p className="text-xs text-white/30 font-mono mt-1">{member.phone}</p>
-                                                        )}
+                                                        <span className="text-white/70 truncate max-w-[120px]">{member.name}</span>
+                                                        <span className={`text-[8px] font-bold uppercase ${member.isRegistered 
+                                                            ? 'text-green-400' 
+                                                            : 'text-amber-400'
+                                                        }`}>
+                                                            {member.isRegistered ? '✓' : '?'}
+                                                        </span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -466,7 +455,7 @@ export default function VerifyPage() {
                         onClick={() => setSelectedImage(null)}
                         className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
                     >
-                        <div className="relative w-full max-w-5xl h-[85vh]">
+                        <div className="relative w-full max-w-4xl h-[80vh]">
                             <Image
                                 src={selectedImage}
                                 alt="Full proof"
