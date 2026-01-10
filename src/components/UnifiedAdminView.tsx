@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Filter, Download, RefreshCw, Eye } from 'lucide-react';
+import { Search, Filter, Download, RefreshCw, Eye, FileDown, Database } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface UnifiedRecord {
@@ -29,16 +29,16 @@ export default function UnifiedAdminView() {
         setLoading(true);
         try {
             // Add cache-busting timestamp if forcing fresh data
-            const url = forceFresh 
+            const url = forceFresh
                 ? `/api/admin/unified-view?_t=${Date.now()}`
                 : '/api/admin/unified-view';
-            
+
             const response = await fetch(url, {
                 // Use default cache behavior, or no-cache if forcing fresh
                 cache: forceFresh ? 'no-cache' : 'default'
             });
             const result = await response.json();
-            
+
             if (result.success) {
                 setData(result.data);
                 setLastFetched(result.cached_at || new Date().toISOString());
@@ -64,7 +64,7 @@ export default function UnifiedAdminView() {
     const filteredData = useMemo(() => {
         return data.filter(record => {
             // Search filter
-            const matchesSearch = searchTerm === '' || 
+            const matchesSearch = searchTerm === '' ||
                 record.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 record.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 record.phone_number.toLowerCase().includes(searchTerm.toLowerCase());
@@ -81,14 +81,14 @@ export default function UnifiedAdminView() {
 
     // Calculate statistics
     const stats = useMemo(() => {
-        const totalRevenue = filteredData.reduce((sum, record) => 
+        const totalRevenue = filteredData.reduce((sum, record) =>
             record.status === 'Paid' ? sum + record.amount : sum, 0
         );
         const pendingCount = filteredData.filter(r => r.status.includes('Pending')).length;
         const paidCount = filteredData.filter(r => r.status === 'Paid').length;
-        const fulfilledCount = filteredData.filter(r => 
-            r.fulfillment_status === 'Issued' || 
-            r.fulfillment_status === 'Delivered' || 
+        const fulfilledCount = filteredData.filter(r =>
+            r.fulfillment_status === 'Issued' ||
+            r.fulfillment_status === 'Delivered' ||
             r.fulfillment_status === 'Confirmed'
         ).length;
 
@@ -123,6 +123,47 @@ export default function UnifiedAdminView() {
         a.click();
         window.URL.revokeObjectURL(url);
         toast.success('Data exported successfully');
+    };
+
+    // Export specific category
+    const exportCategoryCSV = (category: 'Ticket' | 'Merchandise' | 'Accommodation') => {
+        const categoryData = data.filter(r => r.category === category);
+        const headers = ['Name', 'Email', 'Phone', 'Type', 'Status', 'Fulfillment', 'Amount', 'Date'];
+        const csvData = categoryData.map(record => [
+            record.user_name,
+            record.user_email,
+            record.phone_number,
+            record.type,
+            record.status,
+            record.fulfillment_status,
+            record.amount,
+            new Date(record.created_at).toLocaleString()
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `esummit-${category.toLowerCase()}-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast.success(`${category} data exported successfully`);
+    };
+
+    // Bulk download all categories
+    const bulkDownloadAll = () => {
+        // Download each category separately with slight delays
+        exportCategoryCSV('Ticket');
+        setTimeout(() => exportCategoryCSV('Merchandise'), 500);
+        setTimeout(() => exportCategoryCSV('Accommodation'), 1000);
+        setTimeout(() => {
+            toast.success('All data exported! Check your downloads folder.');
+        }, 1500);
     };
 
     const getCategoryColor = (category: string) => {
@@ -166,7 +207,7 @@ export default function UnifiedAdminView() {
                         )}
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                     <button
                         onClick={() => fetchData(true)}
                         disabled={loading}
@@ -179,10 +220,47 @@ export default function UnifiedAdminView() {
                     <button
                         onClick={exportToCSV}
                         className="px-4 py-2 bg-[#a855f7] hover:bg-[#9333ea] text-white rounded-lg transition-colors flex items-center gap-2"
+                        title="Export current view as CSV"
                     >
                         <Download className="w-4 h-4" />
-                        Export CSV
+                        Export
                     </button>
+                    <div className="relative group">
+                        <button
+                            onClick={bulkDownloadAll}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2 font-semibold"
+                            title="Download all tickets, merch, and accommodation data"
+                        >
+                            <Database className="w-4 h-4" />
+                            Backup All
+                        </button>
+                        {/* Submenu for individual category downloads */}
+                        <div className="absolute right-0 mt-2 w-56 bg-[#0a0a0a] border border-white/10 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
+                            <div className="p-2 space-y-1">
+                                <button
+                                    onClick={() => exportCategoryCSV('Ticket')}
+                                    className="w-full px-3 py-2 text-left text-white/80 hover:bg-blue-500/20 hover:text-blue-400 rounded transition-colors flex items-center gap-2"
+                                >
+                                    <FileDown className="w-4 h-4" />
+                                    Tickets Only
+                                </button>
+                                <button
+                                    onClick={() => exportCategoryCSV('Merchandise')}
+                                    className="w-full px-3 py-2 text-left text-white/80 hover:bg-purple-500/20 hover:text-purple-400 rounded transition-colors flex items-center gap-2"
+                                >
+                                    <FileDown className="w-4 h-4" />
+                                    Merch Only
+                                </button>
+                                <button
+                                    onClick={() => exportCategoryCSV('Accommodation')}
+                                    className="w-full px-3 py-2 text-left text-white/80 hover:bg-green-500/20 hover:text-green-400 rounded transition-colors flex items-center gap-2"
+                                >
+                                    <FileDown className="w-4 h-4" />
+                                    Accommodation Only
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

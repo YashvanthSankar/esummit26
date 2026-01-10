@@ -44,42 +44,63 @@ export default function AdminOverview() {
                 return;
             }
 
-            // Fetch all tickets
-            const { data: tickets, error: ticketsError } = await supabase
-                .from('tickets')
-                .select('id, amount, type, status, created_at, booking_group_id, screenshot_path, utr, user:profiles!tickets_user_id_fkey(full_name), pending_name, pending_email');
+            // OPTIMIZATION: Use database aggregations instead of fetching all tickets
+            // Old: Fetched 500+ tickets (~50KB payload)
+            // New: Fetch only aggregated stats (~1KB payload)
 
-            if (ticketsError) {
-                console.error('[AdminPage] Error fetching tickets:', ticketsError);
-            }
+            // Parallel queries for better performance
+            const [statsResult, chartResult, recentActivityResult, ratingsResult] = await Promise.all([
+                // Stats aggregation
+                supabase.rpc('get_ticket_stats'),
 
-            if (tickets) {
-                // Calculate Stats
-                const paidTickets = tickets.filter(t => t.status === 'paid');
-                const pendingTickets = tickets.filter(t => t.status === 'pending_verification');
+                // Chart data aggregation  
+                supabase.rpc('get_ticket_type_distribution'),
 
-                const revenue = paidTickets.reduce((sum, t) => sum + t.amount, 0);
+                // Recent activity (only 5 latest)
+                supabase
+                    .from('tickets')
+                    .select('id, type, amount, created_at, user:profiles!tickets_user_id_fkey(full_name), pending_name')
+                    .eq('status', 'paid')
+                    .order('created_at', { ascending: false })
+                    .limit(5),
 
-                // Count pending payment requests (unique booking groups + solo tickets with payment proof)
-                const pendingWithProof = pendingTickets.filter(t => t.screenshot_path || t.utr);
-                const pendingBookingGroups = new Set(pendingWithProof.map(t => t.booking_group_id || t.id));
+                // Ratings
+                supabase.from('app_ratings').select('rating')
+            ]);
+
+            // Fallback if RPC functions don't exist yet - use manual queries
+            if (statsResult.error?.code === '42883') { // Function does not exist
+                console.log('[AdminPage] Using fallback stats calculation');
+
+                // Fetch minimal data for stats
+                const { data: paidTickets } = await supabase
+                    .from('tickets')
+                    .select('id, amount')
+                    .eq('status', 'paid');
+
+                const { data: pendingTickets } = await supabase
+                    .from('tickets')
+                    .select('id, booking_group_id, screenshot_path, utr')
+                    .eq('status', 'pending_verification')
+                    .or('screenshot_path.not.is.null,utr.not.is.null');
+
+                const revenue = paidTickets?.reduce((sum, t) => sum + t.amount, 0) || 0;
+                const pendingBookingGroups = new Set(pendingTickets?.map(t => t.booking_group_id || t.id));
 
                 setStats({
                     revenue,
-                    ticketsSold: paidTickets.length,
+                    ticketsSold: paidTickets?.length || 0,
                     pending: pendingBookingGroups.size,
                 });
 
-                console.log('[AdminPage] Stats calculated:', {
-                    ticketsCount: tickets.length,
-                    revenue,
-                    ticketsSold: paidTickets.length,
-                    pending: pendingBookingGroups.size
-                });
+                // Chart data fallback
+                const { data: typeData } = await supabase
+                    .from('tickets')
+                    .select('type')
+                    .eq('status', 'paid');
 
-                // Prepare Chart Data
                 const types = { solo: 0, duo: 0, quad: 0 };
-                paidTickets.forEach(t => {
+                typeData?.forEach(t => {
                     if (t.type in types) types[t.type as keyof typeof types]++;
                 });
 
@@ -88,26 +109,39 @@ export default function AdminOverview() {
                     { name: 'Duo', count: types.duo, color: '#3b82f6' },
                     { name: 'Quad', count: types.quad, color: '#10b981' },
                 ]);
+            } else {
+                // Use RPC results
+                if (statsResult.data) {
+                    setStats(statsResult.data[0] || { revenue: 0, ticketsSold: 0, pending: 0 });
+                }
 
-                setRecentActivity(
-                    paidTickets
-                        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                        .slice(0, 5)
-                );
+                if (chartResult.data) {
+                    const types = chartResult.data.reduce((acc: any, row: any) => {
+                        acc[row.type] = row.count;
+                        return acc;
+                    }, { solo: 0, duo: 0, quad: 0 });
+
+                    setChartData([
+                        { name: 'Solo', count: types.solo || 0, color: '#a855f7' },
+                        { name: 'Duo', count: types.duo || 0, color: '#3b82f6' },
+                        { name: 'Quad', count: types.quad || 0, color: '#10b981' },
+                    ]);
+                }
             }
 
-            // Fetch Rating Stats
-            const { data: ratings, error: ratingsError } = await supabase
-                .from('app_ratings')
-                .select('rating');
+            // Recent activity (always works)
+            if (recentActivityResult.data) {
+                setRecentActivity(recentActivityResult.data);
+            }
 
-            if (ratingsError) {
-                console.warn('[AdminPage] Ratings query failed (table may not exist yet):', ratingsError);
-            } else if (ratings && ratings.length > 0) {
-                const totalRating = ratings.reduce((sum, r) => sum + r.rating, 0);
+            // Ratings
+            if (ratingsResult.error) {
+                console.warn('[AdminPage] Ratings query failed (table may not exist yet):', ratingsResult.error);
+            } else if (ratingsResult.data && ratingsResult.data.length > 0) {
+                const totalRating = ratingsResult.data.reduce((sum: number, r: any) => sum + r.rating, 0);
                 setRatingStats({
-                    average: Math.round((totalRating / ratings.length) * 10) / 10,
-                    count: ratings.length
+                    average: Math.round((totalRating / ratingsResult.data.length) * 10) / 10,
+                    count: ratingsResult.data.length
                 });
             }
 
