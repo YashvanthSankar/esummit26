@@ -9,6 +9,7 @@ import html2canvas from 'html2canvas';
 import QRCode from 'react-qr-code';
 import TicketCard from '@/components/TicketCard';
 import DashboardDock from '@/components/DashboardDock';
+import AdminDock from '@/components/AdminDock';
 import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { compressImage } from '@/lib/utils';
@@ -416,7 +417,11 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
             {/* Dock Navigation */}
-            <DashboardDock userName={profile?.full_name} userRole={profile?.role} />
+            {profile?.role === 'admin' ? (
+                <AdminDock currentPage="dashboard" userName={profile?.full_name} />
+            ) : (
+                <DashboardDock userName={profile?.full_name} userRole={profile?.role} />
+            )}
 
             <div className="max-w-4xl mx-auto relative z-10">
                 {/* Header */}

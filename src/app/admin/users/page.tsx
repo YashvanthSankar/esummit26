@@ -174,49 +174,59 @@ export default function UsersPage() {
     }
 
     return (
-        <main className="p-4 lg:p-6 space-y-4 min-h-screen bg-[#050505]">
+        <main className="min-h-screen bg-[#050505] relative">
+            {/* Background - subtle grid */}
+            <div className="fixed inset-0 bg-[linear-gradient(rgba(168,85,247,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+            
+            {/* Gradient overlay */}
+            <div className="fixed inset-0 bg-gradient-to-br from-[#050505] via-transparent to-[#050505]/80 pointer-events-none" />
+
             {/* Admin Dock */}
             <AdminDock currentPage="users" />
 
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            {/* Content Container - stays left of dock */}
+            <div className="p-4 lg:p-8 mr-0 md:mr-20 relative z-10">
+            <div className="max-w-7xl mx-auto space-y-6">
+
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="font-heading text-2xl text-white">All Users</h1>
-                    <p className="text-white/50 text-xs mt-0.5">
-                        Registered: {users.filter(u => !u.isPending).length} | 
-                        Pending: {users.filter(u => u.isPending).length} |
-                        Groups: {bookingGroups.length}
+                    <h1 className="font-heading text-4xl text-white mb-2">All Users</h1>
+                    <p className="text-white/60 text-base">
+                        Registered: <span className="font-bold text-white">{users.filter(u => !u.isPending).length}</span> | 
+                        Pending: <span className="font-bold text-amber-400">{users.filter(u => u.isPending).length}</span> |
+                        Groups: <span className="font-bold text-blue-400">{bookingGroups.length}</span>
                     </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
                     {/* Filter Buttons */}
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                         <button
                             onClick={() => { setFilterType('all'); setSelectedGroupId(null); }}
-                            className={`px-2 py-1.5 rounded-md text-[10px] font-bold uppercase transition-colors ${
+                            className={`px-4 py-2.5 rounded-xl text-sm font-bold uppercase transition-colors ${
                                 filterType === 'all' && !selectedGroupId 
-                                    ? 'bg-[#a855f7] text-white' 
-                                    : 'bg-white/5 text-white/50 hover:bg-white/10'
+                                    ? 'bg-[#a855f7] text-white shadow-lg shadow-[#a855f7]/20' 
+                                    : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
                             }`}
                         >
                             All
                         </button>
                         <button
                             onClick={() => { setFilterType('groups'); setSelectedGroupId(null); }}
-                            className={`px-2 py-1.5 rounded-md text-[10px] font-bold uppercase transition-colors flex items-center gap-1 ${
+                            className={`px-4 py-2.5 rounded-xl text-sm font-bold uppercase transition-colors flex items-center gap-2 ${
                                 filterType === 'groups' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-white/5 text-white/50 hover:bg-white/10'
+                                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' 
+                                    : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
                             }`}
                         >
-                            <Users className="w-3 h-3" /> Groups
+                            <Users className="w-4 h-4" /> Groups
                         </button>
                         <button
                             onClick={() => { setFilterType('solo'); setSelectedGroupId(null); }}
-                            className={`px-2 py-1.5 rounded-md text-[10px] font-bold uppercase transition-colors ${
+                            className={`px-4 py-2.5 rounded-xl text-sm font-bold uppercase transition-colors ${
                                 filterType === 'solo' 
-                                    ? 'bg-purple-500 text-white' 
-                                    : 'bg-white/5 text-white/50 hover:bg-white/10'
+                                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20' 
+                                    : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
                             }`}
                         >
                             Solo
@@ -224,13 +234,13 @@ export default function UsersPage() {
                     </div>
                     
                     <div className="relative">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                         <input
                             type="text"
                             placeholder="Search users..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full md:w-64 bg-white/5 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#a855f7]/50"
+                            className="w-full md:w-80 bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-base text-white placeholder:text-white/40 focus:outline-none focus:border-[#a855f7]/50 focus:bg-white/10 transition-all"
                         />
                     </div>
                 </div>
@@ -238,97 +248,107 @@ export default function UsersPage() {
 
             {/* Selected Group Banner */}
             {selectedGroupId && (
-                <div className="flex items-center justify-between bg-blue-500/10 border border-blue-500/30 rounded-lg p-2">
-                    <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-blue-400" />
-                        <span className="text-blue-400 font-bold text-sm">Viewing Group</span>
-                        <span className="text-white/50 text-xs font-mono">{selectedGroupId.substring(0, 8)}...</span>
+                <div className="flex items-center justify-between bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 shadow-lg">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-blue-500/20">
+                            <Users className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                            <span className="text-blue-400 font-bold text-base block">Viewing Group</span>
+                            <span className="text-white/50 text-sm font-mono">{selectedGroupId.substring(0, 8)}...</span>
+                        </div>
                     </div>
                     <button
                         onClick={clearGroupFilter}
-                        className="p-1.5 rounded-md bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                        className="p-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors"
                     >
-                        <X className="w-3 h-3" />
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
             )}
 
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {filteredUsers.map((user) => (
                     <motion.div
                         key={user.id}
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white/[0.02] border border-white/5 p-3 rounded-lg flex flex-col lg:flex-row items-start lg:items-center gap-3 group hover:border-[#a855f7]/30 hover:bg-white/[0.04] transition-colors"
+                        className="bg-[#0a0a0a]/90 backdrop-blur-sm border border-white/10 p-5 rounded-2xl group hover:border-[#a855f7]/40 hover:bg-[#0f0f0f] hover:shadow-xl hover:shadow-[#a855f7]/5 transition-all duration-300"
                     >
-                        {/* User Basic Info */}
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                                <h3 className="font-heading text-sm text-white truncate">{user.full_name || 'No Name'}</h3>
+                        {/* User Info Section */}
+                        <div className="space-y-3">
+                            {/* Name and Badges */}
+                            <div className="flex items-center gap-3 flex-wrap">
+                                <h3 className="font-heading text-lg text-white">{user.full_name || 'No Name'}</h3>
                                 {user.role === 'admin' && (
-                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-red-500/20 text-red-400 uppercase">
+                                    <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-red-500/20 text-red-400 uppercase border border-red-500/20">
                                         Admin
                                     </span>
                                 )}
                                 {user.isPending && (
-                                    <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-amber-500/20 text-amber-400 uppercase">
+                                    <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 uppercase border border-amber-500/20">
                                         Pending
                                     </span>
                                 )}
                             </div>
-                            <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-white/50">
-                                <div className="flex items-center gap-1">
-                                    <Mail className="w-3 h-3 text-white/30" />
-                                    <span className="truncate max-w-[200px]">{user.email}</span>
+
+                            {/* Contact Details */}
+                            <div className="flex flex-col gap-2 text-sm">
+                                <div className="flex items-center gap-2.5 text-white/70">
+                                    <Mail className="w-4 h-4 text-white/40 flex-shrink-0" />
+                                    <span className="truncate">{user.email}</span>
                                 </div>
                                 {user.phone && (
-                                    <div className="flex items-center gap-1">
-                                        <Phone className="w-3 h-3 text-white/30" />
-                                        {user.phone}
+                                    <div className="flex items-center gap-2.5 text-white/70">
+                                        <Phone className="w-4 h-4 text-white/40 flex-shrink-0" />
+                                        <span>{user.phone}</span>
                                     </div>
                                 )}
                             </div>
-                        </div>
 
-                        {/* Ticket Status */}
-                        <div className="flex items-center gap-3 lg:gap-4">
-                            {user.ticket ? (
-                                <>
-                                    <div className="flex items-center gap-1.5">
-                                        <Ticket className="w-3 h-3 text-[#a855f7]" />
-                                        <span className="font-bold text-xs text-white uppercase">{user.ticket.type}</span>
-                                    </div>
-                                    <div className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${user.ticket.status === 'paid' ? 'bg-green-500/20 text-green-400' :
-                                        user.ticket.status === 'pending_verification' ? 'bg-amber-500/20 text-amber-400' :
-                                            'bg-red-500/20 text-red-400'
+                            {/* Ticket Status Section */}
+                            <div className="pt-3 border-t border-white/5 flex items-center justify-between flex-wrap gap-3">
+                                {user.ticket ? (
+                                    <div className="flex items-center gap-3 flex-wrap">
+                                        <div className="flex items-center gap-2 bg-[#a855f7]/10 px-3 py-1.5 rounded-lg border border-[#a855f7]/20">
+                                            <Ticket className="w-4 h-4 text-[#a855f7]" />
+                                            <span className="font-bold text-sm text-white uppercase">{user.ticket.type}</span>
+                                        </div>
+                                        <div className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase border ${
+                                            user.ticket.status === 'paid' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                            user.ticket.status === 'pending_verification' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                                'bg-red-500/20 text-red-400 border-red-500/30'
                                         }`}>
-                                        {user.ticket.status === 'pending_verification' ? 'pending' : user.ticket.status}
+                                            {user.ticket.status === 'pending_verification' ? 'pending' : user.ticket.status}
+                                        </div>
+                                        
+                                        {/* Group Members */}
+                                        {user.groupMembers && user.groupMembers.length > 0 && (
+                                            <button
+                                                onClick={() => user.ticket?.booking_group_id && handleShowGroup(user.ticket.booking_group_id)}
+                                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 transition-colors"
+                                                title={user.groupMembers.map(m => m.name).join(', ')}
+                                            >
+                                                <Users className="w-4 h-4 text-blue-400" />
+                                                <span className="text-sm text-blue-400 font-bold">+{user.groupMembers.length}</span>
+                                            </button>
+                                        )}
                                     </div>
-                                    
-                                    {/* Group Partners - Compact */}
-                                    {user.groupMembers && user.groupMembers.length > 0 && (
-                                        <button
-                                            onClick={() => user.ticket?.booking_group_id && handleShowGroup(user.ticket.booking_group_id)}
-                                            className="flex items-center gap-1 px-2 py-1 rounded bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
-                                            title={user.groupMembers.map(m => m.name).join(', ')}
-                                        >
-                                            <Users className="w-3 h-3 text-blue-400" />
-                                            <span className="text-[10px] text-blue-400 font-bold">+{user.groupMembers.length}</span>
-                                        </button>
-                                    )}
-                                </>
-                            ) : (
-                                <span className="text-white/30 text-xs italic">No Ticket</span>
-                            )}
+                                ) : (
+                                    <span className="text-white/40 text-sm italic">No Ticket</span>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 ))}
 
                 {filteredUsers.length === 0 && (
-                    <div className="text-center py-8 text-white/30 text-sm">
+                    <div className="col-span-full text-center py-16 text-white/40 text-base">
                         No users found matching "{searchTerm}"
                     </div>
                 )}
+            </div>
+            </div>
             </div>
         </main>
     );

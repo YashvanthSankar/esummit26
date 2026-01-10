@@ -9,7 +9,7 @@ const speakers = [
         name: 'Nagaraja Prakasam',
         role: 'Author, Angel Investor, Mentor, Fund Advisor',
         company: '',
-        image: '/speakers/nagaraja.jpeg',
+        image: '/speakers/nagaraja.jpg',
     },
     {
         id: 2,
