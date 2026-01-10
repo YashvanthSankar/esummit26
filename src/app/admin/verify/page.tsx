@@ -3,11 +3,19 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Loader2, ExternalLink, RefreshCw, ZoomIn, Copy } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, ExternalLink, RefreshCw, ZoomIn, Copy, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminDock from '@/components/AdminDock';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
+
+interface GroupMember {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    isRegistered: boolean; // True if user has signed up
+}
 
 interface PendingTicket {
     id: string;
@@ -20,6 +28,7 @@ interface PendingTicket {
     pending_name: string | null;
     pending_email: string | null;
     pending_phone: string | null;
+    groupMembers?: GroupMember[]; // All members in the booking group
     user: {
         full_name: string;
         email: string;
@@ -68,7 +77,38 @@ export default function VerifyPage() {
             .order('created_at', { ascending: true });
 
         if (data) {
-            setTickets(data as any);
+            // For each ticket with a booking_group_id, fetch all group members
+            const ticketsWithGroupMembers = await Promise.all(
+                data.map(async (ticket: any) => {
+                    if (ticket.booking_group_id) {
+                        // Fetch all tickets in this booking group
+                        const { data: groupTickets } = await supabase
+                            .from('tickets')
+                            .select(`
+                                id,
+                                pending_name,
+                                pending_email,
+                                pending_phone,
+                                user_id,
+                                user:profiles(full_name, email, phone)
+                            `)
+                            .eq('booking_group_id', ticket.booking_group_id);
+
+                        const groupMembers: GroupMember[] = (groupTickets || []).map((gt: any) => ({
+                            id: gt.id,
+                            name: gt.user?.full_name || gt.pending_name || 'Unknown',
+                            email: gt.user?.email || gt.pending_email || '',
+                            phone: gt.user?.phone || gt.pending_phone || '',
+                            isRegistered: !!gt.user_id
+                        }));
+
+                        return { ...ticket, groupMembers };
+                    }
+                    return ticket;
+                })
+            );
+
+            setTickets(ticketsWithGroupMembers as any);
         }
         setLoading(false);
     };
@@ -302,69 +342,113 @@ export default function VerifyPage() {
                                 </div>
 
                                 {/* Details Grid */}
-                                <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
-                                    {/* User Info */}
-                                    <div>
-                                        <p className="text-xs text-white/30 font-mono mb-1">USER</p>
-                                        <h3 className="font-heading text-lg text-white truncate mb-1">
-                                            {ticket.user?.full_name || 'Unknown User'}
-                                        </h3>
-                                        <p className="font-body text-xs text-white/50">{ticket.user?.college_name}</p>
-                                        <p className="font-mono text-xs text-white/30 mt-1">{ticket.user?.phone}</p>
-                                    </div>
+                                <div className="flex-1 min-w-0 w-full">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+                                        {/* Purchaser Info */}
+                                        <div>
+                                            <p className="text-xs text-white/30 font-mono mb-1">PURCHASER</p>
+                                            <h3 className="font-heading text-lg text-white truncate mb-1">
+                                                {ticket.user?.full_name || 'Unknown User'}
+                                            </h3>
+                                            <p className="font-body text-xs text-white/50">{ticket.user?.college_name}</p>
+                                            <p className="font-mono text-xs text-white/30 mt-1">{ticket.user?.phone}</p>
+                                        </div>
 
-                                    {/* Ticket Info */}
-                                    <div>
-                                        <p className="text-xs text-white/30 font-mono mb-1">TICKET</p>
-                                        <span className={`inline-block px-2 py-1 rounded text-xs font-bold uppercase mb-1 ${ticket.type === 'quad' ? 'bg-purple-500/20 text-purple-400' :
-                                            ticket.type === 'duo' ? 'bg-blue-500/20 text-blue-400' :
-                                                'bg-white/10 text-white/70'
-                                            }`}>
-                                            {ticket.type}
-                                        </span>
-                                        <p className="font-heading text-xl text-white">₹{ticket.amount}</p>
-                                    </div>
-
-                                    {/* Payment Info */}
-                                    <div>
-                                        <p className="text-xs text-white/30 font-mono mb-1">UTR / REF</p>
-                                        {ticket.utr ? (
-                                            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => copyToClipboard(ticket.utr)}>
-                                                <p className="font-mono text-lg text-[#a855f7] truncate">{ticket.utr}</p>
-                                                <Copy className="w-3 h-3 text-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                            </div>
-                                        ) : (
-                                            <p className="font-mono text-sm text-white/30 italic">Not Provided</p>
-                                        )}
-                                        <p className="font-mono text-xs text-white/30 mt-1">
-                                            {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
-                                        </p>
-                                    </div>
-
-
-                                    {/* Actions */}
-                                    <div className="flex gap-3 items-center">
-                                        <button
-                                            onClick={() => handleVerify(ticket.id, 'approve')}
-                                            disabled={processing === ticket.id}
-                                            className="flex-1 py-3 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 font-bold text-sm transition-colors flex items-center justify-center gap-2"
-                                        >
-                                            {processing === ticket.id ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <CheckCircle className="w-4 h-4" /> Approve
-                                                </>
+                                        {/* Ticket Info */}
+                                        <div>
+                                            <p className="text-xs text-white/30 font-mono mb-1">TICKET</p>
+                                            <span className={`inline-block px-2 py-1 rounded text-xs font-bold uppercase mb-1 ${ticket.type === 'quad' ? 'bg-purple-500/20 text-purple-400' :
+                                                ticket.type === 'duo' ? 'bg-blue-500/20 text-blue-400' :
+                                                    'bg-white/10 text-white/70'
+                                                }`}>
+                                                {ticket.type}
+                                            </span>
+                                            <p className="font-heading text-xl text-white">₹{ticket.amount}</p>
+                                            {ticket.groupMembers && ticket.groupMembers.length > 1 && (
+                                                <p className="text-xs text-white/50 mt-1">
+                                                    <Users className="w-3 h-3 inline mr-1" />
+                                                    {ticket.groupMembers.length} attendees
+                                                </p>
                                             )}
-                                        </button>
-                                        <button
-                                            onClick={() => handleVerify(ticket.id, 'reject')}
-                                            disabled={processing === ticket.id}
-                                            className="px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-sm transition-colors"
-                                        >
-                                            <XCircle className="w-4 h-4" />
-                                        </button>
+                                        </div>
+
+                                        {/* Payment Info */}
+                                        <div>
+                                            <p className="text-xs text-white/30 font-mono mb-1">UTR / REF</p>
+                                            {ticket.utr ? (
+                                                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => copyToClipboard(ticket.utr)}>
+                                                    <p className="font-mono text-lg text-[#a855f7] truncate">{ticket.utr}</p>
+                                                    <Copy className="w-3 h-3 text-white/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                </div>
+                                            ) : (
+                                                <p className="font-mono text-sm text-white/30 italic">Not Provided</p>
+                                            )}
+                                            <p className="font-mono text-xs text-white/30 mt-1">
+                                                {formatDistanceToNow(new Date(ticket.created_at), { addSuffix: true })}
+                                            </p>
+                                        </div>
+
+
+                                        {/* Actions */}
+                                        <div className="flex gap-3 items-center">
+                                            <button
+                                                onClick={() => handleVerify(ticket.id, 'approve')}
+                                                disabled={processing === ticket.id}
+                                                className="flex-1 py-3 rounded-xl bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                {processing === ticket.id ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <>
+                                                        <CheckCircle className="w-4 h-4" /> Approve{ticket.groupMembers && ticket.groupMembers.length > 1 ? ' All' : ''}
+                                                    </>
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => handleVerify(ticket.id, 'reject')}
+                                                disabled={processing === ticket.id}
+                                                className="px-4 py-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-sm transition-colors"
+                                            >
+                                                <XCircle className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
+
+                                    {/* Group Members Section (for Duo/Quad) */}
+                                    {ticket.groupMembers && ticket.groupMembers.length > 1 && (
+                                        <div className="border-t border-white/10 pt-4 mt-4">
+                                            <p className="text-xs text-white/30 font-mono mb-3 flex items-center gap-2">
+                                                <Users className="w-4 h-4" />
+                                                GROUP MEMBERS ({ticket.groupMembers.length})
+                                            </p>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                                                {ticket.groupMembers.map((member, index) => (
+                                                    <div 
+                                                        key={member.id} 
+                                                        className={`p-3 rounded-lg border ${member.isRegistered 
+                                                            ? 'bg-green-500/5 border-green-500/20' 
+                                                            : 'bg-amber-500/5 border-amber-500/20'
+                                                        }`}
+                                                    >
+                                                        <div className="flex items-start justify-between mb-1">
+                                                            <span className="text-xs font-mono text-white/30">#{index + 1}</span>
+                                                            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${member.isRegistered 
+                                                                ? 'bg-green-500/20 text-green-400' 
+                                                                : 'bg-amber-500/20 text-amber-400'
+                                                            }`}>
+                                                                {member.isRegistered ? 'Registered' : 'Pending'}
+                                                            </span>
+                                                        </div>
+                                                        <p className="font-heading text-sm text-white truncate">{member.name}</p>
+                                                        <p className="text-xs text-white/50 truncate">{member.email}</p>
+                                                        {member.phone && (
+                                                            <p className="text-xs text-white/30 font-mono mt-1">{member.phone}</p>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         ))}
