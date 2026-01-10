@@ -14,11 +14,13 @@ interface UserData {
     phone: string;
     role: string;
     created_at: string;
+    isPending?: boolean; // True if this is a pending attendee without a profile
     ticket?: {
         type: string;
         status: string;
         qr_secret: string;
         amount: number;
+        booking_group_id?: string;
     } | null;
 }
 
@@ -44,21 +46,42 @@ export default function UsersPage() {
                 return;
             }
 
-            // Fetch tickets
+            // Fetch tickets (including pending attendees)
             const { data: tickets } = await supabase
                 .from('tickets')
                 .select('*');
 
-            // Combine data
-            const combinedData = profiles.map(profile => {
+            // Combine registered users with their tickets
+            const combinedData: UserData[] = profiles.map(profile => {
                 const userTicket = tickets?.find(t => t.user_id === profile.id);
                 return {
                     ...profile,
+                    isPending: false,
                     ticket: userTicket || null
                 };
             });
 
-            setUsers(combinedData);
+            // Add pending attendees (users with tickets but no profile yet)
+            const pendingAttendees: UserData[] = (tickets || [])
+                .filter(t => t.pending_email && !t.user_id)
+                .map(t => ({
+                    id: `pending_${t.id}`,
+                    email: t.pending_email,
+                    full_name: t.pending_name || 'Pending User',
+                    phone: t.pending_phone || '',
+                    role: 'pending',
+                    created_at: t.created_at,
+                    isPending: true,
+                    ticket: {
+                        type: t.type,
+                        status: t.status,
+                        qr_secret: t.qr_secret,
+                        amount: t.amount,
+                        booking_group_id: t.booking_group_id
+                    }
+                }));
+
+            setUsers([...combinedData, ...pendingAttendees]);
             setLoading(false);
         };
 
@@ -117,6 +140,11 @@ export default function UsersPage() {
                                 {user.role === 'admin' && (
                                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-500/20 text-red-400 uppercase tracking-wider">
                                         Admin
+                                    </span>
+                                )}
+                                {user.isPending && (
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 uppercase tracking-wider">
+                                        Pending Signup
                                     </span>
                                 )}
                             </div>

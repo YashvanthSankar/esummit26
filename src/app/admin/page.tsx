@@ -46,7 +46,7 @@ export default function AdminOverview() {
             // Fetch all tickets
             const { data: tickets } = await supabase
                 .from('tickets')
-                .select('amount, type, status, created_at, user:profiles(full_name)');
+                .select('amount, type, status, created_at, booking_group_id, screenshot_path, utr, user:profiles(full_name), pending_name, pending_email');
 
             if (tickets) {
                 // Calculate Stats
@@ -55,10 +55,14 @@ export default function AdminOverview() {
 
                 const revenue = paidTickets.reduce((sum, t) => sum + t.amount, 0);
 
+                // Count pending payment requests (unique booking groups + solo tickets with payment proof)
+                const pendingWithProof = pendingTickets.filter(t => t.screenshot_path || t.utr);
+                const pendingBookingGroups = new Set(pendingWithProof.map(t => t.booking_group_id || t.id));
+
                 setStats({
                     revenue,
                     ticketsSold: paidTickets.length,
-                    pending: pendingTickets.length,
+                    pending: pendingBookingGroups.size,
                 });
 
                 // Prepare Chart Data
