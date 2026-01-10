@@ -2,14 +2,15 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, LogOut, Menu, X, User, LayoutDashboard } from 'lucide-react';
+import { Home, LogOut, Menu, X, User, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Calendar } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface DashboardDockProps {
     userName?: string;
+    userRole?: string;
 }
 
-export default function DashboardDock({ userName }: DashboardDockProps) {
+export default function DashboardDock({ userName, userRole }: DashboardDockProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const supabase = createClient();
 
@@ -18,9 +19,27 @@ export default function DashboardDock({ userName }: DashboardDockProps) {
         window.location.href = '/login';
     };
 
-    const dockItems = [
+    const handleEventsClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        // Navigate to main page events section
+        window.location.href = '/#events';
+    };
+
+    // Show admin links if user is admin
+    const isAdmin = userRole === 'admin';
+
+    const dockItems = isAdmin ? [
         { icon: Home, label: 'Home', href: '/' },
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+        { icon: Calendar, label: 'Events', href: '/#events', onClick: handleEventsClick },
+        { icon: Shield, label: 'Admin', href: '/admin' },
+        { icon: CheckCircle, label: 'Verify', href: '/admin/verify' },
+        { icon: QrCode, label: 'Scanner', href: '/admin/scan' },
+        { icon: Users, label: 'Users', href: '/admin/users' },
+    ] : [
+        { icon: Home, label: 'Home', href: '/' },
+        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+        { icon: Calendar, label: 'Events', href: '/#events', onClick: handleEventsClick },
     ];
 
     return (
@@ -39,6 +58,7 @@ export default function DashboardDock({ userName }: DashboardDockProps) {
                             <motion.a
                                 key={item.label}
                                 href={item.href}
+                                onClick={item.onClick}
                                 className="dock-item group relative p-3 rounded-xl hover:bg-white/10 transition-colors"
                                 whileHover={{ x: -8, scale: 1.2 }}
                                 whileTap={{ scale: 0.95 }}
@@ -118,20 +138,28 @@ export default function DashboardDock({ userName }: DashboardDockProps) {
                                         <div className="w-10 h-10 rounded-full bg-[#a855f7]/20 flex items-center justify-center">
                                             <User className="w-5 h-5 text-[#a855f7]" />
                                         </div>
-                                        <div>
+                                        <div className="flex-1">
                                             <p className="text-white font-heading text-sm">{userName}</p>
-                                            <p className="text-white/50 text-xs">Dashboard</p>
+                                            <p className={`text-xs ${isAdmin ? 'text-[#a855f7] font-mono' : 'text-white/50'}`}>
+                                                {isAdmin ? 'ADMIN' : 'Dashboard'}
+                                            </p>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                <div className={`grid gap-3 mb-4 ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
                                     {dockItems.map((item, index) => {
                                         const Icon = item.icon;
                                         return (
                                             <motion.a
                                                 key={item.label}
                                                 href={item.href}
+                                                onClick={(e) => {
+                                                    if (item.onClick) {
+                                                        item.onClick(e);
+                                                        setIsMobileMenuOpen(false);
+                                                    }
+                                                }}
                                                 className="flex flex-col items-center gap-2 p-4 rounded-2xl hover:bg-white/5 transition-colors"
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}

@@ -5,6 +5,8 @@ export async function POST(request: Request) {
     try {
         const { to, userName, ticketType, amount } = await request.json();
 
+        console.log('[API] Approval email request:', { to, userName, ticketType, amount });
+
         if (!to || !userName || !ticketType || !amount) {
             return NextResponse.json(
                 { success: false, error: 'Missing required fields' },
@@ -13,6 +15,8 @@ export async function POST(request: Request) {
         }
 
         const result = await sendPaymentApprovalEmail(to, userName, ticketType, amount);
+
+        console.log('[API] Approval email result:', result);
 
         if (!result.success) {
             return NextResponse.json(
@@ -24,6 +28,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true });
     } catch (error: any) {
         console.error('[API] Email approval error:', error);
+        console.error('[API] Error stack:', error.stack);
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 500 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users } from 'lucide-react';
+import { Home, LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users, Shield } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface AdminDockProps {
@@ -21,7 +21,8 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
 
     const dockItems = [
         { icon: Home, label: 'Home', href: '/' },
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
+        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+        { icon: Shield, label: 'Admin', href: '/admin' },
         { icon: CheckCircle, label: 'Verify', href: '/admin/verify' },
         { icon: QrCode, label: 'Scanner', href: '/admin/scan' },
         { icon: Users, label: 'Users', href: '/admin/users' },
@@ -123,7 +124,7 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
                                 {userName && (
                                     <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
                                         <div className="w-10 h-10 rounded-full bg-[#a855f7]/20 flex items-center justify-center">
-                                            <LayoutDashboard className="w-5 h-5 text-[#a855f7]" />
+                                            <Shield className="w-5 h-5 text-[#a855f7]" />
                                         </div>
                                         <div>
                                             <p className="text-white font-heading text-sm">{userName}</p>

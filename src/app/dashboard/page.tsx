@@ -265,7 +265,7 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
             {/* Dock Navigation */}
-            <DashboardDock userName={profile?.full_name} />
+            <DashboardDock userName={profile?.full_name} userRole={profile?.role} />
 
             <div className="max-w-4xl mx-auto relative z-10">
                 {/* Header */}
@@ -491,9 +491,39 @@ export default function DashboardPage() {
                                     </div>
                                     <h3 className="font-heading text-2xl text-white mb-2">Payment Rejected</h3>
                                     <p className="font-body text-white/60 max-w-md mx-auto mb-8">
-                                        Your payment could not be verified. Please contact support.
+                                        Your payment could not be verified. Please try again with correct payment details.
                                     </p>
-                                    {/* Option to retry could be added here by deleting the ticket record or updating it */}
+                                    <motion.button
+                                        onClick={async () => {
+                                            try {
+                                                // Delete the rejected ticket
+                                                const { error } = await supabase
+                                                    .from('tickets')
+                                                    .delete()
+                                                    .eq('id', ticket.id);
+
+                                                if (error) throw error;
+
+                                                toast.success('Ready to try again!', {
+                                                    description: 'Please select a pass and submit your payment.',
+                                                });
+
+                                                // Reset state to allow new payment
+                                                setTicket(null);
+                                                setSelectedPass(null);
+                                                setPaymentProof(null);
+                                                setUtr('');
+                                            } catch (error: any) {
+                                                console.error('Delete error:', error);
+                                                toast.error('Failed to reset. Please refresh the page.');
+                                            }
+                                        }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#a855f7] to-[#7c3aed] text-white font-heading text-lg shadow-lg shadow-[#a855f7]/20 hover:shadow-[#a855f7]/40 transition-shadow"
+                                    >
+                                        Try Again
+                                    </motion.button>
                                 </>
                             ) : (
                                 <>
