@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Mail, Phone, Building2, FileText, Eye } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Mail, Phone, Building2, Eye, CreditCard, IndianRupee } from 'lucide-react';
 import AdminDock from '@/components/AdminDock';
 import { toast } from 'sonner';
 import Image from 'next/image';
@@ -24,6 +24,11 @@ interface AccommodationRequest {
     admin_notes: string | null;
     reviewed_at: string | null;
     created_at: string;
+    // Payment fields
+    payment_status: 'pending' | 'pending_verification' | 'paid' | 'rejected' | null;
+    payment_amount: number | null;
+    payment_utr: string | null;
+    payment_screenshot_path: string | null;
 }
 
 export default function AdminAccommodationPage() {
@@ -31,6 +36,7 @@ export default function AdminAccommodationPage() {
     const [loading, setLoading] = useState(true);
     const [requests, setRequests] = useState<AccommodationRequest[]>([]);
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
+    const [paymentFilter, setPaymentFilter] = useState<'all' | 'pending_verification' | 'paid' | 'rejected'>('all');
     const [genderFilter, setGenderFilter] = useState<'all' | 'Male' | 'Female'>('all');
     const [selectedRequest, setSelectedRequest] = useState<AccommodationRequest | null>(null);
     const [adminNotes, setAdminNotes] = useState('');
@@ -45,6 +51,10 @@ export default function AdminAccommodationPage() {
 
         if (filter !== 'all') {
             query = query.eq('status', filter);
+        }
+
+        if (paymentFilter !== 'all') {
+            query = query.eq('payment_status', paymentFilter);
         }
 
         if (genderFilter !== 'all') {
@@ -64,12 +74,13 @@ export default function AdminAccommodationPage() {
 
     useEffect(() => {
         loadRequests();
-    }, [filter, genderFilter]);
+    }, [filter, paymentFilter, genderFilter]);
 
+    // Approve/Reject accommodation request
     const handleApprove = async (requestId: string) => {
         setProcessing(true);
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         const { error } = await supabase
             .from('accommodation_requests')
             .update({
@@ -100,7 +111,7 @@ export default function AdminAccommodationPage() {
 
         setProcessing(true);
         const { data: { user } } = await supabase.auth.getUser();
-        
+
         const { error } = await supabase
             .from('accommodation_requests')
             .update({
@@ -118,6 +129,55 @@ export default function AdminAccommodationPage() {
             toast.success('Request rejected');
             setSelectedRequest(null);
             setAdminNotes('');
+            loadRequests();
+        }
+        setProcessing(false);
+    };
+
+    // Verify/Reject payment
+    const handleVerifyPayment = async (requestId: string) => {
+        setProcessing(true);
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const { error } = await supabase
+            .from('accommodation_requests')
+            .update({
+                payment_status: 'paid',
+                payment_verified_at: new Date().toISOString(),
+                payment_verified_by: user?.id
+            })
+            .eq('id', requestId);
+
+        if (error) {
+            toast.error('Failed to verify payment');
+            console.error(error);
+        } else {
+            toast.success('Payment verified successfully');
+            setSelectedRequest(null);
+            loadRequests();
+        }
+        setProcessing(false);
+    };
+
+    const handleRejectPayment = async (requestId: string) => {
+        setProcessing(true);
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const { error } = await supabase
+            .from('accommodation_requests')
+            .update({
+                payment_status: 'rejected',
+                payment_verified_at: new Date().toISOString(),
+                payment_verified_by: user?.id
+            })
+            .eq('id', requestId);
+
+        if (error) {
+            toast.error('Failed to reject payment');
+            console.error(error);
+        } else {
+            toast.success('Payment rejected');
+            setSelectedRequest(null);
             loadRequests();
         }
         setProcessing(false);
@@ -149,6 +209,46 @@ export default function AdminAccommodationPage() {
         }
     };
 
+    const getPaymentStatusBadge = (status: string | null) => {
+        switch (status) {
+            case 'paid':
+                return (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-green-500/20 border border-green-500/30 rounded">
+                        <IndianRupee className="w-3 h-3 text-green-400" />
+                        <span className="text-green-400 text-xs font-bold">Paid</span>
+                    </div>
+                );
+            case 'pending_verification':
+                return (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded">
+                        <Clock className="w-3 h-3 text-amber-400" />
+                        <span className="text-amber-400 text-xs font-bold">Verify</span>
+                    </div>
+                );
+            case 'rejected':
+                return (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-red-500/20 border border-red-500/30 rounded">
+                        <XCircle className="w-3 h-3 text-red-400" />
+                        <span className="text-red-400 text-xs font-bold">Failed</span>
+                    </div>
+                );
+            default:
+                return (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-white/10 border border-white/20 rounded">
+                        <CreditCard className="w-3 h-3 text-white/40" />
+                        <span className="text-white/40 text-xs font-bold">No Pay</span>
+                    </div>
+                );
+        }
+    };
+
+    // Get payment screenshot URL
+    const getPaymentScreenshotUrl = (path: string | null) => {
+        if (!path) return null;
+        const { data } = supabase.storage.from('payment-proofs').getPublicUrl(path);
+        return data.publicUrl;
+    };
+
     const stats = {
         total: requests.length,
         pending: requests.filter(r => r.status === 'pending').length,
@@ -156,6 +256,7 @@ export default function AdminAccommodationPage() {
         rejected: requests.filter(r => r.status === 'rejected').length,
         male: requests.filter(r => r.gender === 'Male').length,
         female: requests.filter(r => r.gender === 'Female').length,
+        pendingPayment: requests.filter(r => r.payment_status === 'pending_verification').length,
     };
 
     return (
@@ -174,7 +275,7 @@ export default function AdminAccommodationPage() {
                     </div>
 
                     {/* Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
                         <div className="bg-[#0a0a0a]/90 backdrop-blur-sm border border-white/10 rounded-xl p-4">
                             <p className="text-white/50 text-xs mb-1">Total</p>
                             <p className="text-white text-2xl font-bold">{stats.total}</p>
@@ -199,6 +300,10 @@ export default function AdminAccommodationPage() {
                             <p className="text-pink-300/70 text-xs mb-1">Female</p>
                             <p className="text-pink-400 text-2xl font-bold">{stats.female}/60</p>
                         </div>
+                        <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+                            <p className="text-purple-300/70 text-xs mb-1">Verify Pay</p>
+                            <p className="text-purple-400 text-2xl font-bold">{stats.pendingPayment}</p>
+                        </div>
                     </div>
 
                     {/* Filters */}
@@ -208,13 +313,26 @@ export default function AdminAccommodationPage() {
                                 <button
                                     key={status}
                                     onClick={() => setFilter(status)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                        filter === status
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === status
                                             ? 'bg-[#a855f7] text-white'
                                             : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
-                                    }`}
+                                        }`}
                                 >
                                     {status.charAt(0).toUpperCase() + status.slice(1)}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="flex gap-2">
+                            {(['all', 'pending_verification', 'paid', 'rejected'] as const).map((pStatus) => (
+                                <button
+                                    key={pStatus}
+                                    onClick={() => setPaymentFilter(pStatus)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${paymentFilter === pStatus
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
+                                        }`}
+                                >
+                                    {pStatus === 'pending_verification' ? 'Verify Pay' : pStatus === 'all' ? 'All Pay' : pStatus.charAt(0).toUpperCase() + pStatus.slice(1)}
                                 </button>
                             ))}
                         </div>
@@ -223,11 +341,10 @@ export default function AdminAccommodationPage() {
                                 <button
                                     key={gender}
                                     onClick={() => setGenderFilter(gender)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                                        genderFilter === gender
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${genderFilter === gender
                                             ? 'bg-[#a855f7] text-white'
                                             : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
-                                    }`}
+                                        }`}
                                 >
                                     {gender}
                                 </button>
@@ -258,7 +375,10 @@ export default function AdminAccommodationPage() {
                                             <h3 className="text-white font-bold text-lg">{request.name}</h3>
                                             <p className="text-white/50 text-sm">{request.email}</p>
                                         </div>
-                                        {getStatusBadge(request.status)}
+                                        <div className="flex flex-col items-end gap-1">
+                                            {getStatusBadge(request.status)}
+                                            {getPaymentStatusBadge(request.payment_status)}
+                                        </div>
                                     </div>
 
                                     <div className="space-y-2 mb-4">
@@ -280,20 +400,24 @@ export default function AdminAccommodationPage() {
                                                 {new Date(request.date_of_arrival).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(request.date_of_departure).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                             </span>
                                         </div>
+                                        {request.payment_utr && (
+                                            <div className="flex items-center gap-2 text-sm">
+                                                <CreditCard className="w-4 h-4 text-white/40" />
+                                                <span className="text-white/70 font-mono">UTR: {request.payment_utr}</span>
+                                            </div>
+                                        )}
                                     </div>
 
-                                    {request.status === 'pending' && (
-                                        <button
-                                            onClick={() => {
-                                                setSelectedRequest(request);
-                                                setAdminNotes('');
-                                            }}
-                                            className="w-full bg-[#a855f7] hover:bg-[#9333ea] text-white py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                            Review Request
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => {
+                                            setSelectedRequest(request);
+                                            setAdminNotes('');
+                                        }}
+                                        className="w-full bg-[#a855f7] hover:bg-[#9333ea] text-white py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                        Review Request
+                                    </button>
 
                                     {request.admin_notes && (
                                         <div className="mt-3 p-3 bg-white/5 rounded-lg border border-white/10">
@@ -314,7 +438,7 @@ export default function AdminAccommodationPage() {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-[#0a0a0a] border border-white/20 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                        className="bg-[#0a0a0a] border border-white/20 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
                     >
                         <div className="p-6">
                             <div className="flex items-start justify-between mb-6">
@@ -322,8 +446,59 @@ export default function AdminAccommodationPage() {
                                     <h2 className="text-2xl font-bold text-white mb-1">{selectedRequest.name}</h2>
                                     <p className="text-white/60">{selectedRequest.email}</p>
                                 </div>
-                                {getStatusBadge(selectedRequest.status)}
+                                <div className="flex flex-col items-end gap-2">
+                                    {getStatusBadge(selectedRequest.status)}
+                                    {getPaymentStatusBadge(selectedRequest.payment_status)}
+                                </div>
                             </div>
+
+                            {/* Payment Info Section */}
+                            {(selectedRequest.payment_utr || selectedRequest.payment_screenshot_path) && (
+                                <div className="mb-6 p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+                                    <h3 className="text-purple-300 font-bold mb-3 flex items-center gap-2">
+                                        <CreditCard className="w-5 h-5" />
+                                        Payment Details (₹{selectedRequest.payment_amount || 500})
+                                    </h3>
+
+                                    {selectedRequest.payment_utr && (
+                                        <p className="text-white font-mono text-sm mb-3">
+                                            UTR: <span className="text-purple-300">{selectedRequest.payment_utr}</span>
+                                        </p>
+                                    )}
+
+                                    {selectedRequest.payment_screenshot_path && (
+                                        <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
+                                            <Image
+                                                src={getPaymentScreenshotUrl(selectedRequest.payment_screenshot_path) || ''}
+                                                alt="Payment Screenshot"
+                                                fill
+                                                className="object-contain"
+                                            />
+                                        </div>
+                                    )}
+
+                                    {selectedRequest.payment_status === 'pending_verification' && (
+                                        <div className="flex gap-3 mt-4">
+                                            <button
+                                                onClick={() => handleVerifyPayment(selectedRequest.id)}
+                                                disabled={processing}
+                                                className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                            >
+                                                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                                Verify Payment
+                                            </button>
+                                            <button
+                                                onClick={() => handleRejectPayment(selectedRequest.id)}
+                                                disabled={processing}
+                                                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                            >
+                                                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                                                Reject Payment
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {/* ID Proof */}
                             <div className="mb-6">
@@ -406,7 +581,7 @@ export default function AdminAccommodationPage() {
                                             ) : (
                                                 <>
                                                     <CheckCircle className="w-5 h-5" />
-                                                    Approve
+                                                    Approve Request
                                                 </>
                                             )}
                                         </button>
@@ -420,7 +595,7 @@ export default function AdminAccommodationPage() {
                                             ) : (
                                                 <>
                                                     <XCircle className="w-5 h-5" />
-                                                    Reject
+                                                    Reject Request
                                                 </>
                                             )}
                                         </button>

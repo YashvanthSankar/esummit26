@@ -10,6 +10,9 @@ import Footer from '@/components/Footer';
 import AnimatedGrid from '@/components/AnimatedGrid';
 import DockNavigation from '@/components/DockNavigation';
 import SmoothScroll from '@/components/SmoothScroll';
+import InstallApp from '@/components/InstallApp';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -20,6 +23,19 @@ export default function Home() {
 
         {/* Dock Navigation */}
         <DockNavigation />
+
+        {/* E-Summit Logo - Top Left (scrolls with page) */}
+        <Link href="/" className="absolute top-6 left-6 z-20 opacity-80 hover:opacity-100 transition-opacity">
+          <Image
+            src="/esummit26-logo.png"
+            alt="E-Summit '26"
+            width={120}
+            height={32}
+            className="h-8 w-auto"
+            unoptimized
+            priority
+          />
+        </Link>
 
         {/* Content */}
         <div className="relative z-10">
@@ -42,6 +58,9 @@ export default function Home() {
 
           {/* Sponsors Section */}
           <Sponsors />
+
+          {/* Install App Section */}
+          <InstallApp />
 
           {/* Footer */}
           <Footer />

@@ -1,5 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+};
 
 export const metadata: Metadata = {
   title: "E-Summit '26 | IIITDM Kancheepuram",
@@ -7,7 +11,6 @@ export const metadata: Metadata = {
   keywords: ["E-Summit", "IIITDM", "Kancheepuram", "Entrepreneurship", "Startup", "Hackathon", "Innovation", "E-Cell"],
   authors: [{ name: "E-Cell IIITDM" }],
   manifest: "/manifest.json",
-  themeColor: "#000000",
   icons: {
     icon: [
       { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },

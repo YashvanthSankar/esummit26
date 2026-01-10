@@ -11,6 +11,15 @@ export const TICKET_PRICES: Record<string, { amount: number; pax: number; label:
 
 export type TicketType = keyof typeof TICKET_PRICES;
 
+// Accommodation pricing
+export const ACCOMMODATION_PRICE = 500; // Flat rate in INR
+
+// Merchandise pricing
+export const MERCH_ITEMS: Record<string, { price: number; label: string }> = {
+    tshirt: { price: 399, label: 'E-Summit T-Shirt' },
+    hoodie: { price: 799, label: 'E-Summit Hoodie' },
+};
+
 // Attendee information for multi-ticket booking
 export interface AttendeeInfo {
     name: string;

@@ -3,10 +3,11 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Mail, Phone, Building2, FileText } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Mail, Phone, Building2, FileText, CreditCard } from 'lucide-react';
 import AccommodationForm from '@/components/AccommodationForm';
 import DashboardDock from '@/components/DashboardDock';
 import AdminDock from '@/components/AdminDock';
+import { ACCOMMODATION_PRICE } from '@/types/payment';
 
 interface AccommodationRequest {
     id: string;
@@ -23,6 +24,10 @@ interface AccommodationRequest {
     admin_notes: string | null;
     reviewed_at: string | null;
     created_at: string;
+    // Payment fields
+    payment_status: 'pending' | 'pending_verification' | 'paid' | 'rejected' | null;
+    payment_amount: number | null;
+    payment_utr: string | null;
 }
 
 export default function AccommodationPage() {
@@ -87,6 +92,39 @@ export default function AccommodationPage() {
         }
     };
 
+    const getPaymentStatusBadge = (status: string | null) => {
+        switch (status) {
+            case 'paid':
+                return (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/20 border border-green-500/30 rounded-lg">
+                        <CheckCircle className="w-4 h-4 text-green-400" />
+                        <span className="text-green-400 text-sm font-bold">Payment Verified</span>
+                    </div>
+                );
+            case 'pending_verification':
+                return (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/20 border border-amber-500/30 rounded-lg">
+                        <Clock className="w-4 h-4 text-amber-400" />
+                        <span className="text-amber-400 text-sm font-bold">Verifying Payment</span>
+                    </div>
+                );
+            case 'rejected':
+                return (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-red-500/20 border border-red-500/30 rounded-lg">
+                        <XCircle className="w-4 h-4 text-red-400" />
+                        <span className="text-red-400 text-sm font-bold">Payment Rejected</span>
+                    </div>
+                );
+            default:
+                return (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 rounded-lg">
+                        <CreditCard className="w-4 h-4 text-white/50" />
+                        <span className="text-white/50 text-sm font-bold">Payment Pending</span>
+                    </div>
+                );
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#050505] flex items-center justify-center">
@@ -123,23 +161,76 @@ export default function AccommodationPage() {
                         >
                             {/* Status Card */}
                             <div className="bg-[#0a0a0a]/90 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-                                <div className="flex items-center justify-between mb-4">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
                                     <h2 className="text-2xl font-heading text-white">Your Request</h2>
-                                    {getStatusBadge(request.status)}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {getPaymentStatusBadge(request.payment_status)}
+                                        {getStatusBadge(request.status)}
+                                    </div>
                                 </div>
 
-                                {request.status === 'rejected' && request.admin_notes && (
-                                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                                        <p className="text-red-300 text-sm">
-                                            <strong>Reason:</strong> {request.admin_notes}
+                                {/* Payment Status Messages */}
+                                {request.payment_status === 'pending_verification' && request.status !== 'rejected' && (
+                                    <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                                        <p className="text-amber-300 text-sm">
+                                            ⏳ Your payment of ₹{request.payment_amount || ACCOMMODATION_PRICE} is being verified. This typically takes 24 hours.
+                                            {request.payment_utr && (
+                                                <span className="block mt-1 font-mono text-amber-400">UTR: {request.payment_utr}</span>
+                                            )}
                                         </p>
                                     </div>
                                 )}
 
-                                {request.status === 'approved' && (
+                                {request.payment_status === 'paid' && request.status === 'pending' && (
+                                    <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                                        <p className="text-blue-300 text-sm">
+                                            ✅ Payment verified! Your accommodation request is now under review.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {request.payment_status === 'rejected' && (
+                                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                                        <p className="text-red-300 text-sm">
+                                            ❌ Your payment could not be verified. Please contact the organizers for assistance.
+                                        </p>
+                                    </div>
+                                )}
+
+                                {request.status === 'rejected' && (
+                                    <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                                        <p className="text-red-300 text-sm mb-4">
+                                            ❌ Your accommodation request was rejected.
+                                            {request.admin_notes && (
+                                                <span className="block mt-2"><strong>Reason:</strong> {request.admin_notes}</span>
+                                            )}
+                                        </p>
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    const { error } = await supabase
+                                                        .from('accommodation_requests')
+                                                        .delete()
+                                                        .eq('id', request.id);
+
+                                                    if (error) throw error;
+
+                                                    setRequest(null);
+                                                } catch (error: any) {
+                                                    console.error('Delete error:', error);
+                                                }
+                                            }}
+                                            className="px-6 py-2 rounded-xl bg-gradient-to-r from-[#a855f7] to-[#7c3aed] text-white font-bold hover:shadow-lg hover:shadow-[#a855f7]/20 transition-all"
+                                        >
+                                            Try Again
+                                        </button>
+                                    </div>
+                                )}
+
+                                {request.status === 'approved' && request.payment_status === 'paid' && (
                                     <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
                                         <p className="text-green-300 text-sm">
-                                            ✅ Your accommodation has been confirmed! We'll contact you soon with further details.
+                                            ✅ Your accommodation has been confirmed! We&apos;ll contact you soon with further details.
                                         </p>
                                     </div>
                                 )}
@@ -214,10 +305,10 @@ export default function AccommodationPage() {
                                     </div>
 
                                     <div className="flex items-start gap-3">
-                                        <FileText className="w-5 h-5 text-white/40 mt-0.5" />
+                                        <CreditCard className="w-5 h-5 text-white/40 mt-0.5" />
                                         <div>
-                                            <p className="text-white/50 text-xs">Age</p>
-                                            <p className="text-white font-medium">{request.age} years</p>
+                                            <p className="text-white/50 text-xs">Payment Amount</p>
+                                            <p className="text-white font-medium">₹{request.payment_amount || ACCOMMODATION_PRICE}</p>
                                         </div>
                                     </div>
                                 </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, LogOut, Menu, X, User, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Calendar, Bed } from 'lucide-react';
+import { Home, LogOut, Menu, X, User, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Calendar, Bed, ShoppingBag } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface DashboardDockProps {
@@ -33,6 +33,7 @@ export default function DashboardDock({ userName, userRole }: DashboardDockProps
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
         { icon: Calendar, label: 'Events', href: '/#events', onClick: handleEventsClick },
         { icon: Bed, label: 'Accommodation', href: '/admin/accommodation' },
+        { icon: ShoppingBag, label: 'Merch', href: '/admin/merch' },
         { icon: Shield, label: 'Admin', href: '/admin' },
         { icon: CheckCircle, label: 'Verify', href: '/admin/verify' },
         { icon: QrCode, label: 'Scanner', href: '/admin/scan' },
@@ -42,6 +43,7 @@ export default function DashboardDock({ userName, userRole }: DashboardDockProps
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
         { icon: Calendar, label: 'Events', href: '/#events', onClick: handleEventsClick },
         { icon: Bed, label: 'Accommodation', href: '/dashboard/accommodation' },
+        { icon: ShoppingBag, label: 'Merch', href: '/dashboard/merch' },
     ];
 
     return (

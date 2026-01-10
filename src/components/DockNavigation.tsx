@@ -38,7 +38,7 @@ export default function DockNavigation() {
                 transition={{ delay: 1, duration: 0.8, ease: [0.23, 1, 0.32, 1] as [number, number, number, number] }}
                 className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-[9999]"
             >
-                <div className="dock flex flex-col items-center gap-2">
+                <div className="dock flex flex-col items-center gap-2 bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 rounded-2xl p-2.5 shadow-2xl shadow-black/50">
                     {dockItems.map((item, index) => {
                         const Icon = item.icon;
                         return (
