@@ -99,6 +99,11 @@ export async function updateSession(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname;
 
+    // Skip auth for service worker and manifest requests
+    if (pathname === '/sw.js' || pathname === '/manifest.json') {
+        return supabaseResponse;
+    }
+
     // Public routes that don't need auth
     const publicRoutes = ['/', '/login', '/auth/callback', '/privacy', '/terms'];
     const isPublicRoute = publicRoutes.some(
