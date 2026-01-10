@@ -4,8 +4,10 @@ import { createClient } from '@/lib/supabase/client';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { User, Phone, Building2, IdCard, ArrowRight, Loader2 } from 'lucide-react';
+import { User, Phone, Building2, IdCard, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { validatePhoneNumber, formatPhoneForDisplay } from '@/lib/validation';
+import type { OnboardingFormData, PhoneNumber } from '@/types/database';
 
 export default function OnboardingPage() {
     const supabase = createClient();
@@ -14,7 +16,8 @@ export default function OnboardingPage() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [isInternal, setIsInternal] = useState(false);
-    const [formData, setFormData] = useState({
+    const [phoneError, setPhoneError] = useState<string>('');
+    const [formData, setFormData] = useState<OnboardingFormData>({
         full_name: '',
         phone: '',
         college_name: '',
@@ -52,6 +55,15 @@ export default function OnboardingPage() {
         e.preventDefault();
         setSubmitting(true);
 
+        // Validate phone number
+        const phoneValidation = validatePhoneNumber(formData.phone);
+        if (!phoneValidation.isValid) {
+            setPhoneError(phoneValidation.error || 'Invalid phone number');
+            setSubmitting(false);
+            toast.error('Please enter a valid phone number');
+            return;
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             window.location.href = '/login';
@@ -64,7 +76,7 @@ export default function OnboardingPage() {
                 id: user.id,
                 email: user.email!, // Email is required for new rows
                 full_name: formData.full_name,
-                phone: formData.phone,
+                phone: phoneValidation.formatted!, // Use validated and formatted phone
                 college_name: formData.college_name,
                 roll_number: isInternal ? formData.roll_number : null,
                 updated_at: new Date().toISOString(),
@@ -154,14 +166,60 @@ export default function OnboardingPage() {
                             <Phone className="w-4 h-4" />
                             PHONE NUMBER
                         </label>
-                        <input
-                            type="tel"
-                            required
-                            value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-body placeholder:text-white/30 focus:outline-none focus:border-[#a855f7] transition-colors"
-                            placeholder="+91 98765 43210"
-                        />
+                        <div className="relative">
+                            <input
+                                type="tel"
+                                required
+                                value={formData.phone}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    setFormData({ ...formData, phone: value });
+
+                                    // Clear error when user starts typing
+                                    if (phoneError) {
+                                        setPhoneError('');
+                                    }
+                                }}
+                                onBlur={() => {
+                                    // Validate on blur
+                                    if (formData.phone) {
+                                        const validation = validatePhoneNumber(formData.phone);
+                                        if (!validation.isValid) {
+                                            setPhoneError(validation.error || 'Invalid phone number');
+                                        } else {
+                                            setPhoneError('');
+                                        }
+                                    }
+                                }}
+                                className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white font-body placeholder:text-white/30 focus:outline-none transition-colors ${phoneError
+                                    ? 'border-red-500/50 focus:border-red-500'
+                                    : 'border-white/10 focus:border-[#a855f7]'
+                                    }`}
+                                placeholder="+91 98765 43210"
+                            />
+                            {phoneError && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                                >
+                                    <AlertCircle className="w-5 h-5 text-red-500" />
+                                </motion.div>
+                            )}
+                        </div>
+                        {phoneError && (
+                            <motion.p
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="text-xs text-red-400 font-body flex items-center gap-1"
+                            >
+                                <AlertCircle className="w-3 h-3" />
+                                {phoneError}
+                            </motion.p>
+                        )}
+                        <p className="text-xs text-white/30 font-body">
+                            Enter a valid 10-digit Indian phone number
+                        </p>
                     </div>
 
                     {/* College Name */}

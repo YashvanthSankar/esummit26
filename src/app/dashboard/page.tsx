@@ -1,7 +1,7 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import { TICKET_PRICES, UPI_CONFIG } from '@/types/payment';
+import { TICKET_PRICES, UPI_CONFIG, AttendeeInfo } from '@/types/payment';
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import QRCode from 'react-qr-code';
 import TicketCard from '@/components/TicketCard';
 import DashboardDock from '@/components/DashboardDock';
-import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { compressImage } from '@/lib/utils';
 
@@ -35,6 +35,7 @@ interface UserTicket {
     qr_secret: string;
     pax_count: number;
     utr?: string;
+    pending_name?: string;  // For tickets purchased for pending users
 }
 
 export default function DashboardPage() {
@@ -54,6 +55,10 @@ export default function DashboardPage() {
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [utr, setUtr] = useState('');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+    // Multi-attendee booking states
+    const [attendees, setAttendees] = useState<AttendeeInfo[]>([]);
+    const [showAttendeeForm, setShowAttendeeForm] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -82,10 +87,11 @@ export default function DashboardPage() {
                 setProfile(profileData);
             }
 
+            // Fetch tickets - both direct (user_id) and pending (pending_email)
             const { data: ticketData } = await supabase
                 .from('tickets')
                 .select('*')
-                .eq('user_id', user.id)
+                .or(`user_id.eq.${user.id},pending_email.eq.${profileData.email}`)
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .single();
@@ -101,7 +107,36 @@ export default function DashboardPage() {
     }, [supabase]);
 
     const handleSelectPass = (type: string) => {
+        const paxCount = TICKET_PRICES[type].pax;
+
+        // For solo pass, skip attendee form
+        if (paxCount === 1) {
+            setAttendees([{
+                name: profile?.full_name || '',
+                email: profile?.email || '',
+                phone: profile?.phone || ''
+            }]);
+            setShowAttendeeForm(false);
+            setSelectedPass(type);
+            setShowPaymentModal(true);
+            return;
+        }
+
+        // For duo/quad, initialize attendees form
+        const initialAttendees: AttendeeInfo[] = [{
+            name: profile?.full_name || '',
+            email: profile?.email || '',
+            phone: profile?.phone || ''
+        }];
+
+        // Add empty slots for other attendees
+        for (let i = 1; i < paxCount; i++) {
+            initialAttendees.push({ name: '', email: '', phone: '' });
+        }
+
+        setAttendees(initialAttendees);
         setSelectedPass(type);
+        setShowAttendeeForm(true);
         setShowPaymentModal(true);
     };
 
@@ -118,6 +153,30 @@ export default function DashboardPage() {
         if (!utr && !paymentProof) {
             toast.error('Please provide EITHER a Transaction UTR OR a Payment Screenshot to verify.');
             return;
+        }
+
+        // For duo/quad, validate all attendee fields
+        const ticketInfo = TICKET_PRICES[selectedPass];
+        if (ticketInfo.pax > 1) {
+            for (let i = 0; i < attendees.length; i++) {
+                const attendee = attendees[i];
+                if (!attendee.name || !attendee.email || !attendee.phone) {
+                    toast.error(`Please fill in all details for Attendee ${i + 1}`);
+                    return;
+                }
+                // Basic email validation
+                if (!attendee.email.includes('@')) {
+                    toast.error(`Please enter a valid email for Attendee ${i + 1}`);
+                    return;
+                }
+            }
+
+            // Check for duplicate emails
+            const emails = attendees.map(a => a.email.toLowerCase());
+            if (new Set(emails).size !== emails.length) {
+                toast.error('Each attendee must have a unique email address');
+                return;
+            }
         }
 
         setUploading(true);
@@ -139,30 +198,73 @@ export default function DashboardPage() {
                 screenshotPath = uploadData.path;
             }
 
-            // 2. Create ticket record with status 'pending_verification'
-            const ticketInfo = TICKET_PRICES[selectedPass];
+            // 2. Create booking group (for duo/quad)
+            let bookingGroupId: string | null = null;
+            if (ticketInfo.pax > 1) {
+                const { data: groupData, error: groupError } = await supabase
+                    .from('booking_groups')
+                    .insert({
+                        purchaser_id: profile.id,
+                        ticket_type: selectedPass,
+                        total_amount: ticketInfo.amount,
+                        pax_count: ticketInfo.pax
+                    })
+                    .select()
+                    .single();
+
+                if (groupError) throw groupError;
+                bookingGroupId = groupData.id;
+            }
+
+            // 3. Create ticket records for each attendee
+            const ticketInserts = await Promise.all(
+                attendees.map(async (attendee, index) => {
+                    const isPurchaser = attendee.email.toLowerCase() === profile.email.toLowerCase();
+
+                    // Check if attendee already has an account
+                    let existingUserId: string | null = null;
+                    if (!isPurchaser) {
+                        const { data: existingUser } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .eq('email', attendee.email.toLowerCase())
+                            .single();
+                        existingUserId = existingUser?.id || null;
+                    }
+
+                    return {
+                        user_id: isPurchaser ? profile.id : existingUserId,
+                        pending_email: (isPurchaser || existingUserId) ? null : attendee.email.toLowerCase(),
+                        pending_name: (isPurchaser || existingUserId) ? null : attendee.name,
+                        pending_phone: (isPurchaser || existingUserId) ? null : attendee.phone,
+                        type: selectedPass,
+                        amount: Math.floor(ticketInfo.amount / ticketInfo.pax),
+                        status: 'pending_verification',
+                        pax_count: 1, // Each person gets their own ticket
+                        qr_secret: 'pending_' + Date.now() + '_' + index,
+                        screenshot_path: index === 0 ? screenshotPath : null, // Only first ticket has screenshot
+                        utr: index === 0 ? (utr || null) : null, // Only first ticket has UTR
+                        booking_group_id: bookingGroupId
+                    };
+                })
+            );
+
             const { error: insertError } = await supabase
                 .from('tickets')
-                .insert({
-                    user_id: profile.id,
-                    type: selectedPass,
-                    amount: ticketInfo.amount,
-                    status: 'pending_verification',
-                    pax_count: ticketInfo.pax,
-                    qr_secret: 'pending_' + Date.now(),
-                    screenshot_path: screenshotPath, // Can be null
-                    utr: utr || null // Can be null (empty string becomes null)
-                });
+                .insert(ticketInserts);
 
             if (insertError) throw insertError;
 
             // Success - show message about verification
-            toast.success('Payment submitted successfully!', {
-                description: 'Your payment will be verified shortly. Check back later for your ticket.',
+            const otherAttendees = attendees.filter(a => a.email.toLowerCase() !== profile.email.toLowerCase());
+            toast.success('Booking submitted successfully!', {
+                description: ticketInfo.pax > 1
+                    ? `Payment will be verified shortly. ${otherAttendees.length} other attendee(s) will receive their tickets.`
+                    : 'Your payment will be verified shortly. Check back later for your ticket.',
                 duration: 6000,
             });
 
-            // 3. Refresh data
+            // 4. Refresh data
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
@@ -208,33 +310,62 @@ export default function DashboardPage() {
             console.error = originalError;
             console.log('[Download] Canvas rendered successfully');
 
-            // Convert to blob for better download handling
-            canvas.toBlob((blob) => {
-                if (!blob) {
-                    toast.error('Failed to generate ticket image.');
+            // Try toBlob first, fallback to toDataURL
+            const safeName = profile.full_name.replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `ESummit26_Ticket_${safeName}.png`;
+
+            try {
+                // Method 1: Using toBlob
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        // Fallback to toDataURL
+                        console.log('[Download] toBlob returned null, using toDataURL fallback');
+                        downloadViaDataURL();
+                        return;
+                    }
+
+                    console.log('[Download] Creating download link via blob...');
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = url;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+
+                    console.log('[Download] Download triggered successfully');
+                    toast.success('Ticket downloaded successfully!');
                     setDownloading(false);
-                    return;
+                }, 'image/png');
+            } catch (blobError) {
+                console.log('[Download] toBlob failed, using fallback');
+                downloadViaDataURL();
+            }
+
+            // Fallback function using toDataURL
+            function downloadViaDataURL() {
+                try {
+                    const dataURL = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = dataURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    console.log('[Download] Download triggered via dataURL');
+                    toast.success('Ticket downloaded successfully!');
+                } catch (err) {
+                    console.error('[Download] DataURL fallback failed:', err);
+                    toast.error('Download failed. Please try again.');
                 }
-
-                console.log('[Download] Creating download link...');
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                const safeName = profile.full_name.replace(/[^a-zA-Z0-9]/g, '_');
-                link.download = `ESummit26_Ticket_${safeName}.png`;
-                link.href = url;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-
-                console.log('[Download] Download triggered successfully');
-                toast.success('Ticket downloaded successfully!');
                 setDownloading(false);
-            }, 'image/png');
+            }
 
         } catch (error: any) {
             console.error('[Download] Error:', error);
-            toast.error(`Download failed: ${error.message || 'Unknown error'}`);
+            toast.error(`Download failed: ${error.message || 'Unknown error'}. Try taking a screenshot instead.`);
             setDownloading(false);
         }
     };
@@ -265,7 +396,7 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
             {/* Dock Navigation */}
-            <DashboardDock userName={profile?.full_name} />
+            <DashboardDock userName={profile?.full_name} userRole={profile?.role} />
 
             <div className="max-w-4xl mx-auto relative z-10">
                 {/* Header */}
@@ -360,6 +491,94 @@ export default function DashboardPage() {
                                     <ArrowLeft className="w-4 h-4" />
                                     Change Plan
                                 </button>
+
+                                {/* Attendee Form for Duo/Quad */}
+                                {showAttendeeForm && selectedPass && TICKET_PRICES[selectedPass].pax > 1 && (
+                                    <div className="mb-8 pb-8 border-b border-white/10">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <UserPlus className="w-6 h-6 text-[#a855f7]" />
+                                            <h3 className="font-heading text-xl text-white">
+                                                Enter Attendee Details
+                                            </h3>
+                                        </div>
+                                        <p className="text-white/50 text-sm mb-6 font-body">
+                                            Enter the details of all {TICKET_PRICES[selectedPass].pax} people who will attend.
+                                            Each person will receive their own ticket.
+                                        </p>
+
+                                        <div className="space-y-6">
+                                            {attendees.map((attendee, index) => (
+                                                <div key={index} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <div className="w-8 h-8 rounded-full bg-[#a855f7]/20 flex items-center justify-center">
+                                                            <span className="text-[#a855f7] font-mono text-sm">{index + 1}</span>
+                                                        </div>
+                                                        <span className="text-white font-heading text-sm">
+                                                            {index === 0 ? 'You (Purchaser)' : `Attendee ${index + 1}`}
+                                                        </span>
+                                                        {index === 0 && (
+                                                            <span className="text-xs text-[#a855f7] bg-[#a855f7]/10 px-2 py-0.5 rounded-full">
+                                                                Auto-filled
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                                        <div>
+                                                            <label className="block font-mono text-xs text-white/40 mb-2">NAME</label>
+                                                            <input
+                                                                type="text"
+                                                                value={attendee.name}
+                                                                onChange={(e) => {
+                                                                    const newAttendees = [...attendees];
+                                                                    newAttendees[index].name = e.target.value;
+                                                                    setAttendees(newAttendees);
+                                                                }}
+                                                                disabled={index === 0}
+                                                                placeholder="Full Name"
+                                                                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#a855f7] ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block font-mono text-xs text-white/40 mb-2">EMAIL</label>
+                                                            <input
+                                                                type="email"
+                                                                value={attendee.email}
+                                                                onChange={(e) => {
+                                                                    const newAttendees = [...attendees];
+                                                                    newAttendees[index].email = e.target.value;
+                                                                    setAttendees(newAttendees);
+                                                                }}
+                                                                disabled={index === 0}
+                                                                placeholder="email@example.com"
+                                                                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#a855f7] ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block font-mono text-xs text-white/40 mb-2">PHONE</label>
+                                                            <input
+                                                                type="tel"
+                                                                value={attendee.phone}
+                                                                onChange={(e) => {
+                                                                    const newAttendees = [...attendees];
+                                                                    newAttendees[index].phone = e.target.value;
+                                                                    setAttendees(newAttendees);
+                                                                }}
+                                                                disabled={index === 0}
+                                                                placeholder="+91 98765 43210"
+                                                                className={`w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#a855f7] ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <p className="text-white/40 text-xs mt-4 font-body">
+                                            💡 Other attendees will receive their tickets after signing up with their email.
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                                     {/* QR Code Column */}
@@ -491,9 +710,39 @@ export default function DashboardPage() {
                                     </div>
                                     <h3 className="font-heading text-2xl text-white mb-2">Payment Rejected</h3>
                                     <p className="font-body text-white/60 max-w-md mx-auto mb-8">
-                                        Your payment could not be verified. Please contact support.
+                                        Your payment could not be verified. Please try again with correct payment details.
                                     </p>
-                                    {/* Option to retry could be added here by deleting the ticket record or updating it */}
+                                    <motion.button
+                                        onClick={async () => {
+                                            try {
+                                                // Delete the rejected ticket
+                                                const { error } = await supabase
+                                                    .from('tickets')
+                                                    .delete()
+                                                    .eq('id', ticket.id);
+
+                                                if (error) throw error;
+
+                                                toast.success('Ready to try again!', {
+                                                    description: 'Please select a pass and submit your payment.',
+                                                });
+
+                                                // Reset state to allow new payment
+                                                setTicket(null);
+                                                setSelectedPass(null);
+                                                setPaymentProof(null);
+                                                setUtr('');
+                                            } catch (error: any) {
+                                                console.error('Delete error:', error);
+                                                toast.error('Failed to reset. Please refresh the page.');
+                                            }
+                                        }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#a855f7] to-[#7c3aed] text-white font-heading text-lg shadow-lg shadow-[#a855f7]/20 hover:shadow-[#a855f7]/40 transition-shadow"
+                                    >
+                                        Try Again
+                                    </motion.button>
                                 </>
                             ) : (
                                 <>

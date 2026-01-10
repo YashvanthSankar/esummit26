@@ -10,3 +10,10 @@ export const TICKET_PRICES: Record<string, { amount: number; pax: number; label:
 };
 
 export type TicketType = keyof typeof TICKET_PRICES;
+
+// Attendee information for multi-ticket booking
+export interface AttendeeInfo {
+    name: string;
+    email: string;
+    phone: string;
+}

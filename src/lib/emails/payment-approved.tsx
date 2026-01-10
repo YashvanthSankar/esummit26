@@ -1,4 +1,14 @@
 import * as React from 'react';
+import {
+    Html,
+    Head,
+    Body,
+    Container,
+    Section,
+    Text,
+    Link,
+    Heading,
+} from '@react-email/components';
 
 interface PaymentApprovedEmailProps {
     userName: string;
@@ -11,169 +21,198 @@ export const PaymentApprovedEmail: React.FC<PaymentApprovedEmailProps> = ({
     ticketType,
     amount,
 }) => (
-    <html>
-        <head>
-            <style>{`
-                body {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                    background-color: #050505;
-                    color: #ffffff;
-                    margin: 0;
-                    padding: 0;
-                }
-                .container {
-                    max-width: 600px;
-                    margin: 0 auto;
-                    padding: 40px 20px;
-                }
-                .header {
-                    text-align: center;
-                    margin-bottom: 40px;
-                }
-                .logo {
-                    font-size: 32px;
-                    font-weight: 800;
-                    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    margin-bottom: 8px;
-                }
-                .subtitle {
-                    color: #666666;
-                    font-size: 14px;
-                }
-                .card {
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 16px;
-                    padding: 32px;
-                    margin-bottom: 24px;
-                }
-                .success-badge {
-                    display: inline-block;
-                    background: rgba(16, 185, 129, 0.1);
-                    border: 1px solid rgba(16, 185, 129, 0.3);
-                    color: #10b981;
-                    padding: 8px 16px;
-                    border-radius: 999px;
-                    font-size: 12px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    margin-bottom: 24px;
-                }
-                h1 {
-                    font-size: 28px;
-                    margin: 0 0 16px 0;
-                    font-weight: 700;
-                }
-                .greeting {
-                    color: #a855f7;
-                    margin-bottom: 8px;
-                }
-                p {
-                    line-height: 1.6;
-                    color: #cccccc;
-                    margin: 0 0 16px 0;
-                }
-                .ticket-details {
-                    background: rgba(168, 85, 247, 0.05);
-                    border-left: 4px solid #a855f7;
-                    padding: 20px;
-                    margin: 24px 0;
-                    border-radius: 8px;
-                }
-                .detail-row {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 12px;
-                }
-                .detail-label {
-                    color: #999999;
-                    font-size: 14px;
-                }
-                .detail-value {
-                    color: #ffffff;
-                    font-weight: 600;
-                    font-size: 14px;
-                }
-                .cta-button {
-                    display: inline-block;
-                    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-                    color: #ffffff;
-                    padding: 16px 32px;
-                    border-radius: 12px;
-                    text-decoration: none;
-                    font-weight: 600;
-                    margin: 24px 0;
-                }
-                .footer {
-                    text-align: center;
-                    color: #666666;
-                    font-size: 12px;
-                    margin-top: 40px;
-                    padding-top: 24px;
-                    border-top: 1px solid rgba(255, 255, 255, 0.1);
-                }
-            `}</style>
-        </head>
-        <body>
-            <div className="container">
-                <div className="header">
-                    <div className="logo">E-SUMMIT '26</div>
-                    <div className="subtitle">IIITDM Kancheepuram</div>
-                </div>
+    <Html>
+        <Head />
+        <Body style={main}>
+            <Container style={container}>
+                {/* Header */}
+                <Section style={header}>
+                    <Heading style={logo}>E-SUMMIT '26</Heading>
+                    <Text style={subtitle}>IIITDM Kancheepuram</Text>
+                </Section>
 
-                <div className="card">
-                    <div className="success-badge">✓ Payment Approved</div>
+                {/* Main Card */}
+                <Section style={card}>
+                    <div style={successBadge}>✓ Payment Approved</div>
 
-                    <h1>
-                        <div className="greeting">Hey {userName}! 👋</div>
+                    <Heading style={h1}>
+                        <div style={greeting}>Hey {userName}! 👋</div>
                         Your Payment is Confirmed
-                    </h1>
+                    </Heading>
 
-                    <p>
+                    <Text style={paragraph}>
                         Great news! Your payment has been verified and approved by our team.
-                        Your ticket is now ready to download.
-                    </p>
+                        <strong> Your ticket is now ready to download from your dashboard.</strong>
+                    </Text>
 
-                    <div className="ticket-details">
-                        <div className="detail-row">
-                            <span className="detail-label">Ticket Type</span>
-                            <span className="detail-value">{ticketType.toUpperCase()}</span>
+                    {/* Ticket Details */}
+                    <Section style={ticketDetails}>
+                        <div style={detailRow}>
+                            <span style={detailLabel}>Ticket Type</span>
+                            <span style={detailValue}>{ticketType.toUpperCase()}</span>
                         </div>
-                        <div className="detail-row">
-                            <span className="detail-label">Amount Paid</span>
-                            <span className="detail-value">₹{amount}</span>
+                        <div style={detailRow}>
+                            <span style={detailLabel}>Amount Paid</span>
+                            <span style={detailValue}>₹{amount}</span>
                         </div>
-                    </div>
+                    </Section>
 
-                    <p>
+                    <Text style={paragraph}>
                         <strong>Next Steps:</strong>
-                    </p>
-                    <ol style={{ color: '#cccccc', lineHeight: '1.8' }}>
-                        <li>Visit your dashboard to download your ticket</li>
+                    </Text>
+                    <ol style={list}>
+                        <li><strong>Visit your dashboard</strong> to download your ticket</li>
                         <li>Save the QR code - you'll need it for entry</li>
                         <li>Mark your calendar for the event dates</li>
                     </ol>
 
-                    <center>
-                        <a href="https://esummit.iiitdm.ac.in/dashboard" className="cta-button">
-                            Download Your Ticket →
-                        </a>
-                    </center>
-                </div>
+                    {/* CTA Button */}
+                    <Section style={{ textAlign: 'center' as const, margin: '24px 0' }}>
+                        <Link href="https://esummit.iiitdm.ac.in/dashboard" style={button}>
+                            Check Dashboard & Download Ticket →
+                        </Link>
+                    </Section>
+                </Section>
 
-                <div className="footer">
-                    <p>
+                {/* Footer */}
+                <Section style={footer}>
+                    <Text style={footerText}>
                         Questions? Contact us at support@esummit.iiitdm.ac.in
-                    </p>
-                    <p style={{ marginTop: '8px' }}>
+                    </Text>
+                    <Text style={footerText}>
                         © 2026 E-Cell IIITDM Kancheepuram. All rights reserved.
-                    </p>
-                </div>
-            </div>
-        </body>
-    </html>
+                    </Text>
+                </Section>
+            </Container>
+        </Body>
+    </Html>
 );
 
 export default PaymentApprovedEmail;
+
+// Styles
+const main = {
+    backgroundColor: '#050505',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+};
+
+const container = {
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: '40px 20px',
+};
+
+const header = {
+    textAlign: 'center' as const,
+    marginBottom: '40px',
+};
+
+const logo = {
+    fontSize: '32px',
+    fontWeight: '800',
+    background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    marginBottom: '8px',
+};
+
+const subtitle = {
+    color: '#666666',
+    fontSize: '14px',
+    margin: 0,
+};
+
+const card = {
+    background: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '16px',
+    padding: '32px',
+    marginBottom: '24px',
+};
+
+const successBadge = {
+    display: 'inline-block',
+    background: 'rgba(16, 185, 129, 0.1)',
+    border: '1px solid rgba(16, 185, 129, 0.3)',
+    color: '#10b981',
+    padding: '8px 16px',
+    borderRadius: '999px',
+    fontSize: '12px',
+    fontWeight: '600',
+    textTransform: 'uppercase' as const,
+    marginBottom: '24px',
+};
+
+const h1 = {
+    fontSize: '28px',
+    margin: '0 0 16px 0',
+    fontWeight: '700',
+    color: '#ffffff',
+};
+
+const greeting = {
+    color: '#a855f7',
+    marginBottom: '8px',
+};
+
+const paragraph = {
+    lineHeight: '1.6',
+    color: '#cccccc',
+    margin: '0 0 16px 0',
+};
+
+const ticketDetails = {
+    background: 'rgba(168, 85, 247, 0.05)',
+    borderLeft: '4px solid #a855f7',
+    padding: '20px',
+    margin: '24px 0',
+    borderRadius: '8px',
+};
+
+const detailRow = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: '12px',
+};
+
+const detailLabel = {
+    color: '#999999',
+    fontSize: '14px',
+};
+
+const detailValue = {
+    color: '#ffffff',
+    fontWeight: '600',
+    fontSize: '14px',
+};
+
+const list = {
+    color: '#cccccc',
+    lineHeight: '1.8',
+    paddingLeft: '20px',
+};
+
+const button = {
+    display: 'inline-block',
+    background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
+    color: '#ffffff',
+    padding: '16px 32px',
+    borderRadius: '12px',
+    textDecoration: 'none',
+    fontWeight: '600',
+};
+
+const footer = {
+    textAlign: 'center' as const,
+    color: '#666666',
+    fontSize: '12px',
+    marginTop: '40px',
+    paddingTop: '24px',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+};
+
+const footerText = {
+    margin: '8px 0',
+    color: '#666666',
+};
+
