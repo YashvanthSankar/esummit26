@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { CacheKeys, getCached, setCached } from '@/lib/kv';
 
 // Cache admin check for 5 minutes to reduce DB calls
 const adminCache = new Map<string, { isAdmin: boolean; name: string; expires: number }>();
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
 
         const supabase = await createClient();
 
-        // Step 1: Verify admin (with caching)
+        // Step 1: Verify admin (KV Cache First)
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             return NextResponse.json(
@@ -28,61 +29,63 @@ export async function POST(request: Request) {
             );
         }
 
-        // Check admin cache
-        const cached = adminCache.get(user.id);
-        let adminName = 'Admin';
+        // Check KV for admin status
+        const adminKey = CacheKeys.ADMIN(user.id);
+        let isAdmin = await getCached<boolean>(adminKey);
+        let adminName = 'Admin'; // We can cache name too if needed, but keeping it simple
 
-        if (cached && cached.expires > Date.now()) {
-            if (!cached.isAdmin) {
-                return NextResponse.json(
-                    { success: false, status: 'ERROR', message: 'Admin required' },
-                    { status: 403 }
-                );
-            }
-            adminName = cached.name;
-        } else {
+        if (isAdmin === null) {
+            // Cache Miss - Hit DB
             const { data: adminProfile } = await supabase
                 .from('profiles')
                 .select('role, full_name')
                 .eq('id', user.id)
                 .single();
 
-            const isAdmin = adminProfile?.role === 'admin';
-            adminCache.set(user.id, {
-                isAdmin,
-                name: adminProfile?.full_name || 'Admin',
-                expires: Date.now() + 5 * 60 * 1000 // 5 minutes
-            });
-
-            if (!isAdmin) {
-                return NextResponse.json(
-                    { success: false, status: 'ERROR', message: 'Admin required' },
-                    { status: 403 }
-                );
-            }
+            isAdmin = adminProfile?.role === 'admin';
             adminName = adminProfile?.full_name || 'Admin';
+
+            // Cache result for 1 hour
+            await setCached(adminKey, isAdmin, 3600);
         }
 
-        // Step 2: Single query to get ticket with holder info
-        const { data: ticket, error: ticketError } = await supabase
-            .from('tickets')
-            .select(`
-                id, 
-                type, 
-                status, 
-                pax_count, 
-                user:profiles!tickets_user_id_fkey(full_name)
-            `)
-            .eq('qr_secret', qrSecret)
-            .single();
+        if (!isAdmin) {
+            return NextResponse.json(
+                { success: false, status: 'ERROR', message: 'Admin required' },
+                { status: 403 }
+            );
+        }
 
-        if (ticketError || !ticket) {
-            return NextResponse.json({
-                success: false,
-                status: 'INVALID',
-                message: 'Invalid QR code',
-                ms: Date.now() - startTime
-            });
+        // Step 2: Get Ticket (KV Cache First)
+        const ticketKey = CacheKeys.TICKET_QR(qrSecret);
+        let ticket: any = await getCached(ticketKey);
+
+        if (!ticket) {
+            // Cache Miss - Hit DB
+            const { data: dbTicket, error: ticketError } = await supabase
+                .from('tickets')
+                .select(`
+                    id, 
+                    type, 
+                    status, 
+                    pax_count, 
+                    user:profiles!tickets_user_id_fkey(full_name)
+                `)
+                .eq('qr_secret', qrSecret)
+                .single();
+
+            if (ticketError || !dbTicket) {
+                return NextResponse.json({
+                    success: false,
+                    status: 'INVALID',
+                    message: 'Invalid QR code',
+                    ms: Date.now() - startTime
+                });
+            }
+
+            ticket = dbTicket;
+            // Cache for 5 mins (clears if status changes via webhook usually, but 5m is safe)
+            await setCached(ticketKey, ticket, 300);
         }
 
         if (ticket.status !== 'paid') {
