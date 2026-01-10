@@ -3,28 +3,51 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle, Clock, ShoppingBag, CreditCard, Eye, Package } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, ShoppingBag, CreditCard, Eye, Package, Search } from 'lucide-react';
 import AdminDock from '@/components/AdminDock';
 import { toast } from 'sonner';
 import Image from 'next/image';
 
+// Bundle Item Interface
+interface BundleItem {
+    item: string;
+    size: string;
+    index: number;
+}
+
+// Order Interface matching the new Schema
 interface MerchOrder {
     id: string;
     user_id: string;
     name: string;
     email: string;
     phone_number: string;
-    item_name: string;
-    size: string;
-    quantity: number;
+
+    // Bundle fields
+    bundle_type: 'solo' | 'duo' | 'quad';
+    item_type: string;
+    bundle_items: BundleItem[];
+    total_items: number;
+
+    // Payment fields
     amount: number;
     payment_status: 'pending' | 'pending_verification' | 'paid' | 'rejected' | null;
     payment_utr: string | null;
+    payment_owner_name: string | null;
     payment_screenshot_path: string | null;
+
+    // Status fields
     status: 'pending' | 'confirmed' | 'rejected' | 'delivered';
     admin_notes: string | null;
     created_at: string;
 }
+
+// Bundle Display Helpers
+const BUNDLE_LABELS = {
+    solo: { label: 'Solo Bundle', color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    duo: { label: 'Duo Bundle', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+    quad: { label: 'Quad Bundle', color: 'text-amber-400', bg: 'bg-amber-500/10' },
+};
 
 export default function AdminMerchPage() {
     const supabase = createClient();
@@ -35,6 +58,7 @@ export default function AdminMerchPage() {
     const [selectedOrder, setSelectedOrder] = useState<MerchOrder | null>(null);
     const [adminNotes, setAdminNotes] = useState('');
     const [processing, setProcessing] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const loadOrders = async () => {
         setLoading(true);
@@ -68,7 +92,6 @@ export default function AdminMerchPage() {
 
     const handleVerifyPayment = async (orderId: string) => {
         setProcessing(true);
-        const { data: { user } } = await supabase.auth.getUser();
 
         const { error } = await supabase
             .from('merch_orders')
@@ -188,6 +211,14 @@ export default function AdminMerchPage() {
         totalRevenue: orders.filter(o => o.payment_status === 'paid').reduce((sum, o) => sum + o.amount, 0),
     };
 
+    const filteredOrders = orders.filter(order => {
+        const search = searchTerm.toLowerCase();
+        return order.name.toLowerCase().includes(search) ||
+            order.email.toLowerCase().includes(search) ||
+            order.phone_number.includes(search) ||
+            (order.payment_utr && order.payment_utr.includes(search));
+    });
+
     return (
         <main className="min-h-screen bg-[#050505] relative overflow-hidden">
             <div className="fixed inset-0 bg-[linear-gradient(rgba(168,85,247,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.02)_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
@@ -237,8 +268,8 @@ export default function AdminMerchPage() {
                                     key={status}
                                     onClick={() => setFilter(status)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === status
-                                            ? 'bg-[#a855f7] text-white'
-                                            : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
+                                        ? 'bg-[#a855f7] text-white'
+                                        : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
                                         }`}
                                 >
                                     {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -251,13 +282,24 @@ export default function AdminMerchPage() {
                                     key={pStatus}
                                     onClick={() => setPaymentFilter(pStatus)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${paymentFilter === pStatus
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
                                         }`}
                                 >
                                     {pStatus === 'pending_verification' ? 'Verify Pay' : pStatus === 'all' ? 'All Pay' : 'Paid'}
                                 </button>
                             ))}
+                        </div>
+                        {/* Search */}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                            <input
+                                type="text"
+                                placeholder="Search name, email, phone..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-64 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[#a855f7]/50"
+                            />
                         </div>
                     </div>
 
@@ -266,50 +308,85 @@ export default function AdminMerchPage() {
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-8 h-8 text-[#a855f7] animate-spin" />
                         </div>
-                    ) : orders.length === 0 ? (
+                    ) : filteredOrders.length === 0 ? (
                         <div className="text-center py-12 text-white/40">No orders found</div>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {orders.map((order) => (
-                                <motion.div
-                                    key={order.id}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-[#0a0a0a]/90 border border-white/10 rounded-xl p-5 hover:border-[#a855f7]/30 transition-all"
-                                >
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div>
-                                            <h3 className="text-white font-bold">{order.name}</h3>
-                                            <p className="text-white/50 text-sm">{order.email}</p>
-                                        </div>
-                                        {getStatusBadge(order.status)}
-                                    </div>
-
-                                    <div className="flex items-center gap-3 mb-3 p-3 bg-white/5 rounded-lg">
-                                        <ShoppingBag className="w-6 h-6 text-[#a855f7]" />
-                                        <div>
-                                            <p className="text-white font-medium">{order.item_name}</p>
-                                            <p className="text-white/50 text-xs">Size: {order.size} • Qty: {order.quantity}</p>
-                                        </div>
-                                        <p className="text-[#a855f7] font-bold ml-auto">₹{order.amount}</p>
-                                    </div>
-
-                                    {order.payment_utr && (
-                                        <p className="text-white/50 text-xs font-mono mb-3">UTR: {order.payment_utr}</p>
-                                    )}
-
-                                    <button
-                                        onClick={() => {
-                                            setSelectedOrder(order);
-                                            setAdminNotes('');
-                                        }}
-                                        className="w-full bg-[#a855f7] hover:bg-[#9333ea] text-white py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                            {filteredOrders.map((order) => {
+                                const bundleInfo = BUNDLE_LABELS[order.bundle_type] || BUNDLE_LABELS['solo'];
+                                return (
+                                    <motion.div
+                                        key={order.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="bg-[#0a0a0a]/90 border border-white/10 rounded-xl p-5 hover:border-[#a855f7]/30 transition-all"
                                     >
-                                        <Eye className="w-4 h-4" />
-                                        Review Order
-                                    </button>
-                                </motion.div>
-                            ))}
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div>
+                                                <h3 className="text-white font-bold">{order.name}</h3>
+                                                <p className="text-white/50 text-xs font-mono">{order.email}</p>
+                                            </div>
+                                            {getStatusBadge(order.status)}
+                                        </div>
+
+                                        <div className={`flex items-center gap-3 mb-3 p-3 rounded-lg ${bundleInfo.bg}`}>
+                                            <ShoppingBag className={`w-6 h-6 ${bundleInfo.color}`} />
+                                            <div>
+                                                <p className="text-white font-medium">{bundleInfo.label}</p>
+                                                <p className="text-white/50 text-xs">
+                                                    {order.bundle_items.length} items • {order.total_items} total
+                                                </p>
+                                            </div>
+                                            <p className="text-[#a855f7] font-bold ml-auto">₹{order.amount}</p>
+                                        </div>
+
+                                        <div className="space-y-1 mb-3 pl-2 border-l-2 border-white/10">
+                                            {order.bundle_items.slice(0, 2).map((item, idx) => (
+                                                <p key={idx} className="text-white/60 text-xs">
+                                                    • {item.item} ({item.size})
+                                                </p>
+                                            ))}
+                                            {order.bundle_items.length > 2 && (
+                                                <p className="text-white/40 text-xs italic">
+                                                    + {order.bundle_items.length - 2} more...
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {order.payment_utr && (
+                                            <p className="text-white/50 text-xs font-mono mb-3">UTR: {order.payment_utr}</p>
+                                        )}
+
+                                        {/* Quick Issue Toggle for confirmed orders OR paid pending orders */}
+                                        {(order.status === 'confirmed' || (order.status === 'pending' && order.payment_status === 'paid')) && (
+                                            <div className="flex items-center justify-between mb-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                                                <div className="flex items-center gap-2">
+                                                    <Package className="w-4 h-4 text-green-400" />
+                                                    <span className="text-green-400 text-sm font-medium">Ready to Issue</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleMarkDelivered(order.id)}
+                                                    disabled={processing}
+                                                    className="px-4 py-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white text-sm font-bold transition-colors disabled:opacity-50"
+                                                >
+                                                    {processing ? 'Issuing...' : 'Mark Issued'}
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        <button
+                                            onClick={() => {
+                                                setSelectedOrder(order);
+                                                setAdminNotes('');
+                                            }}
+                                            className="w-full bg-[#a855f7] hover:bg-[#9333ea] text-white py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                            Review Order
+                                        </button>
+                                    </motion.div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -329,19 +406,38 @@ export default function AdminMerchPage() {
                                     <h2 className="text-2xl font-bold text-white">{selectedOrder.name}</h2>
                                     <p className="text-white/60">{selectedOrder.email}</p>
                                     <p className="text-white/50 text-sm">{selectedOrder.phone_number}</p>
+                                    <p className="text-white/40 text-xs font-mono mt-1">Order ID: {selectedOrder.id}</p>
                                 </div>
                                 {getStatusBadge(selectedOrder.status)}
                             </div>
 
                             {/* Order Details */}
-                            <div className="p-4 bg-white/5 rounded-xl mb-6">
-                                <div className="flex items-center gap-4">
-                                    <ShoppingBag className="w-10 h-10 text-[#a855f7]" />
+                            <div className={`p-4 rounded-xl mb-6 ${BUNDLE_LABELS[selectedOrder.bundle_type]?.bg || BUNDLE_LABELS.solo.bg}`}>
+                                <div className="flex items-center gap-4 mb-4 border-b border-white/10 pb-4">
+                                    <ShoppingBag className={`w-10 h-10 ${BUNDLE_LABELS[selectedOrder.bundle_type]?.color || BUNDLE_LABELS.solo.color}`} />
                                     <div className="flex-1">
-                                        <p className="text-white font-bold text-lg">{selectedOrder.item_name}</p>
-                                        <p className="text-white/60">Size: {selectedOrder.size} • Quantity: {selectedOrder.quantity}</p>
+                                        <p className="text-white font-bold text-lg">
+                                            {BUNDLE_LABELS[selectedOrder.bundle_type]?.label || 'Bundle'}
+                                        </p>
+                                        <p className="text-white/60">
+                                            Contains {selectedOrder.total_items} items
+                                        </p>
                                     </div>
                                     <p className="text-[#a855f7] font-heading text-2xl">₹{selectedOrder.amount}</p>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <p className="text-white/50 text-xs uppercase font-bold tracking-wider">Items included:</p>
+                                    {selectedOrder.bundle_items.map((item, index) => (
+                                        <div key={index} className="flex justify-between items-center bg-black/20 p-2 rounded">
+                                            <span className="text-white text-sm">
+                                                {index + 1}. {item.item}
+                                            </span>
+                                            <span className="text-white font-mono bg-white/10 px-2 py-0.5 rounded text-xs">
+                                                Size: {item.size}
+                                            </span>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
 
@@ -356,6 +452,12 @@ export default function AdminMerchPage() {
                                     {selectedOrder.payment_utr && (
                                         <p className="text-white font-mono text-sm mb-3">
                                             UTR: <span className="text-purple-300">{selectedOrder.payment_utr}</span>
+                                        </p>
+                                    )}
+
+                                    {selectedOrder.payment_owner_name && (
+                                        <p className="text-white font-mono text-sm mb-3">
+                                            Owner: <span className="text-purple-300">{selectedOrder.payment_owner_name}</span>
                                         </p>
                                     )}
 

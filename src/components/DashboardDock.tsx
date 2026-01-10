@@ -8,9 +8,10 @@ import { createClient } from '@/lib/supabase/client';
 interface DashboardDockProps {
     userName?: string;
     userRole?: string;
+    currentPage?: 'dashboard' | 'events' | 'accommodation' | 'merch';
 }
 
-export default function DashboardDock({ userName, userRole }: DashboardDockProps) {
+export default function DashboardDock({ userName, userRole, currentPage }: DashboardDockProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const supabase = createClient();
 
@@ -21,8 +22,12 @@ export default function DashboardDock({ userName, userRole }: DashboardDockProps
 
     const handleEventsClick = (e: React.MouseEvent) => {
         e.preventDefault();
-        // Navigate to main page events section
-        window.location.href = '/#events';
+        // Admins go to main page events, users go to dashboard/events
+        if (isAdmin) {
+            window.location.href = '/#events';
+        } else {
+            window.location.href = '/dashboard/events';
+        }
     };
 
     // Show admin links if user is admin
@@ -41,7 +46,7 @@ export default function DashboardDock({ userName, userRole }: DashboardDockProps
     ] : [
         { icon: Home, label: 'Home', href: '/' },
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-        { icon: Calendar, label: 'Events', href: '/#events', onClick: handleEventsClick },
+        { icon: Calendar, label: 'Events', href: '/dashboard/events', onClick: handleEventsClick },
         { icon: Bed, label: 'Accommodation', href: '/dashboard/accommodation' },
         { icon: ShoppingBag, label: 'Merch', href: '/dashboard/merch' },
     ];

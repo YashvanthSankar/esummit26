@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Bed, ShoppingBag } from 'lucide-react';
+import { Home, LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Bed, ShoppingBag, Database, Tag } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 interface AdminDockProps {
     userName?: string;
-    currentPage?: 'dashboard' | 'verify' | 'scan' | 'users' | 'accommodation' | 'merch';
+    currentPage?: 'dashboard' | 'verify' | 'scan' | 'users' | 'accommodation' | 'merch' | 'unified' | 'bands';
 }
 
 export default function AdminDock({ userName, currentPage }: AdminDockProps) {
@@ -23,8 +23,10 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
         { icon: Home, label: 'Home', href: '/' },
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
         { icon: Shield, label: 'Admin', href: '/admin' },
+        { icon: Database, label: 'Unified View', href: '/admin/unified' },
         { icon: Bed, label: 'Accommodation', href: '/admin/accommodation' },
         { icon: ShoppingBag, label: 'Merch', href: '/admin/merch' },
+        { icon: Tag, label: 'Bands', href: '/admin/bands' },
         { icon: CheckCircle, label: 'Verify', href: '/admin/verify' },
         { icon: QrCode, label: 'Scanner', href: '/admin/scan' },
         { icon: Users, label: 'Users', href: '/admin/users' },

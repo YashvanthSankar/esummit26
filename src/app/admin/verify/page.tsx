@@ -24,6 +24,7 @@ interface PendingTicket {
     amount: number;
     screenshot_path: string;
     utr: string;
+    payment_owner_name?: string | null;
     created_at: string;
     booking_group_id: string | null;
     pending_name: string | null;
@@ -385,11 +386,18 @@ export default function VerifyPage() {
 
                                             {/* Payment Info */}
                                             <div className="min-w-[140px]">
-                                                <p className="text-xs text-white/40 font-mono mb-1">UTR</p>
+                                                <p className="text-xs text-white/40 font-mono mb-1">UTR & OWNER</p>
                                                 {ticket.utr ? (
-                                                    <div className="flex items-center gap-2 group cursor-pointer" onClick={() => copyToClipboard(ticket.utr)}>
-                                                        <p className="font-mono text-sm text-[#a855f7] truncate max-w-[120px]">{ticket.utr}</p>
-                                                        <Copy className="w-3 h-3 text-white/40 opacity-0 group-hover:opacity-100" />
+                                                    <div className="flex flex-col gap-1">
+                                                        <div className="flex items-center gap-2 group cursor-pointer" onClick={() => copyToClipboard(ticket.utr)}>
+                                                            <p className="font-mono text-sm text-[#a855f7] truncate max-w-[120px]">{ticket.utr}</p>
+                                                            <Copy className="w-3 h-3 text-white/40 opacity-0 group-hover:opacity-100" />
+                                                        </div>
+                                                        {ticket.payment_owner_name && (
+                                                            <p className="text-xs text-white/60 truncate max-w-[120px]" title={ticket.payment_owner_name}>
+                                                                {ticket.payment_owner_name}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 ) : (
                                                     <p className="font-mono text-sm text-white/40">—</p>

@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Mail, Phone, Building2, Eye, CreditCard, IndianRupee } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Phone, Building2, Eye, CreditCard, IndianRupee, Search } from 'lucide-react';
 import AdminDock from '@/components/AdminDock';
 import { toast } from 'sonner';
 import Image from 'next/image';
@@ -28,6 +28,7 @@ interface AccommodationRequest {
     payment_status: 'pending' | 'pending_verification' | 'paid' | 'rejected' | null;
     payment_amount: number | null;
     payment_utr: string | null;
+    payment_owner_name: string | null;
     payment_screenshot_path: string | null;
 }
 
@@ -41,6 +42,7 @@ export default function AdminAccommodationPage() {
     const [selectedRequest, setSelectedRequest] = useState<AccommodationRequest | null>(null);
     const [adminNotes, setAdminNotes] = useState('');
     const [processing, setProcessing] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const loadRequests = async () => {
         setLoading(true);
@@ -259,6 +261,15 @@ export default function AdminAccommodationPage() {
         pendingPayment: requests.filter(r => r.payment_status === 'pending_verification').length,
     };
 
+    const filteredRequests = requests.filter(req => {
+        const search = searchTerm.toLowerCase();
+        return req.name.toLowerCase().includes(search) ||
+            req.email.toLowerCase().includes(search) ||
+            req.phone_number.includes(search) ||
+            req.college_name.toLowerCase().includes(search) ||
+            (req.payment_utr && req.payment_utr.includes(search));
+    });
+
     return (
         <main className="min-h-screen bg-[#050505] relative overflow-hidden">
             {/* Background */}
@@ -314,8 +325,8 @@ export default function AdminAccommodationPage() {
                                     key={status}
                                     onClick={() => setFilter(status)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${filter === status
-                                            ? 'bg-[#a855f7] text-white'
-                                            : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
+                                        ? 'bg-[#a855f7] text-white'
+                                        : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
                                         }`}
                                 >
                                     {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -328,8 +339,8 @@ export default function AdminAccommodationPage() {
                                     key={pStatus}
                                     onClick={() => setPaymentFilter(pStatus)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${paymentFilter === pStatus
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
+                                        ? 'bg-green-600 text-white'
+                                        : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
                                         }`}
                                 >
                                     {pStatus === 'pending_verification' ? 'Verify Pay' : pStatus === 'all' ? 'All Pay' : pStatus.charAt(0).toUpperCase() + pStatus.slice(1)}
@@ -342,13 +353,24 @@ export default function AdminAccommodationPage() {
                                     key={gender}
                                     onClick={() => setGenderFilter(gender)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${genderFilter === gender
-                                            ? 'bg-[#a855f7] text-white'
-                                            : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
+                                        ? 'bg-[#a855f7] text-white'
+                                        : 'bg-[#0a0a0a]/90 text-white/60 hover:text-white border border-white/10'
                                         }`}
                                 >
                                     {gender}
                                 </button>
                             ))}
+                        </div>
+                        {/* Search */}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                            <input
+                                type="text"
+                                placeholder="Search name, email, phone..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-64 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-[#a855f7]/50"
+                            />
                         </div>
                     </div>
 
@@ -357,13 +379,13 @@ export default function AdminAccommodationPage() {
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-8 h-8 text-[#a855f7] animate-spin" />
                         </div>
-                    ) : requests.length === 0 ? (
+                    ) : filteredRequests.length === 0 ? (
                         <div className="text-center py-12 text-white/40">
                             No requests found
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                            {requests.map((request) => (
+                            {filteredRequests.map((request) => (
                                 <motion.div
                                     key={request.id}
                                     initial={{ opacity: 0, y: 20 }}
@@ -463,6 +485,12 @@ export default function AdminAccommodationPage() {
                                     {selectedRequest.payment_utr && (
                                         <p className="text-white font-mono text-sm mb-3">
                                             UTR: <span className="text-purple-300">{selectedRequest.payment_utr}</span>
+                                        </p>
+                                    )}
+
+                                    {selectedRequest.payment_owner_name && (
+                                        <p className="text-white font-mono text-sm mb-3">
+                                            Owner: <span className="text-purple-300">{selectedRequest.payment_owner_name}</span>
                                         </p>
                                     )}
 

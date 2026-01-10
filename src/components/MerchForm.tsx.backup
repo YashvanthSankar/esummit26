@@ -5,10 +5,10 @@ import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, Upload, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, ShoppingBag, Package, Users } from 'lucide-react';
 import { compressImage } from '@/lib/utils';
-import {
-    MERCH_ITEMS,
-    MERCH_BUNDLES,
-    UPI_CONFIG,
+import { 
+    MERCH_ITEMS, 
+    MERCH_BUNDLES, 
+    UPI_CONFIG, 
     calculateBundlePrice,
     MerchItemType,
     MerchBundleType,
@@ -39,7 +39,6 @@ export default function MerchForm() {
     // Payment states
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [paymentUtr, setPaymentUtr] = useState('');
-    const [paymentOwnerName, setPaymentOwnerName] = useState('');
     const paymentFileRef = useRef<HTMLInputElement>(null);
 
     const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -71,6 +70,7 @@ export default function MerchForm() {
 
     // Initialize bundle items when bundle_type changes
     useEffect(() => {
+        // Generate empty bundle items based on bundle count
         const itemCount = MERCH_BUNDLES[formData.bundle_type].itemCount;
         const newBundleItems: BundleItem[] = Array.from({ length: itemCount }, (_, i) => ({
             item: '',
@@ -93,7 +93,7 @@ export default function MerchForm() {
     const updateBundleItemType = (index: number, itemType: MerchItemType) => {
         setFormData(prev => ({
             ...prev,
-            bundle_items: prev.bundle_items.map((item, i) =>
+            bundle_items: prev.bundle_items.map((item, i) => 
                 i === index ? { ...item, item: itemType } : item
             ),
         }));
@@ -103,7 +103,7 @@ export default function MerchForm() {
     const updateBundleItemSize = (index: number, size: string) => {
         setFormData(prev => ({
             ...prev,
-            bundle_items: prev.bundle_items.map((item, i) =>
+            bundle_items: prev.bundle_items.map((item, i) => 
                 i === index ? { ...item, size } : item
             ),
         }));
@@ -111,8 +111,8 @@ export default function MerchForm() {
 
     // Check if all items and sizes are selected
     const allItemsSelected = () => {
-        return formData.bundle_items.length > 0 &&
-            formData.bundle_items.every(item => item.item !== '' && item.size !== '');
+        return formData.bundle_items.length > 0 && 
+               formData.bundle_items.every(item => item.item !== '' && item.size !== '');
     };
 
     // Payment proof file handler
@@ -135,17 +135,7 @@ export default function MerchForm() {
         if (error) {
             throw new Error('Failed to upload file: ' + error.message);
         }
-
-        return data.path;
-    };
-
-    // Validate step 1 data
-    const validateStep1 = (): boolean => {
-        if (!formData.name || !formData.email || !formData.phone_number) {
-            toast.error('Please fill in all contact details');
-            return false;
-        }
-        return true;
+return true;
     };
 
     // Handle proceeding to item selection
@@ -158,7 +148,17 @@ export default function MerchForm() {
     // Handle proceeding to payment step
     const handleProceedToPayment = () => {
         if (!allItemsSelected()) {
-            toast.error('Please select an item and size for each member');
+            toast.error('Please select an item and size for each member
+    const handleProceedToSizes = () => {
+        if (validateStep1()) {
+            setStep(2);
+        }
+    };
+
+    // Handle proceeding to payment step
+    const handleProceedToPayment = () => {
+        if (!allSizesSelected()) {
+            toast.error('Please select a size for each item');
             return;
         }
         setStep(3);
@@ -170,11 +170,6 @@ export default function MerchForm() {
 
         if (!paymentUtr && !paymentProof) {
             toast.error('Please provide EITHER a Transaction UTR OR a Payment Screenshot to verify.');
-            return;
-        }
-
-        if (paymentUtr && !paymentOwnerName) {
-            toast.error('Please enter the Account Owner Name for UTR verification.');
             return;
         }
 
@@ -207,13 +202,12 @@ export default function MerchForm() {
                         email: formData.email,
                         phone_number: formData.phone_number,
                         bundle_type: formData.bundle_type,
-                        item_type: formData.bundle_items.length > 0 ? formData.bundle_items[0].item : 'tshirt1',
+                        item_type: formData.item_type,
                         bundle_items: formData.bundle_items,
                         total_items: formData.bundle_items.length,
                         amount: getTotalAmount(),
-                        payment_status: 'pending_verification',
+                        payment_status: 'penbundle_items.length > 0 ? formData.bundle_items[0].item : 'tshirt1'fication',
                         payment_utr: paymentUtr || null,
-                        payment_owner_name: paymentUtr ? paymentOwnerName : null,
                         payment_screenshot_path: paymentScreenshotPath,
                     },
                 ]);
@@ -261,13 +255,13 @@ export default function MerchForm() {
     const getStepTitle = () => {
         switch (step) {
             case 1:
-                return 'Step 1: Contact details and bundle type';
+                return 'Step 1: Select your merchandise and bundle';
             case 2:
-                return `Step 2: Select items for ${MERCH_BUNDLES[formData.bundle_type].itemCount} member(s)`;
+                return 'Step 2: Select sizes for each item';
             case 3:
-                return `Step 3: Complete payment of ₹${getTotalAmount()}`;
-        }
-    };
+                return `Step 3: Contact details and bundle type';
+            case 2:
+                return `Step 2: Select items for ${MERCH_BUNDLES[formData.bundle_type].itemCount} member(s)`
 
     return (
         <div className="w-full max-w-2xl mx-auto p-6 bg-[#0a0a0a]/90 backdrop-blur-sm border border-white/10 rounded-2xl">
@@ -281,10 +275,11 @@ export default function MerchForm() {
                 <div className="flex items-center gap-2 mt-4">
                     {[1, 2, 3].map((s) => (
                         <div key={s} className="flex items-center">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step > s ? 'bg-green-500 text-white' :
-                                    step === s ? 'bg-[#a855f7] text-white' :
-                                        'bg-white/20 text-white/40'
-                                }`}>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                                step > s ? 'bg-green-500 text-white' :
+                                step === s ? 'bg-[#a855f7] text-white' : 
+                                'bg-white/20 text-white/40'
+                            }`}>
                                 {step > s ? '✓' : s}
                             </div>
                             {s < 3 && (
@@ -298,7 +293,9 @@ export default function MerchForm() {
             </div>
 
             {step === 1 && (
+                /* Step 1: Contact Details and Bundle Selection */
                 <form onSubmit={(e) => { e.preventDefault(); handleProceedToItems(); }} className="space-y-5">
+                    {/* Contact Details */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-white/80 mb-2">Name</label>
@@ -326,6 +323,7 @@ export default function MerchForm() {
                         </div>
                     </div>
 
+                    {/* Bundle Type Selection */}
                     <div>
                         <label className="block text-sm font-medium text-white/80 mb-3">
                             Select Bundle Type <span className="text-red-400">*</span>
@@ -337,10 +335,11 @@ export default function MerchForm() {
                                     key={key}
                                     type="button"
                                     onClick={() => setFormData({ ...formData, bundle_type: key })}
-                                    className={`p-5 rounded-xl border text-center transition-all ${formData.bundle_type === key
+                                    className={`p-5 rounded-xl border text-center transition-all ${
+                                        formData.bundle_type === key
                                             ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
                                             : 'border-white/10 hover:border-white/30'
-                                        }`}
+                                    }`}
                                 >
                                     <div className="flex flex-col items-center gap-2">
                                         {key === 'solo' && <Package className={`w-8 h-8 ${formData.bundle_type === key ? 'text-[#a855f7]' : 'text-white/40'}`} />}
@@ -364,6 +363,7 @@ export default function MerchForm() {
                         </div>
                     </div>
 
+                    {/* Info Box */}
                     <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                         <div className="flex items-start gap-3">
                             <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
@@ -378,6 +378,7 @@ export default function MerchForm() {
                         </div>
                     </div>
 
+                    {/* Proceed Button */}
                     <button
                         type="submit"
                         className="w-full py-4 px-6 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3"
@@ -389,6 +390,7 @@ export default function MerchForm() {
             )}
 
             {step === 2 && (
+                /* Step 2: Item and Size Selection for Each Member */
                 <div className="space-y-5">
                     <button
                         onClick={() => setStep(1)}
@@ -408,6 +410,7 @@ export default function MerchForm() {
                     <div className="space-y-6">
                         {formData.bundle_items.map((bundleItem, index) => (
                             <div key={index} className="p-5 bg-white/5 border border-white/10 rounded-xl space-y-4">
+                                {/* Member Header */}
                                 <div className="flex items-center gap-3 pb-3 border-b border-white/10">
                                     <div className="w-10 h-10 rounded-full bg-[#a855f7]/20 flex items-center justify-center text-[#a855f7] font-bold">
                                         {index + 1}
@@ -415,13 +418,14 @@ export default function MerchForm() {
                                     <div>
                                         <p className="text-white font-bold">Member {index + 1}</p>
                                         <p className="text-white/50 text-xs">
-                                            {bundleItem.item && bundleItem.size
-                                                ? `${MERCH_ITEMS[bundleItem.item].label} - Size ${bundleItem.size}`
+                                            {bundleItem.item && bundleItem.size 
+                                                ? `${MERCH_ITEMS[bundleItem.item].label} - Size ${bundleItem.size}` 
                                                 : 'Not configured'}
                                         </p>
                                     </div>
                                 </div>
 
+                                {/* Item Selection */}
                                 <div>
                                     <label className="block text-sm font-medium text-white/80 mb-2">
                                         Select Item <span className="text-red-400">*</span>
@@ -432,16 +436,18 @@ export default function MerchForm() {
                                                 key={key}
                                                 type="button"
                                                 onClick={() => updateBundleItemType(index, key)}
-                                                className={`p-3 rounded-lg border text-left transition-all ${bundleItem.item === key
+                                                className={`p-3 rounded-lg border text-left transition-all ${
+                                                    bundleItem.item === key
                                                         ? 'border-[#a855f7] bg-[#a855f7]/10'
                                                         : 'border-white/10 hover:border-white/30'
-                                                    }`}
+                                                }`}
                                             >
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${bundleItem.item === key
-                                                            ? 'border-[#a855f7] bg-[#a855f7]'
+                                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                                        bundleItem.item === key 
+                                                            ? 'border-[#a855f7] bg-[#a855f7]' 
                                                             : 'border-white/40'
-                                                        }`}>
+                                                    }`}>
                                                         {bundleItem.item === key && (
                                                             <div className="w-1.5 h-1.5 rounded-full bg-white" />
                                                         )}
@@ -458,6 +464,7 @@ export default function MerchForm() {
                                     </div>
                                 </div>
 
+                                {/* Size Selection */}
                                 {bundleItem.item && (
                                     <div>
                                         <label className="block text-sm font-medium text-white/80 mb-2">
@@ -469,10 +476,11 @@ export default function MerchForm() {
                                                     key={size}
                                                     type="button"
                                                     onClick={() => updateBundleItemSize(index, size)}
-                                                    className={`px-4 py-2 rounded-lg border font-mono text-sm transition-all ${bundleItem.size === size
+                                                    className={`px-4 py-2 rounded-lg border font-mono text-sm transition-all ${
+                                                        bundleItem.size === size
                                                             ? 'border-[#a855f7] bg-[#a855f7] text-white'
                                                             : 'border-white/20 text-white/60 hover:border-white/40'
-                                                        }`}
+                                                    }`}
                                                 >
                                                     {size}
                                                 </button>
@@ -481,6 +489,7 @@ export default function MerchForm() {
                                     </div>
                                 )}
 
+                                {/* Completion Status */}
                                 {bundleItem.item && bundleItem.size && (
                                     <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                                         <CheckCircle className="w-4 h-4 text-green-400" />
@@ -493,6 +502,7 @@ export default function MerchForm() {
                         ))}
                     </div>
 
+                    {/* Progress indicator */}
                     <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-white/70 text-sm">Members configured</span>
@@ -501,13 +511,14 @@ export default function MerchForm() {
                             </span>
                         </div>
                         <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-                            <div
+                            <div 
                                 className="h-full bg-[#a855f7] rounded-full transition-all"
                                 style={{ width: `${(formData.bundle_items.filter(i => i.item && i.size).length / formData.bundle_items.length) * 100}%` }}
                             />
                         </div>
                     </div>
 
+                    {/* Price Preview */}
                     {getTotalAmount() > 0 && (
                         <div className="p-4 bg-[#a855f7]/10 border border-[#a855f7]/30 rounded-xl">
                             <div className="space-y-2">
@@ -529,6 +540,7 @@ export default function MerchForm() {
                         </div>
                     )}
 
+                    {/* Proceed Button */}
                     <button
                         onClick={handleProceedToPayment}
                         disabled={!allItemsSelected()}
@@ -541,6 +553,7 @@ export default function MerchForm() {
             )}
 
             {step === 3 && (
+                /* Step 3: Payment */
                 <div className="space-y-6">
                     <button
                         onClick={() => setStep(2)}
@@ -550,6 +563,7 @@ export default function MerchForm() {
                         Back to Sizes
                     </button>
 
+                    {/* Order Summary */}
                     <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
                         <h4 className="text-white font-bold mb-3">Order Summary</h4>
                         <div className="space-y-2 text-sm">
@@ -578,6 +592,7 @@ export default function MerchForm() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* QR Code Column */}
                         <div className="flex flex-col items-center p-6 rounded-2xl bg-white">
                             <h3 className="text-black font-heading text-xl mb-4 text-center">
                                 Scan to Pay ₹{getTotalAmount()}
@@ -590,6 +605,7 @@ export default function MerchForm() {
                             </p>
                         </div>
 
+                        {/* Upload Column */}
                         <div>
                             <h3 className="font-heading text-2xl text-white mb-2">Confirm Payment</h3>
                             <p className="font-body text-white/50 text-sm mb-6">
@@ -598,6 +614,7 @@ export default function MerchForm() {
                                 3. Upload screenshot.
                             </p>
 
+                            {/* UTR Input */}
                             <div className="mb-4">
                                 <label className="block font-mono text-xs text-white/40 mb-2">UTR / REFERENCE NO.</label>
                                 <input
@@ -609,26 +626,13 @@ export default function MerchForm() {
                                 />
                             </div>
 
-                            {paymentUtr && (
-                                <div className="mb-4 animate-in fade-in slide-in-from-top-2">
-                                    <label className="block font-mono text-xs text-white/40 mb-2">ACCOUNT OWNER NAME <span className="text-red-400">*</span></label>
-                                    <input
-                                        type="text"
-                                        value={paymentOwnerName}
-                                        onChange={(e) => setPaymentOwnerName(e.target.value)}
-                                        placeholder="Name on Bank Account / UPI"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#a855f7]"
-                                    />
-                                    <p className="text-white/30 text-xs mt-1">Required for verifying the UTR</p>
-                                </div>
-                            )}
-
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="h-px bg-white/10 flex-1"></div>
                                 <span className="text-white/40 text-xs font-mono">OR</span>
                                 <div className="h-px bg-white/10 flex-1"></div>
                             </div>
 
+                            {/* File Input */}
                             <input
                                 type="file"
                                 accept="image/*"
@@ -638,10 +642,11 @@ export default function MerchForm() {
                             />
                             <div
                                 onClick={() => paymentFileRef.current?.click()}
-                                className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors mb-6 ${paymentProof
+                                className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors mb-6 ${
+                                    paymentProof
                                         ? 'border-[#a855f7] bg-[#a855f7]/5'
                                         : 'border-white/20 hover:border-white/40 hover:bg-white/5'
-                                    }`}
+                                }`}
                             >
                                 {paymentProof ? (
                                     <div className="text-center">
@@ -673,6 +678,7 @@ export default function MerchForm() {
                         </div>
                     </div>
 
+                    {/* Info Note */}
                     <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                         <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                         <p className="text-blue-300 text-sm">

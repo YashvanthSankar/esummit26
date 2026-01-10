@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import AdminDock from '@/components/AdminDock';
-import { Loader2, DollarSign, Ticket, Clock, CheckCircle, BarChart3, Users, TrendingUp } from 'lucide-react';
+import { Loader2, DollarSign, Ticket, Clock, Star, CheckCircle } from 'lucide-react';
 
 export default function AdminOverview() {
     const supabase = createClient();
@@ -16,6 +16,7 @@ export default function AdminOverview() {
     });
     const [chartData, setChartData] = useState<any[]>([]);
     const [recentActivity, setRecentActivity] = useState<any[]>([]);
+    const [ratingStats, setRatingStats] = useState({ average: 0, count: 0 });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -44,9 +45,13 @@ export default function AdminOverview() {
             }
 
             // Fetch all tickets
-            const { data: tickets } = await supabase
+            const { data: tickets, error: ticketsError } = await supabase
                 .from('tickets')
-                .select('id, amount, type, status, created_at, booking_group_id, screenshot_path, utr, user:profiles(full_name), pending_name, pending_email');
+                .select('id, amount, type, status, created_at, booking_group_id, screenshot_path, utr, user:profiles!tickets_user_id_fkey(full_name), pending_name, pending_email');
+
+            if (ticketsError) {
+                console.error('[AdminPage] Error fetching tickets:', ticketsError);
+            }
 
             if (tickets) {
                 // Calculate Stats
@@ -65,6 +70,13 @@ export default function AdminOverview() {
                     pending: pendingBookingGroups.size,
                 });
 
+                console.log('[AdminPage] Stats calculated:', {
+                    ticketsCount: tickets.length,
+                    revenue,
+                    ticketsSold: paidTickets.length,
+                    pending: pendingBookingGroups.size
+                });
+
                 // Prepare Chart Data
                 const types = { solo: 0, duo: 0, quad: 0 };
                 paidTickets.forEach(t => {
@@ -77,13 +89,28 @@ export default function AdminOverview() {
                     { name: 'Quad', count: types.quad, color: '#10b981' },
                 ]);
 
-                // Recent Activity (Last 5 Paid)
                 setRecentActivity(
                     paidTickets
                         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                         .slice(0, 5)
                 );
             }
+
+            // Fetch Rating Stats
+            const { data: ratings, error: ratingsError } = await supabase
+                .from('app_ratings')
+                .select('rating');
+
+            if (ratingsError) {
+                console.warn('[AdminPage] Ratings query failed (table may not exist yet):', ratingsError);
+            } else if (ratings && ratings.length > 0) {
+                const totalRating = ratings.reduce((sum, r) => sum + r.rating, 0);
+                setRatingStats({
+                    average: Math.round((totalRating / ratings.length) * 10) / 10,
+                    count: ratings.length
+                });
+            }
+
             setLoading(false);
         };
 
@@ -139,6 +166,21 @@ export default function AdminOverview() {
                             <span className="text-white/50 text-sm font-bold uppercase">Pending Verification</span>
                         </div>
                         <p className="font-heading text-3xl text-white">{stats.pending}</p>
+                    </div>
+
+                    <div className="glass-card p-6 rounded-2xl border-l-4 border-[#ec4899]">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="p-3 rounded-lg bg-[#ec4899]/10 text-[#ec4899]">
+                                <Star className="w-6 h-6" />
+                            </div>
+                            <span className="text-white/50 text-sm font-bold uppercase">App Rating</span>
+                        </div>
+                        <p className="font-heading text-3xl text-white">
+                            {ratingStats.count > 0 ? `${ratingStats.average}/5.0` : 'No ratings'}
+                        </p>
+                        {ratingStats.count > 0 && (
+                            <p className="text-white/40 text-xs mt-1">Based on {ratingStats.count} review{ratingStats.count !== 1 ? 's' : ''}</p>
+                        )}
                     </div>
                 </div>
 

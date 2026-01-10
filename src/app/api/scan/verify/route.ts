@@ -1,45 +1,78 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+// Cache admin check for 5 minutes to reduce DB calls
+const adminCache = new Map<string, { isAdmin: boolean; name: string; expires: number }>();
+
 export async function POST(request: Request) {
+    const startTime = Date.now();
+
     try {
-        const { qrSecret, eventId } = await request.json();
+        const { qrSecret, eventId, eventName } = await request.json();
 
         if (!qrSecret || !eventId) {
             return NextResponse.json(
-                { success: false, error: 'Missing qrSecret or eventId' },
+                { success: false, status: 'ERROR', message: 'Missing data' },
                 { status: 400 }
             );
         }
 
         const supabase = await createClient();
 
-        // Verify admin user
+        // Step 1: Verify admin (with caching)
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
+                { success: false, status: 'ERROR', message: 'Unauthorized' },
                 { status: 401 }
             );
         }
 
-        const { data: adminProfile } = await supabase
-            .from('profiles')
-            .select('role, full_name')
-            .eq('id', user.id)
-            .single();
+        // Check admin cache
+        const cached = adminCache.get(user.id);
+        let adminName = 'Admin';
 
-        if (adminProfile?.role !== 'admin') {
-            return NextResponse.json(
-                { success: false, error: 'Admin access required' },
-                { status: 403 }
-            );
+        if (cached && cached.expires > Date.now()) {
+            if (!cached.isAdmin) {
+                return NextResponse.json(
+                    { success: false, status: 'ERROR', message: 'Admin required' },
+                    { status: 403 }
+                );
+            }
+            adminName = cached.name;
+        } else {
+            const { data: adminProfile } = await supabase
+                .from('profiles')
+                .select('role, full_name')
+                .eq('id', user.id)
+                .single();
+
+            const isAdmin = adminProfile?.role === 'admin';
+            adminCache.set(user.id, {
+                isAdmin,
+                name: adminProfile?.full_name || 'Admin',
+                expires: Date.now() + 5 * 60 * 1000 // 5 minutes
+            });
+
+            if (!isAdmin) {
+                return NextResponse.json(
+                    { success: false, status: 'ERROR', message: 'Admin required' },
+                    { status: 403 }
+                );
+            }
+            adminName = adminProfile?.full_name || 'Admin';
         }
 
-        // Step A: Find ticket by QR secret
+        // Step 2: Single query to get ticket with holder info
         const { data: ticket, error: ticketError } = await supabase
             .from('tickets')
-            .select('id, type, status, pax_count, user_id')
+            .select(`
+                id, 
+                type, 
+                status, 
+                pax_count, 
+                user:profiles!tickets_user_id_fkey(full_name)
+            `)
             .eq('qr_secret', qrSecret)
             .single();
 
@@ -47,98 +80,67 @@ export async function POST(request: Request) {
             return NextResponse.json({
                 success: false,
                 status: 'INVALID',
-                message: 'Invalid ticket - QR code not found',
+                message: 'Invalid QR code',
+                ms: Date.now() - startTime
             });
         }
 
-        // Step B: Check ticket status
         if (ticket.status !== 'paid') {
             return NextResponse.json({
                 success: false,
                 status: 'INVALID',
-                message: `Ticket not valid - Status: ${ticket.status}`,
+                message: `Status: ${ticket.status}`,
+                ms: Date.now() - startTime
             });
         }
 
-        // Step B.1: Fetch Event Details (Name is required for logs)
-        const { data: eventData, error: eventError } = await supabase
-            .from('events')
-            .select('name')
-            .eq('id', eventId)
-            .single();
+        // Step 3: Check duplicate and insert in one operation using upsert-like logic
+        // Try to insert first - if constraint violation, it's a duplicate
+        const resolvedEventName = eventName || 'Event';
 
-        if (eventError || !eventData) {
-            return NextResponse.json({
-                success: false,
-                error: 'Invalid Event ID'
-            }, { status: 400 });
-        }
-
-        // Step C: Check for duplicate scan
-        // We check using event_id because that's stricter for this specific scan type
-        const { data: existingLog } = await supabase
-            .from('event_logs')
-            .select(`
-                id,
-                scanned_at,
-                scanned_by,
-                profiles!event_logs_scanned_by_fkey(full_name)
-            `)
-            .eq('ticket_id', ticket.id)
-            .eq('event_id', eventId)
-            .single();
-
-        if (existingLog) {
-            const scannedAt = new Date(existingLog.scanned_at).toLocaleString('en-IN', {
-                timeZone: 'Asia/Kolkata',
-                hour: '2-digit',
-                minute: '2-digit',
-                day: '2-digit',
-                month: 'short',
-            });
-
-            return NextResponse.json({
-                success: false,
-                status: 'DUPLICATE',
-                message: 'Already scanned for this event',
-                scannedAt,
-                scannedBy: (existingLog.profiles as any)?.full_name || 'Unknown',
-            });
-        }
-
-        // All checks passed - Insert event log
         const { error: insertError } = await supabase
             .from('event_logs')
             .insert({
                 ticket_id: ticket.id,
                 event_id: eventId,
-                event_name: eventData.name, // Required field
+                event_name: resolvedEventName,
                 scanned_by: user.id,
             });
 
         if (insertError) {
-            // Could be a race condition duplicate (UNIQUE constraint on ticket_id + event_name)
+            // Unique constraint violation = already scanned
             if (insertError.code === '23505') {
+                // Fetch existing log details for better UX
+                const { data: existingLog } = await supabase
+                    .from('event_logs')
+                    .select('scanned_at')
+                    .eq('ticket_id', ticket.id)
+                    .eq('event_id', eventId)
+                    .single();
+
+                const scannedAt = existingLog ? new Date(existingLog.scanned_at).toLocaleString('en-IN', {
+                    timeZone: 'Asia/Kolkata',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                }) : 'Earlier';
+
                 return NextResponse.json({
                     success: false,
                     status: 'DUPLICATE',
-                    message: 'Already scanned (concurrent scan detected)',
+                    message: `Already scanned at ${scannedAt}`,
+                    ms: Date.now() - startTime
                 });
             }
 
             console.error('Insert error:', insertError);
             return NextResponse.json(
-                { success: false, error: 'Failed to log scan' },
+                { success: false, status: 'ERROR', message: 'Log failed' },
                 { status: 500 }
             );
         }
 
-        // Get ticket holder name
-        const { data: ticketHolder } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', ticket.user_id)
-            .single();
+        // Success!
+        const holderName = (ticket.user as any)?.full_name || 'Guest';
 
         return NextResponse.json({
             success: true,
@@ -146,14 +148,16 @@ export async function POST(request: Request) {
             message: 'Access granted',
             ticketType: ticket.type,
             paxCount: ticket.pax_count,
-            holderName: ticketHolder?.full_name || 'Unknown',
+            holderName,
+            ms: Date.now() - startTime
         });
 
     } catch (error) {
-        console.error('Scan verification error:', error);
+        console.error('Scan error:', error);
         return NextResponse.json(
-            { success: false, error: 'Server error' },
+            { success: false, status: 'ERROR', message: 'Server error' },
             { status: 500 }
         );
     }
 }
+

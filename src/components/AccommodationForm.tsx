@@ -40,6 +40,7 @@ export default function AccommodationForm() {
     // Payment states
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [paymentUtr, setPaymentUtr] = useState('');
+    const [paymentOwnerName, setPaymentOwnerName] = useState('');
     const paymentFileRef = useRef<HTMLInputElement>(null);
 
     // Fetch user profile data and pre-fill form
@@ -192,6 +193,11 @@ export default function AccommodationForm() {
             return;
         }
 
+        if (paymentUtr && !paymentOwnerName) {
+            toast.error('Please enter the Account Owner Name for UTR verification.');
+            return;
+        }
+
         setLoading(true);
         setUploadProgress(0);
 
@@ -239,6 +245,7 @@ export default function AccommodationForm() {
                         payment_status: 'pending_verification',
                         payment_amount: ACCOMMODATION_PRICE,
                         payment_utr: paymentUtr || null,
+                        payment_owner_name: paymentUtr ? paymentOwnerName : null,
                         payment_screenshot_path: paymentScreenshotPath,
                     },
                 ]);
@@ -560,6 +567,20 @@ export default function AccommodationForm() {
                                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-[#a855f7]"
                                 />
                             </div>
+
+                            {paymentUtr && (
+                                <div className="mb-4 animate-in fade-in slide-in-from-top-2">
+                                    <label className="block font-mono text-xs text-white/40 mb-2">ACCOUNT OWNER NAME <span className="text-red-400">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={paymentOwnerName}
+                                        onChange={(e) => setPaymentOwnerName(e.target.value)}
+                                        placeholder="Name on Bank Account / UPI"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#a855f7]"
+                                    />
+                                    <p className="text-white/30 text-xs mt-1">Required for verifying the UTR</p>
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="h-px bg-white/10 flex-1"></div>

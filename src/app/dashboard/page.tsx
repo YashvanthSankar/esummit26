@@ -10,9 +10,10 @@ import QRCode from 'react-qr-code';
 import TicketCard from '@/components/TicketCard';
 import DashboardDock from '@/components/DashboardDock';
 import AdminDock from '@/components/AdminDock';
-import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft, UserPlus } from 'lucide-react';
+import { LogOut, User, Ticket, Users, Loader2, Link as LinkIcon, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft, UserPlus, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { compressImage } from '@/lib/utils';
+import AppRating from '@/components/AppRating';
 
 // Specific Configuration from Request
 const UPI_ID = UPI_CONFIG.VPA;
@@ -48,6 +49,7 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [downloading, setDownloading] = useState(false);
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [attendedEvents, setAttendedEvents] = useState<any[]>([]);
     const [ticket, setTicket] = useState<UserTicket | null>(null);
 
     // Payment Flow States
@@ -55,6 +57,7 @@ export default function DashboardPage() {
     const [uploading, setUploading] = useState(false);
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [utr, setUtr] = useState('');
+    const [paymentOwnerName, setPaymentOwnerName] = useState('');
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     // Multi-attendee booking states
@@ -99,6 +102,17 @@ export default function DashboardPage() {
 
             if (ticketData) {
                 setTicket(ticketData);
+
+                // Fetch attended events for this ticket
+                const { data: eventLogs } = await supabase
+                    .from('event_logs')
+                    .select('event_id, event_name, scanned_at')
+                    .eq('ticket_id', ticketData.id)
+                    .order('scanned_at', { ascending: false });
+
+                if (eventLogs) {
+                    setAttendedEvents(eventLogs);
+                }
             }
 
             setLoading(false);
@@ -153,6 +167,11 @@ export default function DashboardPage() {
         // Validation: Expect EITHER UTR OR Payment Proof
         if (!utr && !paymentProof) {
             toast.error('Please provide EITHER a Transaction UTR OR a Payment Screenshot to verify.');
+            return;
+        }
+
+        if (utr && !paymentOwnerName) {
+            toast.error('Please enter the Account Owner Name for UTR verification.');
             return;
         }
 
@@ -245,6 +264,7 @@ export default function DashboardPage() {
                         qr_secret: 'pending_' + Date.now() + '_' + index,
                         screenshot_path: index === 0 ? screenshotPath : null, // Only first ticket has screenshot
                         utr: index === 0 ? (utr || null) : null, // Only first ticket has UTR
+                        payment_owner_name: (index === 0 && utr) ? paymentOwnerName : null,
                         booking_group_id: bookingGroupId
                     };
                 })
@@ -640,6 +660,20 @@ export default function DashboardPage() {
                                             />
                                         </div>
 
+                                        {utr && (
+                                            <div className="mb-4 animate-in fade-in slide-in-from-top-2">
+                                                <label className="block font-mono text-xs text-white/40 mb-2">ACCOUNT OWNER NAME <span className="text-red-400">*</span></label>
+                                                <input
+                                                    type="text"
+                                                    value={paymentOwnerName}
+                                                    onChange={(e) => setPaymentOwnerName(e.target.value)}
+                                                    placeholder="Name on Bank Account / UPI"
+                                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#a855f7]"
+                                                />
+                                                <p className="text-white/30 text-xs mt-1">Required for verifying the UTR</p>
+                                            </div>
+                                        )}
+
                                         <div className="flex items-center gap-4 mb-4">
                                             <div className="h-px bg-white/10 flex-1"></div>
                                             <span className="text-white/40 text-xs font-mono">OR</span>
@@ -778,14 +812,17 @@ export default function DashboardPage() {
                                     <p className="font-body text-white/70 max-w-md mx-auto mb-4">
                                         Your payment is being verified by our team.
                                     </p>
-                                    
+
                                     {ticket.utr && (
-                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
-                                            <span className="text-white/50 text-sm font-mono">UTR:</span>
-                                            <span className="text-white text-sm font-mono">{ticket.utr}</span>
+                                        <div className="mb-6 space-y-2">
+                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+                                                <span className="text-white/50 text-sm font-mono">UTR:</span>
+                                                <span className="text-white text-sm font-mono">{ticket.utr}</span>
+                                            </div>
+                                            {/* We don't display owner name here as it's for internal verification, but UTR is good for user reference */}
                                         </div>
                                     )}
-                                    
+
                                     <div className="bg-[#a855f7]/5 border border-[#a855f7]/20 rounded-2xl p-6 max-w-md mx-auto mt-4">
                                         <h4 className="font-heading text-lg text-[#a855f7] mb-3">What happens next?</h4>
                                         <ul className="text-left space-y-3 text-white/60 text-sm font-body">
@@ -809,7 +846,7 @@ export default function DashboardPage() {
                                             </li>
                                         </ul>
                                     </div>
-                                    
+
                                     <p className="text-white/40 text-xs mt-6 font-mono">
                                         Check back later to download your ticket
                                     </p>
@@ -818,6 +855,60 @@ export default function DashboardPage() {
                         </div>
                     )}
                 </div>
+
+                {/* Attended Events Section */}
+                {profile && ticket?.status === 'paid' && attendedEvents.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="mt-8"
+                    >
+                        <h2 className="font-heading text-2xl text-white mb-4">Attended Events</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {attendedEvents.map((log, idx) => (
+                                <div
+                                    key={log.event_id}
+                                    className="bg-gradient-to-br from-[#0a0a0a] to-[#111] border border-white/10 rounded-xl p-4 hover:border-[#a855f7]/30 transition-all"
+                                >
+                                    <div className="flex items-start gap-3">
+                                        <div className="p-2 rounded-lg bg-[#a855f7]/10">
+                                            <CheckCircle className="w-5 h-5 text-[#a855f7]" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-white font-medium mb-1">{log.event_name}</h3>
+                                            <div className="flex items-center gap-1.5 text-white/50 text-xs">
+                                                <Calendar className="w-3.5 h-3.5" />
+                                                <span>
+                                                    {new Date(log.scanned_at).toLocaleString('en-IN', {
+                                                        timeZone: 'Asia/Kolkata',
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* App Rating Section */}
+                {profile && ticket?.status === 'paid' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="mt-8"
+                    >
+                        <h2 className="font-heading text-2xl text-white mb-4">Rate Your Experience</h2>
+                        <AppRating userId={profile.id} />
+                    </motion.div>
+                )}
             </div>
         </main>
     );

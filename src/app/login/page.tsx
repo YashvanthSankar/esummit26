@@ -51,7 +51,7 @@ export default function LoginPage() {
                         transition={{ delay: 0.2 }}
                         className="font-heading text-5xl sm:text-6xl text-white mb-2"
                     >
-                        E-SUMMIT <span className="text-[#a855f7]">&apos;26</span>
+                        E-SUMMIT <span className="text-[#a855f7]">'26</span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
