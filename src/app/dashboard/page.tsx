@@ -255,6 +255,26 @@ export default function DashboardPage() {
 
             if (insertError) throw insertError;
 
+            // Sync tickets to Google Sheets (fire and forget)
+            ticketInserts.forEach((ticketData: any, index: number) => {
+                const attendee = attendees[index];
+                fetch('/api/sync/sheets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'ticket',
+                        data: {
+                            ticket: {
+                                ...ticketData,
+                                id: `TKT_${Date.now()}_${index}`, // Temporary ID for sheet
+                            },
+                            userName: attendee.name,
+                            userEmail: attendee.email,
+                        }
+                    })
+                }).catch(err => console.log('[Sheets Sync] Ticket sync error:', err));
+            });
+
             // Success - show message about verification
             const otherAttendees = attendees.filter(a => a.email.toLowerCase() !== profile.email.toLowerCase());
             toast.success('Booking submitted successfully!', {
