@@ -16,12 +16,16 @@ interface PendingTicket {
     screenshot_path: string;
     utr: string;
     created_at: string;
+    booking_group_id: string | null;
+    pending_name: string | null;
+    pending_email: string | null;
+    pending_phone: string | null;
     user: {
         full_name: string;
         email: string;
         phone: string;
         college_name: string;
-    };
+    } | null;
 }
 
 export default function VerifyPage() {
@@ -52,6 +56,7 @@ export default function VerifyPage() {
         }
 
         // Fetch pending tickets with user details
+        // Only fetch tickets with screenshot/utr (main booking tickets, not linked ones)
         const { data, error } = await supabase
             .from('tickets')
             .select(`
@@ -59,6 +64,7 @@ export default function VerifyPage() {
                 user:profiles(full_name, email, phone, college_name)
             `)
             .eq('status', 'pending_verification')
+            .or('screenshot_path.not.is.null,utr.not.is.null')
             .order('created_at', { ascending: true });
 
         if (data) {
@@ -82,48 +88,108 @@ export default function VerifyPage() {
             }
 
             if (action === 'approve') {
-                // Generate secret: timestamp + random string
-                const secret = `TICKET_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
+                // Check if this ticket is part of a booking group
+                if (currentTicket.booking_group_id) {
+                    // Approve all tickets in the booking group
+                    const { data: groupTickets, error: fetchError } = await supabase
+                        .from('tickets')
+                        .select('id, pending_email, pending_name, user:profiles(email, full_name)')
+                        .eq('booking_group_id', currentTicket.booking_group_id);
 
-                const { error } = await supabase
-                    .from('tickets')
-                    .update({
-                        status: 'paid',
-                        qr_secret: secret
-                    })
-                    .eq('id', ticketId);
+                    if (fetchError) throw fetchError;
 
-                if (error) throw error;
+                    // Update each ticket with a unique QR secret
+                    for (let i = 0; i < (groupTickets?.length || 0); i++) {
+                        const ticket = groupTickets![i];
+                        const secret = `TICKET_${Date.now()}_${i}_${Math.random().toString(36).substring(7).toUpperCase()}`;
 
-                // Send approval email
-                try {
-                    const response = await fetch('/api/email/send-approval', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            to: currentTicket.user?.email,
-                            userName: currentTicket.user?.full_name || 'User',
-                            ticketType: currentTicket.type,
-                            amount: currentTicket.amount,
-                        }),
-                    });
+                        await supabase
+                            .from('tickets')
+                            .update({
+                                status: 'paid',
+                                qr_secret: secret
+                            })
+                            .eq('id', ticket.id);
 
-                    if (!response.ok) {
-                        console.error('Email send failed, but ticket approved');
+                        // Send email to each attendee (if they have an account or pending email)
+                        const email = (ticket.user as any)?.email || ticket.pending_email;
+                        const name = (ticket.user as any)?.full_name || ticket.pending_name || 'User';
+
+                        if (email) {
+                            try {
+                                await fetch('/api/email/send-approval', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        to: email,
+                                        userName: name,
+                                        ticketType: currentTicket.type,
+                                        amount: currentTicket.amount,
+                                    }),
+                                });
+                            } catch (emailError) {
+                                console.error('Email error for', email, emailError);
+                            }
+                        }
                     }
-                } catch (emailError) {
-                    console.error('Email error:', emailError);
-                    // Don't fail the approval if email fails
+
+                    toast.success(`Approved ${groupTickets?.length || 1} tickets in booking group`);
+                } else {
+                    // Single ticket approval (original flow)
+                    const secret = `TICKET_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
+
+                    const { error } = await supabase
+                        .from('tickets')
+                        .update({
+                            status: 'paid',
+                            qr_secret: secret
+                        })
+                        .eq('id', ticketId);
+
+                    if (error) throw error;
+
+                    // Send approval email
+                    try {
+                        const response = await fetch('/api/email/send-approval', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                to: currentTicket.user?.email,
+                                userName: currentTicket.user?.full_name || 'User',
+                                ticketType: currentTicket.type,
+                                amount: currentTicket.amount,
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            console.error('Email send failed, but ticket approved');
+                        }
+                    } catch (emailError) {
+                        console.error('Email error:', emailError);
+                    }
+
+                    toast.success('Ticket approved');
                 }
             } else {
-                const { error } = await supabase
-                    .from('tickets')
-                    .update({ status: 'rejected' })
-                    .eq('id', ticketId);
+                // Rejection - also reject all tickets in booking group
+                if (currentTicket.booking_group_id) {
+                    const { error } = await supabase
+                        .from('tickets')
+                        .update({ status: 'rejected' })
+                        .eq('booking_group_id', currentTicket.booking_group_id);
 
-                if (error) throw error;
+                    if (error) throw error;
+                    toast.success('All tickets in booking group rejected');
+                } else {
+                    const { error } = await supabase
+                        .from('tickets')
+                        .update({ status: 'rejected' })
+                        .eq('id', ticketId);
 
-                // Send rejection email
+                    if (error) throw error;
+                }
+
+                // Send rejection email to purchaser
                 try {
                     const response = await fetch('/api/email/send-rejection', {
                         method: 'POST',
@@ -141,7 +207,6 @@ export default function VerifyPage() {
                     }
                 } catch (emailError) {
                     console.error('Email error:', emailError);
-                    // Don't fail the rejection if email fails
                 }
             }
 
