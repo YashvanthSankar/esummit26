@@ -8,6 +8,15 @@ export const metadata: Metadata = {
   authors: [{ name: "E-Cell IIITDM" }],
   manifest: "/manifest.json",
   themeColor: "#000000",
+  icons: {
+    icon: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -29,6 +38,7 @@ export const metadata: Metadata = {
 import { Bricolage_Grotesque } from 'next/font/google';
 import CustomCursor from "@/components/CustomCursor";
 import ToastProvider from "@/components/ToastProvider";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -42,9 +52,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/icon-192x192.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body className={`antialiased bg-[#050505] ${bricolage.variable} font-sans`}>
         <CustomCursor />
         <ToastProvider />
+        <PWAInstallPrompt />
         {children}
       </body>
     </html>

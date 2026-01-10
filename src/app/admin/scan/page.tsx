@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, AlertTriangle, ArrowLeft, Ticket, Users, Trophy, ScanLine } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, ArrowLeft, Ticket, Users, Trophy, ScanLine, Volume2 } from 'lucide-react';
 import AdminDock from '@/components/AdminDock';
 
 type Event = {
@@ -14,20 +14,75 @@ type Event = {
 };
 
 type ScanResult = {
-    status: 'IDLE' | 'SUCCESS' | 'DUPLICATE' | 'ERROR';
+    status: 'IDLE' | 'SCANNING' | 'SUCCESS' | 'DUPLICATE' | 'ERROR';
     message: string;
     details?: any;
 };
+
+// Audio context for instant sound playback
+let audioContext: AudioContext | null = null;
+
+function getAudioContext() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    return audioContext;
+}
+
+// Play beep sound using Web Audio API (instant, no loading delay)
+function playBeep(frequency: number, duration: number, type: 'success' | 'error') {
+    try {
+        const ctx = getAudioContext();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = type === 'success' ? 'sine' : 'square';
+        
+        gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + duration);
+    } catch (e) {
+        console.log('[Audio] Could not play sound:', e);
+    }
+}
+
+// Success sound: ascending two-tone beep
+function playSuccessSound() {
+    playBeep(880, 0.1, 'success');
+    setTimeout(() => playBeep(1320, 0.15, 'success'), 100);
+}
+
+// Error sound: descending harsh beep
+function playErrorSound() {
+    playBeep(400, 0.15, 'error');
+    setTimeout(() => playBeep(300, 0.2, 'error'), 150);
+}
 
 export default function AdminScanPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [scanResult, setScanResult] = useState<ScanResult>({ status: 'IDLE', message: '' });
     const [isLoading, setIsLoading] = useState(true);
+    const [soundEnabled, setSoundEnabled] = useState(true);
+    const lastScanRef = useRef<string>('');
+    const scanTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const supabase = createClient();
 
     useEffect(() => {
         fetchEvents();
+        // Initialize audio context on first user interaction
+        const initAudio = () => {
+            getAudioContext();
+            document.removeEventListener('click', initAudio);
+        };
+        document.addEventListener('click', initAudio);
+        return () => document.removeEventListener('click', initAudio);
     }, []);
 
     const fetchEvents = async () => {
@@ -47,8 +102,24 @@ export default function AdminScanPage() {
         }
     };
 
-    const handleScan = async (result: string) => {
-        if (!selectedEvent || scanResult.status === 'SUCCESS' || scanResult.status === 'DUPLICATE') return;
+    const handleScan = useCallback(async (result: string) => {
+        if (!selectedEvent) return;
+        
+        // Prevent duplicate scans of the same QR within 2 seconds
+        if (result === lastScanRef.current) return;
+        
+        // Prevent scanning while processing or showing result
+        if (scanResult.status === 'SCANNING' || scanResult.status === 'SUCCESS' || scanResult.status === 'DUPLICATE') return;
+
+        lastScanRef.current = result;
+        
+        // Clear previous timeout
+        if (scanTimeoutRef.current) {
+            clearTimeout(scanTimeoutRef.current);
+        }
+
+        // Show scanning state immediately
+        setScanResult({ status: 'SCANNING', message: 'Verifying ticket...' });
 
         try {
             // Parse QR code JSON: { s: "TICKET_...", type: "duo" }
@@ -75,35 +146,41 @@ export default function AdminScanPage() {
             if (data.status === 'SUCCESS') {
                 setScanResult({
                     status: 'SUCCESS',
-                    message: `VERIFIED: ${data.holderName} (${data.ticketType})`
+                    message: `${data.holderName} (${data.ticketType.toUpperCase()})`
                 });
-                playAudio('success');
+                if (soundEnabled) playSuccessSound();
             } else if (data.status === 'DUPLICATE') {
                 setScanResult({
                     status: 'DUPLICATE',
-                    message: `ALREADY SCANNED: ${data.scannedAt} by ${data.scannedBy}`,
+                    message: `Already scanned: ${data.scannedAt}`,
                     details: data
                 });
-                playAudio('error');
+                if (soundEnabled) playErrorSound();
             } else {
                 setScanResult({
                     status: 'ERROR',
                     message: data.message || 'Invalid Ticket'
                 });
-                playAudio('error');
+                if (soundEnabled) playErrorSound();
             }
+
+            // Auto-reset after 2.5 seconds for faster scanning flow
+            scanTimeoutRef.current = setTimeout(() => {
+                resetScan();
+            }, 2500);
 
         } catch (error) {
             setScanResult({ status: 'ERROR', message: 'Network or Server Error' });
+            if (soundEnabled) playErrorSound();
         }
-    };
-
-    const playAudio = (type: 'success' | 'error') => {
-        // Optional: Implement audio feedback
-    };
+    }, [selectedEvent, scanResult.status, soundEnabled]);
 
     const resetScan = () => {
+        lastScanRef.current = '';
         setScanResult({ status: 'IDLE', message: '' });
+        if (scanTimeoutRef.current) {
+            clearTimeout(scanTimeoutRef.current);
+        }
     };
 
     const groupedEvents = events.reduce((acc, event) => {
@@ -172,20 +249,28 @@ export default function AdminScanPage() {
                             >
                                 <ArrowLeft className="w-6 h-6" />
                             </button>
-                            <div>
+                            <div className="flex-1">
                                 <p className="text-sm text-white/50 font-mono">Scanning for</p>
                                 <h2 className="text-xl font-heading text-[#a855f7]">{selectedEvent.name}</h2>
                             </div>
+                            <button
+                                onClick={() => setSoundEnabled(!soundEnabled)}
+                                className={`p-2 rounded-full transition-colors ${soundEnabled ? 'bg-[#a855f7]/20 text-[#a855f7]' : 'bg-white/5 text-white/30'}`}
+                                title={soundEnabled ? 'Sound On' : 'Sound Off'}
+                            >
+                                <Volume2 className="w-5 h-5" />
+                            </button>
                         </div>
 
                         <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black aspect-square">
-                            {scanResult.status === 'IDLE' && (
+                            {(scanResult.status === 'IDLE' || scanResult.status === 'SCANNING') && (
                                 <Scanner
                                     onScan={(results) => {
                                         if (results && results.length > 0) {
                                             handleScan(results[0].rawValue);
                                         }
                                     }}
+                                    scanDelay={100}
                                     styles={{
                                         container: { width: '100%', height: '100%' },
                                         video: { width: '100%', height: '100%', objectFit: 'cover' }
@@ -193,13 +278,25 @@ export default function AdminScanPage() {
                                 />
                             )}
 
+                            {/* Scanning indicator */}
+                            {scanResult.status === 'SCANNING' && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-10">
+                                    <div className="w-16 h-16 border-4 border-[#a855f7] border-t-transparent rounded-full animate-spin mb-4" />
+                                    <p className="text-white font-mono text-sm">Verifying...</p>
+                                </div>
+                            )}
+
                             {/* Overlays */}
-                            {scanResult.status !== 'IDLE' && (
-                                <div className={`absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 backdrop-blur-md ${scanResult.status === 'SUCCESS' ? 'bg-green-500/80' :
-                                    scanResult.status === 'DUPLICATE' ? 'bg-red-500/80' : 'bg-orange-500/80'
+                            {(scanResult.status === 'SUCCESS' || scanResult.status === 'DUPLICATE' || scanResult.status === 'ERROR') && (
+                                <div className={`absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-10 backdrop-blur-md ${scanResult.status === 'SUCCESS' ? 'bg-green-500/90' :
+                                    scanResult.status === 'DUPLICATE' ? 'bg-red-500/90' : 'bg-orange-500/90'
                                     }`}>
-                                    <h3 className="text-3xl font-heading mb-2 uppercase tracking-tighter shadow-black drop-shadow-lg">
-                                        {scanResult.status === 'SUCCESS' ? 'VERIFIED' : scanResult.status}
+                                    {scanResult.status === 'SUCCESS' && <CheckCircle className="w-16 h-16 mb-4" />}
+                                    {scanResult.status === 'DUPLICATE' && <XCircle className="w-16 h-16 mb-4" />}
+                                    {scanResult.status === 'ERROR' && <AlertTriangle className="w-16 h-16 mb-4" />}
+                                    
+                                    <h3 className="text-2xl font-heading mb-2 uppercase tracking-tighter drop-shadow-lg">
+                                        {scanResult.status === 'SUCCESS' ? '✓ VERIFIED' : scanResult.status}
                                     </h3>
                                     <p className="font-medium text-lg mb-6 font-body drop-shadow">{scanResult.message}</p>
 
@@ -209,6 +306,7 @@ export default function AdminScanPage() {
                                     >
                                         Scan Next
                                     </button>
+                                    <p className="text-xs mt-3 opacity-70">Auto-reset in 2.5s</p>
                                 </div>
                             )}
                         </div>
