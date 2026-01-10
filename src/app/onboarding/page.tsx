@@ -28,7 +28,15 @@ export default function OnboardingPage() {
         const loadUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                setIsInternal(user.email?.endsWith('@iiitdm.ac.in') ?? false);
+                const isIIITDM = user.email?.endsWith('@iiitdm.ac.in') ?? false;
+                setIsInternal(isIIITDM);
+
+                // Extract roll number from IIITDM email (e.g., cs24i1029@iiitdm.ac.in -> CS24I1029)
+                let extractedRollNo = '';
+                if (isIIITDM && user.email) {
+                    const emailPrefix = user.email.split('@')[0];
+                    extractedRollNo = emailPrefix.toUpperCase();
+                }
 
                 // Pre-fill with existing data
                 const { data: profile } = await supabase
@@ -41,9 +49,17 @@ export default function OnboardingPage() {
                     setFormData({
                         full_name: profile.full_name || user.user_metadata.full_name || '',
                         phone: profile.phone || '',
-                        college_name: profile.college_name || (user.email?.endsWith('@iiitdm.ac.in') ? 'IIITDM Kancheepuram' : ''),
-                        roll_number: profile.roll_number || '',
+                        college_name: profile.college_name || (isIIITDM ? 'IIITDM Kancheepuram' : ''),
+                        roll_number: profile.roll_number || extractedRollNo || '',
                     });
+                } else if (isIIITDM) {
+                    // No profile yet, but IIITDM user - pre-fill roll number
+                    setFormData(prev => ({
+                        ...prev,
+                        full_name: user.user_metadata.full_name || '',
+                        college_name: 'IIITDM Kancheepuram',
+                        roll_number: extractedRollNo,
+                    }));
                 }
             }
             setLoading(false);
