@@ -139,8 +139,70 @@ export default function UnifiedAdminView() {
         toast.success('Data exported successfully');
     };
 
-    // Export specific category
+    // Enhanced Ticket Export with Band Management Fields
+    const exportEnhancedTicketCSV = async () => {
+        toast.loading('Fetching ticket data...', { id: 'ticket-export' });
+        try {
+            const response = await fetch('/api/admin/export-tickets');
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to fetch');
+            }
+
+            const headers = [
+                'Ticket ID', 'Name', 'Email', 'Phone', 'College',
+                'Ticket Type', 'Amount', 'Payment Status',
+                'PAX Count', 'Group ID', 'Group Leader',
+                'Band Status', 'Band Issued At', 'UTR', 'Booking Date'
+            ];
+
+            const csvData = result.data.map((ticket: any) => [
+                ticket.ticket_id,
+                ticket.user_name,
+                ticket.user_email,
+                ticket.user_phone,
+                ticket.college,
+                ticket.ticket_type,
+                ticket.amount,
+                ticket.payment_status,
+                ticket.pax_count,
+                ticket.group_id,
+                ticket.group_leader,
+                ticket.band_status,
+                ticket.band_issued_at,
+                ticket.utr,
+                new Date(ticket.created_at).toLocaleString()
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...csvData.map((row: any[]) => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `esummit-tickets-FULL-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            toast.success(`Exported ${result.count} tickets with band management data`, { id: 'ticket-export' });
+        } catch (error) {
+            console.error('Export error:', error);
+            toast.error('Failed to export tickets', { id: 'ticket-export' });
+        }
+    };
+
+    // Export specific category (for merch and accommodation)
     const exportCategoryCSV = (category: 'Ticket' | 'Merchandise' | 'Accommodation') => {
+        // For Tickets, use the enhanced export
+        if (category === 'Ticket') {
+            exportEnhancedTicketCSV();
+            return;
+        }
+
         const categoryData = data.filter(r => r.category === category);
         const headers = ['Name', 'Email', 'Phone', 'Type', 'Status', 'Fulfillment', 'Amount', 'Date'];
         const csvData = categoryData.map(record => [

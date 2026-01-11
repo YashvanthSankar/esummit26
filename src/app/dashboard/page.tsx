@@ -748,12 +748,12 @@ export default function DashboardPage() {
                                 {ticket.band_issued_at ? (
                                     <>
                                         <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        <span className="font-heading tracking-wide text-xs sm:text-sm">BAND COLLECTED</span>
+                                        <span className="font-heading tracking-wide text-xs sm:text-sm">BAND RECEIVED</span>
                                     </>
                                 ) : (
                                     <>
                                         <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        <span className="font-heading tracking-wide text-xs sm:text-sm">READY TO COLLECT</span>
+                                        <span className="font-heading tracking-wide text-xs sm:text-sm">YET TO COLLECT BAND</span>
                                     </>
                                 )}
                             </div>
