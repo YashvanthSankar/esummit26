@@ -71,7 +71,7 @@ const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(
                                     width: 'auto',
                                     objectFit: 'contain',
                                     opacity: 0.95,
-                                    filter: 'brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
                                 }}
                             />
                         </div>
