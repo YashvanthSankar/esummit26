@@ -137,13 +137,7 @@ export default function AccommodationForm() {
             throw new Error('Failed to upload file: ' + error.message);
         }
 
-        if (bucket === 'id_proofs') {
-            const { data: publicUrlData } = supabase.storage
-                .from(bucket)
-                .getPublicUrl(data.path);
-            return publicUrlData.publicUrl;
-        }
-
+        // Return only the path - admin pages will generate signed URLs
         return data.path;
     };
 

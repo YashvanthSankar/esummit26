@@ -78,6 +78,51 @@ export default function AdminAccommodationPage() {
         loadRequests();
     }, [filter, paymentFilter, genderFilter]);
 
+    // Generate signed URL for secure image access
+    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+
+    const fetchImageUrl = async (path: string) => {
+        if (!path || imageUrls[path]) return;
+        const { data, error } = await supabase.storage
+            .from('payment-proofs')
+            .createSignedUrl(path, 300);
+        if (!error && data) {
+            setImageUrls(prev => ({ ...prev, [path]: data.signedUrl }));
+        }
+    };
+
+    // Prefetch URLs when selectedRequest changes
+    useEffect(() => {
+        if (selectedRequest?.payment_screenshot_path) {
+            fetchImageUrl(selectedRequest.payment_screenshot_path);
+        }
+        // Also prefetch ID proof if it's a path (not a full URL)
+        if (selectedRequest?.id_proof_url && !selectedRequest.id_proof_url.startsWith('http')) {
+            fetchIdProofUrl(selectedRequest.id_proof_url);
+        }
+    }, [selectedRequest]);
+
+    // Signed URL for ID proofs (id_proofs bucket)
+    const [idProofUrls, setIdProofUrls] = useState<Record<string, string>>({});
+
+    const fetchIdProofUrl = async (path: string) => {
+        if (!path || idProofUrls[path]) return;
+        const { data, error } = await supabase.storage
+            .from('id_proofs')
+            .createSignedUrl(path, 300);
+        if (!error && data) {
+            setIdProofUrls(prev => ({ ...prev, [path]: data.signedUrl }));
+        }
+    };
+
+    // Get ID proof URL - handles both legacy full URLs and new paths
+    const getIdProofUrl = (urlOrPath: string): string | null => {
+        if (urlOrPath.startsWith('http')) {
+            return urlOrPath; // Legacy full URL
+        }
+        return idProofUrls[urlOrPath] || null; // New path-based storage
+    };
+
     // Approve/Reject accommodation request
     const handleApprove = async (requestId: string) => {
         setProcessing(true);
@@ -244,11 +289,10 @@ export default function AdminAccommodationPage() {
         }
     };
 
-    // Get payment screenshot URL
-    const getPaymentScreenshotUrl = (path: string | null) => {
+    // Get payment screenshot URL (from cached signed URLs)
+    const getPaymentScreenshotUrl = (path: string | null): string | null => {
         if (!path) return null;
-        const { data } = supabase.storage.from('payment-proofs').getPublicUrl(path);
-        return data.publicUrl;
+        return imageUrls[path] || null;
     };
 
     const stats = {
@@ -532,12 +576,18 @@ export default function AdminAccommodationPage() {
                             <div className="mb-6">
                                 <p className="text-white/60 text-sm mb-2">ID Proof:</p>
                                 <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5">
-                                    <Image
-                                        src={selectedRequest.id_proof_url}
-                                        alt="ID Proof"
-                                        fill
-                                        className="object-contain"
-                                    />
+                                    {getIdProofUrl(selectedRequest.id_proof_url) ? (
+                                        <Image
+                                            src={getIdProofUrl(selectedRequest.id_proof_url)!}
+                                            alt="ID Proof"
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full">
+                                            <Loader2 className="w-6 h-6 text-white/40 animate-spin" />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

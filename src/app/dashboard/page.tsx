@@ -730,34 +730,36 @@ export default function DashboardPage() {
                     ) : ticket.status === 'paid' ? (
                         // 3. PAID -> SHOW TICKET (QR)
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="flex flex-col items-center"
+                            className="flex flex-col items-center w-full px-2 sm:px-0"
                         >
-                            <div className="flex items-center gap-4 mb-8">
-                                <Ticket className="w-8 h-8 text-[#a855f7]" />
-                                <h2 className="font-heading text-3xl text-white">Your Ticket</h2>
+                            {/* Header - responsive sizing */}
+                            <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+                                <Ticket className="w-6 h-6 sm:w-8 sm:h-8 text-[#a855f7]" />
+                                <h2 className="font-heading text-2xl sm:text-3xl text-white">Your Ticket</h2>
                             </div>
 
-                            {/* Band Status Badge */}
-                            <div className={`mb-8 px-6 py-3 rounded-full border flex items-center gap-3 ${ticket.band_issued_at
-                                    ? 'bg-green-500/10 border-green-500/20 text-green-400'
-                                    : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
+                            {/* Band Status Badge - smaller on mobile */}
+                            <div className={`mb-6 sm:mb-8 px-4 sm:px-6 py-2 sm:py-3 rounded-full border flex items-center gap-2 sm:gap-3 text-sm sm:text-base ${ticket.band_issued_at
+                                ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                                : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
                                 }`}>
                                 {ticket.band_issued_at ? (
                                     <>
-                                        <CheckCircle className="w-5 h-5" />
-                                        <span className="font-heading tracking-wide">BAND COLLECTED</span>
+                                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <span className="font-heading tracking-wide text-xs sm:text-sm">BAND COLLECTED</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Clock className="w-5 h-5" />
-                                        <span className="font-heading tracking-wide">READY TO COLLECT</span>
+                                        <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <span className="font-heading tracking-wide text-xs sm:text-sm">READY TO COLLECT</span>
                                     </>
                                 )}
                             </div>
 
-                            <div className="mb-6">
+                            {/* Ticket Card Container - properly centered */}
+                            <div className="w-full flex justify-center mb-6 sm:mb-8">
                                 <TicketCard
                                     ref={ticketCardRef}
                                     userName={profile?.full_name || ''}
@@ -769,10 +771,12 @@ export default function DashboardPage() {
                                 />
                             </div>
 
+                            {/* Download Button - full width on mobile, centered on desktop */}
                             <motion.button
                                 onClick={handleDownloadTicket}
                                 disabled={downloading}
-                                className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#a855f7] to-[#7c3aed] text-white font-heading text-lg shadow-lg shadow-[#a855f7]/20"
+                                whileTap={{ scale: 0.98 }}
+                                className="w-full sm:w-auto flex items-center justify-center gap-3 px-6 sm:px-8 py-4 rounded-2xl bg-gradient-to-r from-[#a855f7] to-[#7c3aed] text-white font-heading text-base sm:text-lg shadow-lg shadow-[#a855f7]/20 min-h-[52px] active:shadow-[#a855f7]/10 transition-shadow"
                             >
                                 {downloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                                 Download Pass

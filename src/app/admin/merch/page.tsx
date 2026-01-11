@@ -90,6 +90,26 @@ export default function AdminMerchPage() {
         loadOrders();
     }, [filter, paymentFilter]);
 
+    // Generate signed URL for secure image access
+    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+
+    const fetchImageUrl = async (path: string) => {
+        if (!path || imageUrls[path]) return;
+        const { data, error } = await supabase.storage
+            .from('payment-proofs')
+            .createSignedUrl(path, 300);
+        if (!error && data) {
+            setImageUrls(prev => ({ ...prev, [path]: data.signedUrl }));
+        }
+    };
+
+    // Prefetch URLs when selectedOrder changes
+    useEffect(() => {
+        if (selectedOrder?.payment_screenshot_path) {
+            fetchImageUrl(selectedOrder.payment_screenshot_path);
+        }
+    }, [selectedOrder]);
+
     const handleVerifyPayment = async (orderId: string) => {
         setProcessing(true);
 
@@ -196,10 +216,9 @@ export default function AdminMerchPage() {
         }
     };
 
-    const getPaymentScreenshotUrl = (path: string | null) => {
+    const getPaymentScreenshotUrl = (path: string | null): string | null => {
         if (!path) return null;
-        const { data } = supabase.storage.from('payment-proofs').getPublicUrl(path);
-        return data.publicUrl;
+        return imageUrls[path] || null;
     };
 
     const stats = {

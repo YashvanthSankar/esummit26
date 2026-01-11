@@ -79,17 +79,31 @@ export default function UnifiedAdminView() {
         });
     }, [data, searchTerm, categoryFilter, statusFilter]);
 
-    // Calculate statistics
+    // Calculate statistics (case-insensitive status matching)
     const stats = useMemo(() => {
-        const totalRevenue = filteredData.reduce((sum, record) =>
-            record.status === 'Paid' ? sum + record.amount : sum, 0
-        );
-        const pendingCount = filteredData.filter(r => r.status.includes('Pending')).length;
-        const paidCount = filteredData.filter(r => r.status === 'Paid').length;
+        const totalRevenue = filteredData.reduce((sum, record) => {
+            const status = record.status.toLowerCase();
+            // Count as paid if status is 'paid' or for accommodation 'approved'
+            const isPaid = status === 'paid' ||
+                (record.category === 'Accommodation' && status === 'approved');
+            return isPaid ? sum + record.amount : sum;
+        }, 0);
+
+        const pendingCount = filteredData.filter(r =>
+            r.status.toLowerCase().includes('pending')
+        ).length;
+
+        const paidCount = filteredData.filter(r => {
+            const status = r.status.toLowerCase();
+            return status === 'paid' ||
+                (r.category === 'Accommodation' && status === 'approved');
+        }).length;
+
         const fulfilledCount = filteredData.filter(r =>
             r.fulfillment_status === 'Issued' ||
             r.fulfillment_status === 'Delivered' ||
-            r.fulfillment_status === 'Confirmed'
+            r.fulfillment_status === 'Confirmed' ||
+            r.fulfillment_status === 'Approved'
         ).length;
 
         return { totalRevenue, pendingCount, paidCount, fulfilledCount };
@@ -180,9 +194,11 @@ export default function UnifiedAdminView() {
     };
 
     const getStatusColor = (status: string) => {
-        if (status === 'Paid') return 'bg-green-500/10 text-green-400';
-        if (status.includes('Pending')) return 'bg-yellow-500/10 text-yellow-400';
-        return 'bg-red-500/10 text-red-400';
+        const s = status.toLowerCase();
+        if (s === 'paid' || s === 'approved') return 'bg-green-500/10 text-green-400';
+        if (s.includes('pending')) return 'bg-yellow-500/10 text-yellow-400';
+        if (s === 'rejected') return 'bg-red-500/10 text-red-400';
+        return 'bg-gray-500/10 text-gray-400';
     };
 
     const getFulfillmentColor = (status: string) => {

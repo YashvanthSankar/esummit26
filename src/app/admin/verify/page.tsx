@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Loader2, RefreshCw, ZoomIn, Copy, Search, Filter, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, RefreshCw, ZoomIn, Copy, Search, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminDock from '@/components/AdminDock';
 import Image from 'next/image';
@@ -68,35 +68,48 @@ export default function VerifyPage() {
         }
 
         if (data) {
-            // Group logic (keep existing group logic)
-            const ticketsWithGroupMembers = await Promise.all(
-                data.map(async (ticket: any) => {
-                    if (ticket.booking_group_id) {
-                        const { data: groupTickets } = await supabase
-                            .from('tickets')
-                            .select(`
-                                id,
-                                pending_name,
-                                pending_email,
-                                pending_phone,
-                                user_id,
-                                user:profiles!tickets_user_id_fkey(full_name, email, phone)
-                            `)
-                            .eq('booking_group_id', ticket.booking_group_id);
+            // FIX: Batch prefetch all group members in ONE query (was N+1)
+            const groupIds = [...new Set(
+                data.filter((t: any) => t.booking_group_id).map((t: any) => t.booking_group_id)
+            )] as string[];
 
-                        const groupMembers: GroupMember[] = (groupTickets || []).map((gt: any) => ({
-                            id: gt.id,
-                            name: gt.user?.full_name || gt.pending_name || 'Unknown',
-                            email: gt.user?.email || gt.pending_email || '',
-                            phone: gt.user?.phone || gt.pending_phone || '',
-                            isRegistered: !!gt.user_id
-                        }));
+            let allGroupTickets: any[] = [];
+            if (groupIds.length > 0) {
+                const { data: groupData } = await supabase
+                    .from('tickets')
+                    .select(`
+                        id,
+                        booking_group_id,
+                        pending_name,
+                        pending_email,
+                        pending_phone,
+                        user_id,
+                        user:profiles!tickets_user_id_fkey(full_name, email, phone)
+                    `)
+                    .in('booking_group_id', groupIds);
 
-                        return { ...ticket, groupMembers };
-                    }
-                    return ticket;
-                })
-            );
+                allGroupTickets = groupData || [];
+            }
+
+            // Map group members locally (no additional queries!)
+            const ticketsWithGroupMembers = data.map((ticket: any) => {
+                if (ticket.booking_group_id) {
+                    const groupTickets = allGroupTickets.filter(
+                        gt => gt.booking_group_id === ticket.booking_group_id
+                    );
+
+                    const groupMembers: GroupMember[] = groupTickets.map((gt: any) => ({
+                        id: gt.id,
+                        name: gt.user?.full_name || gt.pending_name || 'Unknown',
+                        email: gt.user?.email || gt.pending_email || '',
+                        phone: gt.user?.phone || gt.pending_phone || '',
+                        isRegistered: !!gt.user_id
+                    }));
+
+                    return { ...ticket, groupMembers };
+                }
+                return ticket;
+            });
 
             setAllTickets(ticketsWithGroupMembers as any);
         }
@@ -107,6 +120,15 @@ export default function VerifyPage() {
         fetchTickets();
     }, []);
 
+    // Prefetch signed URLs for all tickets with screenshots
+    useEffect(() => {
+        allTickets.forEach(ticket => {
+            if (ticket.screenshot_path) {
+                fetchImageUrl(ticket.screenshot_path);
+            }
+        });
+    }, [allTickets]);
+
     const handleVerify = async (ticketId: string, action: 'approve' | 'reject') => {
         setProcessing(ticketId);
 
@@ -116,29 +138,31 @@ export default function VerifyPage() {
 
             if (action === 'approve') {
                 if (currentTicket.booking_group_id) {
-                    // Approve Group
+                    // Approve Group ATOMICALLY using RPC
+                    const { data: { user } } = await supabase.auth.getUser();
+
+                    const { data: approvalResult, error: approvalError } = await supabase
+                        .rpc('approve_group_tickets', {
+                            p_booking_group_id: currentTicket.booking_group_id,
+                            p_admin_id: user?.id
+                        });
+
+                    if (approvalError) throw approvalError;
+
+                    // Fetch updated tickets for email sending
                     const { data: groupTickets } = await supabase
                         .from('tickets')
                         .select('id, user:profiles(email, full_name), pending_email, pending_name')
                         .eq('booking_group_id', currentTicket.booking_group_id);
 
-                    if (!groupTickets) throw new Error('Group not found');
-
-                    for (let i = 0; i < groupTickets.length; i++) {
-                        const ticket = groupTickets[i];
-                        const secret = `TICKET_${Date.now()}_${i}_${Math.random().toString(36).substring(7).toUpperCase()}`;
-
-                        await supabase
-                            .from('tickets')
-                            .update({ status: 'paid', qr_secret: secret })
-                            .eq('id', ticket.id);
-
-                        // Email logic (fire and forget)
+                    // Send emails (fire and forget)
+                    groupTickets?.forEach(ticket => {
                         const email = (ticket.user as any)?.email || ticket.pending_email;
                         const name = (ticket.user as any)?.full_name || ticket.pending_name || 'User';
                         if (email) sendApprovalEmail(email, name, currentTicket.type, currentTicket.amount);
-                    }
-                    toast.success(`Approved Group (${groupTickets.length} tickets)`);
+                    });
+
+                    toast.success(`Approved Group (${approvalResult || groupTickets?.length || 0} tickets)`);
                 } else {
                     // Approve Single
                     const secret = `TICKET_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
@@ -197,9 +221,29 @@ export default function VerifyPage() {
         } catch (e) { console.error('Email failed', e); }
     };
 
-    const getImageUrl = (path: string) => {
-        const { data } = supabase.storage.from('payment-proofs').getPublicUrl(path);
-        return data.publicUrl;
+    // Generate signed URL for secure image access (expires in 5 minutes)
+    const getImageUrl = async (path: string): Promise<string | null> => {
+        const { data, error } = await supabase.storage
+            .from('payment-proofs')
+            .createSignedUrl(path, 300); // 5 minute expiry
+
+        if (error) {
+            console.error('Failed to get signed URL:', error);
+            return null;
+        }
+        return data.signedUrl;
+    };
+
+    // State to store signed URLs for images
+    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
+
+    // Fetch signed URL for a specific path
+    const fetchImageUrl = async (path: string) => {
+        if (!path || imageUrls[path]) return;
+        const url = await getImageUrl(path);
+        if (url) {
+            setImageUrls(prev => ({ ...prev, [path]: url }));
+        }
     };
 
     const copyToClipboard = (text: string) => {
@@ -330,10 +374,12 @@ export default function VerifyPage() {
                                     {/* Thumbnail */}
                                     <div className="relative group shrink-0">
                                         <div className="w-20 h-20 rounded-xl overflow-hidden bg-black/50 border border-white/10 relative flex items-center justify-center">
-                                            {ticket.screenshot_path ? (
-                                                <div className="relative w-full h-full cursor-pointer" onClick={() => setSelectedImage(getImageUrl(ticket.screenshot_path))}>
-                                                    <Image src={getImageUrl(ticket.screenshot_path)} alt="Proof" fill className="object-cover" />
+                                            {ticket.screenshot_path && imageUrls[ticket.screenshot_path] ? (
+                                                <div className="relative w-full h-full cursor-pointer" onClick={() => setSelectedImage(imageUrls[ticket.screenshot_path])}>
+                                                    <Image src={imageUrls[ticket.screenshot_path]} alt="Proof" fill className="object-cover" />
                                                 </div>
+                                            ) : ticket.screenshot_path ? (
+                                                <div className="text-center p-2"><Loader2 className="w-5 h-5 text-white/40 animate-spin mx-auto" /></div>
                                             ) : (
                                                 <div className="text-center p-2"><XCircle className="w-5 h-5 text-white/20 mx-auto" /></div>
                                             )}

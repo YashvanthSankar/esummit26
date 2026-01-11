@@ -361,3 +361,20 @@ body::before {
 .grayscale-hover:hover {
   filter: grayscale(0%);
 }
+
+/* Subtle Pulse Animation for QR Code */
+@keyframes pulse-subtle {
+
+  0%,
+  100% {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 20px rgba(168, 85, 247, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), 0 0 30px rgba(168, 85, 247, 0.25);
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
