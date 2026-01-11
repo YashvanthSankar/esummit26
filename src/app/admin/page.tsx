@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import AdminDock from '@/components/AdminDock';
 import { Loader2, DollarSign, Ticket, Clock, Star, CheckCircle } from 'lucide-react';
+import { hasAdminAccess } from '@/types/database';
 
 export default function AdminOverview() {
     const supabase = createClient();
@@ -38,8 +39,8 @@ export default function AdminOverview() {
                 user_id: user.id
             });
 
-            if (profile?.role !== 'admin') {
-                console.warn('[AdminPage] Access Denied: User is not admin. Redirecting...');
+            if (!profile || !hasAdminAccess(profile.role)) {
+                console.warn('[AdminPage] Access Denied: User does not have admin access. Redirecting...');
                 window.location.href = '/dashboard';
                 return;
             }

@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { hasAdminAccess } from '@/types/database';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
@@ -24,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 .eq('id', user.id)
                 .single();
 
-            if (profile?.role !== 'admin') {
+            if (!profile || !hasAdminAccess(profile.role)) {
                 router.push('/dashboard');
                 return;
             }

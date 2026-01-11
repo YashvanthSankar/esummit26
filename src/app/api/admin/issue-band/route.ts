@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import { hasAdminAccess } from '@/types/database';
 
 export async function POST(request: NextRequest) {
     const supabase = await createClient();
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    if (profile?.role !== 'admin') {
+    if (!profile || !hasAdminAccess(profile.role)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

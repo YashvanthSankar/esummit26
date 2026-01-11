@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { hasAdminAccess } from '@/types/database';
 
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url);
@@ -27,7 +28,8 @@ export async function GET(request: Request) {
 
                 // CRITICAL: Always enforce 'internal' role for iiitdm.ac.in emails on login
                 // This handles cases where they might have been created as external first
-                if (existingProfile?.role !== 'admin') {
+                // But never overwrite admin or super_admin roles
+                if (!existingProfile?.role || !hasAdminAccess(existingProfile.role)) {
                     const isInternal = user.email?.endsWith('@iiitdm.ac.in');
                     const targetRole = isInternal ? 'internal' : (existingProfile?.role || 'external');
 
@@ -56,20 +58,20 @@ export async function GET(request: Request) {
                     error: profileError?.message
                 });
 
-                // If incomplete AND not admin, redirect to onboarding
-                if ((!profile?.phone || !profile?.college_name) && profile?.role !== 'admin') {
+                // If incomplete AND not admin/super_admin, redirect to onboarding
+                if ((!profile?.phone || !profile?.college_name) && !hasAdminAccess(profile?.role || '')) {
                     console.log('[AuthCallback] Redirecting to Onboarding (Incomplete Profile)');
                     return NextResponse.redirect(`${origin}/onboarding`);
                 }
 
-                // Check if admin and redirect accordingly
+                // Check if admin/super_admin and redirect accordingly
                 const { data: roleData } = await supabase
                     .from('profiles')
                     .select('role')
                     .eq('id', user.id)
                     .single();
 
-                if (roleData?.role === 'admin') {
+                if (roleData?.role && hasAdminAccess(roleData.role)) {
                     console.log('[AuthCallback] Redirecting to Admin');
                     return NextResponse.redirect(`${origin}/admin`);
                 }

@@ -152,13 +152,18 @@ export async function updateSession(request: NextRequest) {
         };
     };
 
+    // Helper to check if role has admin access
+    const roleHasAdminAccess = (role: string | undefined): boolean => {
+        return role === 'admin' || role === 'super_admin';
+    };
+
     // If user exists, check profile completion
     if (user && !isPublicRoute && pathname !== '/onboarding') {
         const profile = await getProfile();
 
         // If profile doesn't exist OR is incomplete, redirect to onboarding
-        // EXCEPTION: Admins can bypass this (they might not need ticket info)
-        if ((!profile || !profile.phone || !profile.college_name) && profile?.role !== 'admin') {
+        // EXCEPTION: Admins/Super Admins can bypass this (they might not need ticket info)
+        if ((!profile || !profile.phone || !profile.college_name) && !roleHasAdminAccess(profile?.role)) {
             const url = request.nextUrl.clone();
             url.pathname = '/onboarding';
             return NextResponse.redirect(url);
@@ -181,7 +186,7 @@ export async function updateSession(request: NextRequest) {
         const profile = await getProfile();
 
         const url = request.nextUrl.clone();
-        if (profile?.role === 'admin') {
+        if (profile?.role === 'admin' || profile?.role === 'super_admin') {
             url.pathname = '/admin';
         } else {
             url.pathname = '/dashboard';
@@ -189,7 +194,7 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // Admin route protection
+    // Admin route protection - allow both admin and super_admin
     if (user && pathname.startsWith('/admin')) {
         const profile = await getProfile();
 
@@ -200,7 +205,7 @@ export async function updateSession(request: NextRequest) {
             cached: !!getCachedProfile(request, user.id)
         });
 
-        if (profile?.role !== 'admin') {
+        if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
             console.log('[Middleware] Access Denied. Redirecting to /dashboard');
             const url = request.nextUrl.clone();
             url.pathname = '/dashboard';

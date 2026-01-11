@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Bed, ShoppingBag, Database, Tag, Search } from 'lucide-react';
+import { LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Bed, ShoppingBag, Database, Tag, Search, Crown } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { canApprovePayments, type UserRole } from '@/types/database';
 
 interface SearchRoute {
     name: string;
@@ -22,7 +23,28 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [userRole, setUserRole] = useState<UserRole | null>(null);
     const supabase = createClient();
+
+    // Fetch user role on mount
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                if (profile) {
+                    setUserRole(profile.role as UserRole);
+                }
+            }
+        };
+        fetchUserRole();
+    }, []);
+
+    const isSuperAdmin = userRole ? canApprovePayments(userRole) : false;
 
     // Define all admin routes for search
     const getSearchRoutes = useCallback((): SearchRoute[] => {
@@ -88,6 +110,18 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
                 className="hidden md:flex fixed right-4 top-1/2 -translate-y-1/2 z-[9999]"
             >
                 <div className="dock flex flex-col items-center gap-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-2xl p-2.5 shadow-2xl shadow-black/60 ring-1 ring-black/50">
+                    {/* Role Badge */}
+                    {isSuperAdmin && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="flex items-center justify-center p-2 mb-1"
+                            title="Super Admin - Can approve payments"
+                        >
+                            <Crown className="w-5 h-5 text-amber-400" />
+                        </motion.div>
+                    )}
+                    
                     {dockItems.map((item, index) => {
                         const Icon = item.icon;
                         const isActive = currentPage === item.id;
@@ -188,12 +222,18 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
                             <div className="bg-black/70 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl shadow-black/50">
                                 {userName && (
                                     <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
-                                        <div className="w-10 h-10 rounded-full bg-[#a855f7]/20 flex items-center justify-center">
-                                            <Shield className="w-5 h-5 text-[#a855f7]" />
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isSuperAdmin ? 'bg-amber-500/20' : 'bg-[#a855f7]/20'}`}>
+                                            {isSuperAdmin ? (
+                                                <Crown className="w-5 h-5 text-amber-400" />
+                                            ) : (
+                                                <Shield className="w-5 h-5 text-[#a855f7]" />
+                                            )}
                                         </div>
                                         <div>
                                             <p className="text-white font-heading text-sm">{userName}</p>
-                                            <p className="text-[#a855f7] text-xs font-mono">ADMIN</p>
+                                            <p className={`text-xs font-mono ${isSuperAdmin ? 'text-amber-400' : 'text-[#a855f7]'}`}>
+                                                {isSuperAdmin ? 'SUPER ADMIN' : 'ADMIN'}
+                                            </p>
                                         </div>
                                     </div>
                                 )}

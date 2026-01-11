@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { CacheKeys, getCached, setCached } from '@/lib/redis';
+import { hasAdminAccess } from '@/types/database';
 
 // Cache admin check for 5 minutes to reduce DB calls
 const adminCache = new Map<string, { isAdmin: boolean; name: string; expires: number }>();
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
                 .eq('id', user.id)
                 .single();
 
-            isAdmin = adminProfile?.role === 'admin';
+            isAdmin = adminProfile?.role ? hasAdminAccess(adminProfile.role) : false;
             adminName = adminProfile?.full_name || 'Admin';
 
             // Cache result for 1 hour

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { hasAdminAccess } from '@/types/database';
 
 // Cache for 5 minutes (300 seconds)
 export const revalidate = 300;
@@ -34,7 +35,7 @@ export async function GET() {
             .eq('id', user.id)
             .single();
 
-        if (profile?.role !== 'admin') {
+        if (!profile || !hasAdminAccess(profile.role)) {
             return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
         }
 

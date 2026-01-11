@@ -9,6 +9,15 @@
 export type PhoneNumber = `+91${string}`;
 
 /**
+ * User roles in the system
+ * - internal: College students with @iiitdm.ac.in email
+ * - external: External participants  
+ * - admin: Volunteers with limited admin access (no payment approval)
+ * - super_admin: Full admin access including payment approval
+ */
+export type UserRole = 'internal' | 'external' | 'admin' | 'super_admin';
+
+/**
  * User profile from the database
  */
 export interface Profile {
@@ -18,9 +27,23 @@ export interface Profile {
     phone: PhoneNumber;
     college_name: string;
     roll_number: string | null;
-    role: 'user' | 'admin';
+    role: UserRole;
     created_at?: string;
     updated_at?: string;
+}
+
+/**
+ * Check if user can approve payments (only super_admin)
+ */
+export function canApprovePayments(role: UserRole | string): boolean {
+    return role === 'super_admin';
+}
+
+/**
+ * Check if user has admin access (admin or super_admin)
+ */
+export function hasAdminAccess(role: UserRole | string): boolean {
+    return role === 'admin' || role === 'super_admin';
 }
 
 /**

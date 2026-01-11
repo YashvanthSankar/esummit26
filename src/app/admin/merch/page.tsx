@@ -3,10 +3,11 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle, ShoppingBag, CreditCard, Eye, Package, Search } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, ShoppingBag, CreditCard, Eye, Package, Search, ShieldAlert } from 'lucide-react';
 import AdminDock from '@/components/AdminDock';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { canApprovePayments, type UserRole } from '@/types/database';
 
 // Bundle Item Interface
 interface BundleItem {
@@ -60,6 +61,25 @@ export default function AdminMerchPage() {
     const [adminNotes, setAdminNotes] = useState('');
     const [processing, setProcessing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [userRole, setUserRole] = useState<UserRole | null>(null);
+
+    // Fetch user role on mount
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                if (profile) {
+                    setUserRole(profile.role as UserRole);
+                }
+            }
+        };
+        fetchUserRole();
+    }, []);
 
     // Fetch all orders (for analytics) - only on mount
     const loadAllOrders = async () => {
@@ -131,18 +151,23 @@ export default function AdminMerchPage() {
 
     const handleVerifyPayment = async (orderId: string) => {
         setProcessing(true);
+        const { data: { user } } = await supabase.auth.getUser();
 
+        // Verify payment AND auto-confirm the order in one step
         const { error } = await supabase
             .from('merch_orders')
             .update({
                 payment_status: 'paid',
+                status: 'confirmed',  // Auto-confirm when payment verified
+                reviewed_by: user?.id,
+                reviewed_at: new Date().toISOString()
             })
             .eq('id', orderId);
 
         if (error) {
             toast.error('Failed to verify payment');
         } else {
-            toast.success('Payment verified');
+            toast.success('Payment verified & order confirmed');
             setSelectedOrder(null);
             loadOrders();
         }
@@ -511,14 +536,21 @@ export default function AdminMerchPage() {
                                     )}
 
                                     {selectedOrder.payment_status === 'pending_verification' && (
-                                        <button
-                                            onClick={() => handleVerifyPayment(selectedOrder.id)}
-                                            disabled={processing}
-                                            className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                                        >
-                                            {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                            Verify Payment
-                                        </button>
+                                        userRole && canApprovePayments(userRole) ? (
+                                            <button
+                                                onClick={() => handleVerifyPayment(selectedOrder.id)}
+                                                disabled={processing}
+                                                className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                            >
+                                                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                                Verify Payment
+                                            </button>
+                                        ) : (
+                                            <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                                                <ShieldAlert className="w-5 h-5 text-amber-400" />
+                                                <span className="text-amber-400 text-sm font-medium">Only Super Admins can verify payments</span>
+                                            </div>
+                                        )
                                     )}
                                 </div>
                             )}
@@ -538,26 +570,6 @@ export default function AdminMerchPage() {
 
                             {/* Actions */}
                             <div className="flex gap-3">
-                                {selectedOrder.status === 'pending' && (
-                                    <>
-                                        <button
-                                            onClick={() => handleConfirmOrder(selectedOrder.id)}
-                                            disabled={processing}
-                                            className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                                        >
-                                            {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
-                                            Confirm
-                                        </button>
-                                        <button
-                                            onClick={() => handleRejectOrder(selectedOrder.id)}
-                                            disabled={processing}
-                                            className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                                        >
-                                            {processing ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
-                                            Reject
-                                        </button>
-                                    </>
-                                )}
                                 {selectedOrder.status === 'confirmed' && (
                                     <button
                                         onClick={() => handleMarkDelivered(selectedOrder.id)}

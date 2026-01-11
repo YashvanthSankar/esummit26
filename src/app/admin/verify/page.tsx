@@ -3,11 +3,12 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Loader2, RefreshCw, ZoomIn, Copy, Search, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, RefreshCw, ZoomIn, Copy, Search, Clock, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminDock from '@/components/AdminDock';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
+import { canApprovePayments, type UserRole } from '@/types/database';
 
 interface GroupMember {
     id: string;
@@ -47,6 +48,25 @@ export default function VerifyPage() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
+    const [userRole, setUserRole] = useState<UserRole | null>(null);
+
+    // Fetch user role on mount
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                if (profile) {
+                    setUserRole(profile.role as UserRole);
+                }
+            }
+        };
+        fetchUserRole();
+    }, []);
 
     const fetchTickets = async () => {
         setLoading(true);
@@ -166,10 +186,16 @@ export default function VerifyPage() {
                 } else {
                     // Approve Single
                     const secret = `TICKET_${Date.now()}_${Math.random().toString(36).substring(7).toUpperCase()}`;
-                    await supabase.from('tickets').update({ status: 'paid', qr_secret: secret }).eq('id', ticketId);
+                    const { data: { user: currentUser } } = await supabase.auth.getUser();
+                    await supabase.from('tickets').update({
+                        status: 'paid',
+                        qr_secret: secret,
+                        approved_by: currentUser?.id,
+                        approved_at: new Date().toISOString()
+                    }).eq('id', ticketId);
 
-                    const user = currentTicket.user;
-                    if (user?.email) sendApprovalEmail(user.email, user.full_name, currentTicket.type, currentTicket.amount);
+                    const ticketUser = currentTicket.user;
+                    if (ticketUser?.email) sendApprovalEmail(ticketUser.email, ticketUser.full_name, currentTicket.type, currentTicket.amount);
                     toast.success('Ticket Approved');
                 }
             } else {
@@ -420,12 +446,21 @@ export default function VerifyPage() {
 
                                             {ticket.status === 'pending_verification' && (
                                                 <div className="flex gap-2">
-                                                    <button onClick={() => handleVerify(ticket.id, 'approve')} disabled={processing === ticket.id} className="p-2 bg-green-500 hover:bg-green-600 rounded-lg text-white transition-colors">
-                                                        <CheckCircle className="w-4 h-4" />
-                                                    </button>
-                                                    <button onClick={() => handleVerify(ticket.id, 'reject')} disabled={processing === ticket.id} className="p-2 bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 rounded-lg text-red-400 transition-colors">
-                                                        <XCircle className="w-4 h-4" />
-                                                    </button>
+                                                    {userRole && canApprovePayments(userRole) ? (
+                                                        <>
+                                                            <button onClick={() => handleVerify(ticket.id, 'approve')} disabled={processing === ticket.id} className="p-2 bg-green-500 hover:bg-green-600 rounded-lg text-white transition-colors">
+                                                                <CheckCircle className="w-4 h-4" />
+                                                            </button>
+                                                            <button onClick={() => handleVerify(ticket.id, 'reject')} disabled={processing === ticket.id} className="p-2 bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 rounded-lg text-red-400 transition-colors">
+                                                                <XCircle className="w-4 h-4" />
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                                                            <ShieldAlert className="w-4 h-4 text-amber-400" />
+                                                            <span className="text-amber-400 text-xs font-medium">Super Admin Only</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

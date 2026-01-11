@@ -3,10 +3,11 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Phone, Building2, Eye, CreditCard, IndianRupee, Search } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Phone, Building2, Eye, CreditCard, IndianRupee, Search, ShieldAlert } from 'lucide-react';
 import AdminDock from '@/components/AdminDock';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { canApprovePayments, type UserRole } from '@/types/database';
 
 interface AccommodationRequest {
     id: string;
@@ -44,6 +45,25 @@ export default function AdminAccommodationPage() {
     const [adminNotes, setAdminNotes] = useState('');
     const [processing, setProcessing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [userRole, setUserRole] = useState<UserRole | null>(null);
+
+    // Fetch user role on mount
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                if (profile) {
+                    setUserRole(profile.role as UserRole);
+                }
+            }
+        };
+        fetchUserRole();
+    }, []);
 
     // Fetch all requests (for analytics) - only on mount
     const loadAllRequests = async () => {
@@ -571,22 +591,31 @@ export default function AdminAccommodationPage() {
 
                                     {selectedRequest.payment_status === 'pending_verification' && (
                                         <div className="flex gap-3 mt-4">
-                                            <button
-                                                onClick={() => handleVerifyPayment(selectedRequest.id)}
-                                                disabled={processing}
-                                                className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                                            >
-                                                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                                Verify Payment
-                                            </button>
-                                            <button
-                                                onClick={() => handleRejectPayment(selectedRequest.id)}
-                                                disabled={processing}
-                                                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                                            >
-                                                {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                                                Reject Payment
-                                            </button>
+                                            {userRole && canApprovePayments(userRole) ? (
+                                                <>
+                                                    <button
+                                                        onClick={() => handleVerifyPayment(selectedRequest.id)}
+                                                        disabled={processing}
+                                                        className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                                    >
+                                                        {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                                                        Verify Payment
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRejectPayment(selectedRequest.id)}
+                                                        disabled={processing}
+                                                        className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                                    >
+                                                        {processing ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                                                        Reject Payment
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                                                    <ShieldAlert className="w-5 h-5 text-amber-400" />
+                                                    <span className="text-amber-400 text-sm font-medium">Only Super Admins can verify payments</span>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -668,36 +697,43 @@ export default function AdminAccommodationPage() {
                             {/* Action Buttons */}
                             <div className="flex gap-3">
                                 {selectedRequest.status === 'pending' ? (
-                                    <>
-                                        <button
-                                            onClick={() => handleApprove(selectedRequest.id)}
-                                            disabled={processing}
-                                            className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                        >
-                                            {processing ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <CheckCircle className="w-5 h-5" />
-                                                    Approve Request
-                                                </>
-                                            )}
-                                        </button>
-                                        <button
-                                            onClick={() => handleReject(selectedRequest.id)}
-                                            disabled={processing}
-                                            className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                        >
-                                            {processing ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <XCircle className="w-5 h-5" />
-                                                    Reject Request
-                                                </>
-                                            )}
-                                        </button>
-                                    </>
+                                    userRole && canApprovePayments(userRole) ? (
+                                        <>
+                                            <button
+                                                onClick={() => handleApprove(selectedRequest.id)}
+                                                disabled={processing}
+                                                className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                {processing ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <>
+                                                        <CheckCircle className="w-5 h-5" />
+                                                        Approve Request
+                                                    </>
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => handleReject(selectedRequest.id)}
+                                                disabled={processing}
+                                                className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                {processing ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                                ) : (
+                                                    <>
+                                                        <XCircle className="w-5 h-5" />
+                                                        Reject Request
+                                                    </>
+                                                )}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                                            <ShieldAlert className="w-5 h-5 text-amber-400" />
+                                            <span className="text-amber-400 text-sm font-medium">Super Admin Only</span>
+                                        </div>
+                                    )
                                 ) : null}
                                 <button
                                     onClick={() => setSelectedRequest(null)}

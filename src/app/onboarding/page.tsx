@@ -91,7 +91,7 @@ export default function OnboardingPage() {
             return;
         }
 
-        // Force internal role for IIITDM emails regardless of user selection
+        // Force internal role for IIITDM emails
         const isIIITDMEmail = user.email?.endsWith('@iiitdm.ac.in') ?? false;
         const userRole = isIIITDMEmail ? 'internal' : 'external';
         const collegeName = isIIITDMEmail ? 'IIITDM Kancheepuram' : formData.college_name;
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
                 email: user.email!, // Email is required for new rows
                 full_name: formData.full_name,
                 phone: phoneValidation.formatted!, // Use validated and formatted phone
-                college_name: collegeName, // Auto-set for IIITDM emails
+                college_name: collegeName, // Auto-set for internal users
                 roll_number: isIIITDMEmail ? formData.roll_number : null,
                 role: userRole, // Set role based on email domain
                 college_id_proof: collegeIdPath,
@@ -175,14 +175,15 @@ export default function OnboardingPage() {
             }).catch(err => console.log('[Sheets Sync] Background sync error:', err));
 
             // Clear middleware profile cache before redirecting
-            await fetch('/api/profile/clear-cache', { method: 'POST' }).catch(() => {});
+            await fetch('/api/profile/clear-cache', { method: 'POST' }).catch(() => { });
 
             // Force reload to clear any cached middleware states
             window.location.href = '/dashboard';
         } else {
-            console.error(error);
+            console.error('Profile update error:', error);
+            console.error('Error details:', JSON.stringify(error, null, 2));
             setSubmitting(false);
-            toast.error('Error updating profile. Please try again.');
+            toast.error(error?.message || 'Error updating profile. Please try again.');
         }
     };
 
@@ -362,7 +363,7 @@ export default function OnboardingPage() {
                         >
                             <div className="p-3 rounded-xl bg-[#a855f7]/5 border border-[#a855f7]/20">
                                 <p className="text-xs text-[#a855f7] font-body">
-                                    📋 As an external participant, please upload your ID proofs for verification.
+                                    As an external participant, please upload your ID proofs for verification.
                                 </p>
                             </div>
 
@@ -385,11 +386,10 @@ export default function OnboardingPage() {
                                 />
                                 <div
                                     onClick={() => collegeIdRef.current?.click()}
-                                    className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex items-center gap-3 transition-colors ${
-                                        collegeIdProof
-                                            ? 'border-[#a855f7] bg-[#a855f7]/5'
-                                            : 'border-white/20 hover:border-white/40'
-                                    }`}
+                                    className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex items-center gap-3 transition-colors ${collegeIdProof
+                                        ? 'border-[#a855f7] bg-[#a855f7]/5'
+                                        : 'border-white/20 hover:border-white/40'
+                                        }`}
                                 >
                                     {collegeIdProof ? (
                                         <>
@@ -424,11 +424,10 @@ export default function OnboardingPage() {
                                 />
                                 <div
                                     onClick={() => govtIdRef.current?.click()}
-                                    className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex items-center gap-3 transition-colors ${
-                                        govtIdProof
-                                            ? 'border-[#a855f7] bg-[#a855f7]/5'
-                                            : 'border-white/20 hover:border-white/40'
-                                    }`}
+                                    className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex items-center gap-3 transition-colors ${govtIdProof
+                                        ? 'border-[#a855f7] bg-[#a855f7]/5'
+                                        : 'border-white/20 hover:border-white/40'
+                                        }`}
                                 >
                                     {govtIdProof ? (
                                         <>
