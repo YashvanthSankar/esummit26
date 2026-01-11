@@ -421,9 +421,9 @@ export default function VerifyPage() {
                                     <div className="flex-1 min-w-0 w-full">
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <h3 className="font-bold text-white truncate">{ticket.user?.full_name || 'Unknown'}</h3>
+                                                <h3 className="font-bold text-white truncate">{ticket.user?.full_name || ticket.pending_name || 'Unknown User'}</h3>
                                                 <div className="flex items-center gap-2 text-xs text-white/50">
-                                                    <span>{ticket.user?.phone}</span>
+                                                    <span>{ticket.user?.phone || ticket.pending_phone || 'No Phone'}</span>
                                                     <span>•</span>
                                                     <span className="font-mono">{ticket.utr || 'No UTR'}</span>
                                                     {ticket.payment_owner_name && (
