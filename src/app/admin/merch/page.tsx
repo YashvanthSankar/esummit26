@@ -58,7 +58,6 @@ export default function AdminMerchPage() {
     const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'rejected' | 'delivered'>('pending');
     const [paymentFilter, setPaymentFilter] = useState<'all' | 'pending_verification' | 'paid'>('all');
     const [selectedOrder, setSelectedOrder] = useState<MerchOrder | null>(null);
-    const [adminNotes, setAdminNotes] = useState('');
     const [processing, setProcessing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [userRole, setUserRole] = useState<UserRole | null>(null);
@@ -169,61 +168,6 @@ export default function AdminMerchPage() {
         } else {
             toast.success('Payment verified & order confirmed');
             setSelectedOrder(null);
-            loadOrders();
-        }
-        setProcessing(false);
-    };
-
-    const handleConfirmOrder = async (orderId: string) => {
-        setProcessing(true);
-        const { data: { user } } = await supabase.auth.getUser();
-
-        const { error } = await supabase
-            .from('merch_orders')
-            .update({
-                status: 'confirmed',
-                admin_notes: adminNotes || null,
-                reviewed_by: user?.id,
-                reviewed_at: new Date().toISOString()
-            })
-            .eq('id', orderId);
-
-        if (error) {
-            toast.error('Failed to confirm order');
-        } else {
-            toast.success('Order confirmed');
-            setSelectedOrder(null);
-            setAdminNotes('');
-            loadOrders();
-        }
-        setProcessing(false);
-    };
-
-    const handleRejectOrder = async (orderId: string) => {
-        if (!adminNotes.trim()) {
-            toast.error('Please provide a reason for rejection');
-            return;
-        }
-
-        setProcessing(true);
-        const { data: { user } } = await supabase.auth.getUser();
-
-        const { error } = await supabase
-            .from('merch_orders')
-            .update({
-                status: 'rejected',
-                admin_notes: adminNotes,
-                reviewed_by: user?.id,
-                reviewed_at: new Date().toISOString()
-            })
-            .eq('id', orderId);
-
-        if (error) {
-            toast.error('Failed to reject order');
-        } else {
-            toast.success('Order rejected');
-            setSelectedOrder(null);
-            setAdminNotes('');
             loadOrders();
         }
         setProcessing(false);
@@ -438,10 +382,7 @@ export default function AdminMerchPage() {
                                         )}
 
                                         <button
-                                            onClick={() => {
-                                                setSelectedOrder(order);
-                                                setAdminNotes('');
-                                            }}
+                                            onClick={() => setSelectedOrder(order)}
                                             className="w-full bg-[#a855f7] hover:bg-[#9333ea] text-white py-2 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
                                         >
                                             <Eye className="w-4 h-4" />
@@ -555,18 +496,7 @@ export default function AdminMerchPage() {
                                 </div>
                             )}
 
-                            {/* Admin Notes */}
-                            {selectedOrder.status === 'pending' && (
-                                <div className="mb-6">
-                                    <label className="text-white/60 text-sm mb-2 block">Admin Notes (Required for rejection)</label>
-                                    <textarea
-                                        value={adminNotes}
-                                        onChange={(e) => setAdminNotes(e.target.value)}
-                                        placeholder="Add notes here..."
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#a855f7]/50 min-h-[80px]"
-                                    />
-                                </div>
-                            )}
+
 
                             {/* Actions */}
                             <div className="flex gap-3">
