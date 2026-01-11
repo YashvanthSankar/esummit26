@@ -54,10 +54,12 @@ export default function UsersPage() {
                 return;
             }
 
-            // Fetch tickets (including pending attendees)
+            // Fetch tickets (including pending attendees) - ordered by created_at DESC
+            // so .find() returns the most recent ticket for each user
             const { data: tickets } = await supabase
                 .from('tickets')
-                .select('*');
+                .select('*')
+                .order('created_at', { ascending: false });
 
             // Build a map of booking_group_id to all members
             const groupMembersMap: Record<string, GroupMember[]> = {};
