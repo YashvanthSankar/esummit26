@@ -36,6 +36,7 @@ export default function AdminAccommodationPage() {
     const supabase = createClient();
     const [loading, setLoading] = useState(true);
     const [requests, setRequests] = useState<AccommodationRequest[]>([]);
+    const [allRequests, setAllRequests] = useState<AccommodationRequest[]>([]); // For analytics - unfiltered
     const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
     const [paymentFilter, setPaymentFilter] = useState<'all' | 'pending_verification' | 'paid' | 'rejected'>('all');
     const [genderFilter, setGenderFilter] = useState<'all' | 'Male' | 'Female'>('all');
@@ -43,6 +44,18 @@ export default function AdminAccommodationPage() {
     const [adminNotes, setAdminNotes] = useState('');
     const [processing, setProcessing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Fetch all requests (for analytics) - only on mount
+    const loadAllRequests = async () => {
+        const { data, error } = await supabase
+            .from('accommodation_requests')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            setAllRequests(data);
+        }
+    };
 
     const loadRequests = async () => {
         setLoading(true);
@@ -74,9 +87,16 @@ export default function AdminAccommodationPage() {
         setLoading(false);
     };
 
+    // Load all requests once on mount (for analytics)
+    useEffect(() => {
+        loadAllRequests();
+    }, []);
+
+    // Load filtered requests when filters change
     useEffect(() => {
         loadRequests();
     }, [filter, paymentFilter, genderFilter]);
+
 
     // Generate signed URL for secure image access
     const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
@@ -296,13 +316,13 @@ export default function AdminAccommodationPage() {
     };
 
     const stats = {
-        total: requests.length,
-        pending: requests.filter(r => r.status === 'pending').length,
-        approved: requests.filter(r => r.status === 'approved').length,
-        rejected: requests.filter(r => r.status === 'rejected').length,
-        male: requests.filter(r => r.gender === 'Male').length,
-        female: requests.filter(r => r.gender === 'Female').length,
-        pendingPayment: requests.filter(r => r.payment_status === 'pending_verification').length,
+        total: allRequests.length,
+        pending: allRequests.filter(r => r.status === 'pending').length,
+        approved: allRequests.filter(r => r.status === 'approved').length,
+        rejected: allRequests.filter(r => r.status === 'rejected').length,
+        male: allRequests.filter(r => r.gender === 'Male').length,
+        female: allRequests.filter(r => r.gender === 'Female').length,
+        pendingPayment: allRequests.filter(r => r.payment_status === 'pending_verification').length,
     };
 
     const filteredRequests = requests.filter(req => {

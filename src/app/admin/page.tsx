@@ -177,7 +177,7 @@ export default function AdminOverview() {
                             <div className="p-3 rounded-lg bg-[#10b981]/10 text-[#10b981]">
                                 <DollarSign className="w-6 h-6" />
                             </div>
-                            <span className="text-white/50 text-sm font-bold uppercase">Total Revenue</span>
+                            <span className="text-white/50 text-sm font-bold uppercase">Ticket Revenue</span>
                         </div>
                         <p className="font-heading text-3xl text-white">₹{stats.revenue.toLocaleString()}</p>
                     </div>
@@ -187,7 +187,7 @@ export default function AdminOverview() {
                             <div className="p-3 rounded-lg bg-[#a855f7]/10 text-[#a855f7]">
                                 <Ticket className="w-6 h-6" />
                             </div>
-                            <span className="text-white/50 text-sm font-bold uppercase">Tickets Sold</span>
+                            <span className="text-white/50 text-sm font-bold uppercase">Passes Sold</span>
                         </div>
                         <p className="font-heading text-3xl text-white">{stats.ticketsSold}</p>
                     </div>
@@ -222,7 +222,7 @@ export default function AdminOverview() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                     {/* Sales Chart */}
                     <div className="glass-card p-6 rounded-2xl">
-                        <h3 className="font-heading text-xl text-white mb-6">Ticket Sales by Type</h3>
+                        <h3 className="font-heading text-xl text-white mb-6">Pass Sales by Type</h3>
                         <div className="h-[300px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={chartData}>

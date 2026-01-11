@@ -395,6 +395,12 @@ export default function VerifyPage() {
                                                     <span>{ticket.user?.phone}</span>
                                                     <span>•</span>
                                                     <span className="font-mono">{ticket.utr || 'No UTR'}</span>
+                                                    {ticket.payment_owner_name && (
+                                                        <>
+                                                            <span>•</span>
+                                                            <span className="text-purple-300">Owner: {ticket.payment_owner_name}</span>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                             {ticket.status !== 'pending_verification' && (

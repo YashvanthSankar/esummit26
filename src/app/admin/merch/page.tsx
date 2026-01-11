@@ -53,12 +53,25 @@ export default function AdminMerchPage() {
     const supabase = createClient();
     const [loading, setLoading] = useState(true);
     const [orders, setOrders] = useState<MerchOrder[]>([]);
+    const [allOrders, setAllOrders] = useState<MerchOrder[]>([]); // For analytics - unfiltered
     const [filter, setFilter] = useState<'all' | 'pending' | 'confirmed' | 'rejected' | 'delivered'>('pending');
     const [paymentFilter, setPaymentFilter] = useState<'all' | 'pending_verification' | 'paid'>('all');
     const [selectedOrder, setSelectedOrder] = useState<MerchOrder | null>(null);
     const [adminNotes, setAdminNotes] = useState('');
     const [processing, setProcessing] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+
+    // Fetch all orders (for analytics) - only on mount
+    const loadAllOrders = async () => {
+        const { data, error } = await supabase
+            .from('merch_orders')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            setAllOrders(data);
+        }
+    };
 
     const loadOrders = async () => {
         setLoading(true);
@@ -86,6 +99,12 @@ export default function AdminMerchPage() {
         setLoading(false);
     };
 
+    // Load all orders once on mount (for analytics)
+    useEffect(() => {
+        loadAllOrders();
+    }, []);
+
+    // Load filtered orders when filters change
     useEffect(() => {
         loadOrders();
     }, [filter, paymentFilter]);
@@ -222,12 +241,12 @@ export default function AdminMerchPage() {
     };
 
     const stats = {
-        total: orders.length,
-        pending: orders.filter(o => o.status === 'pending').length,
-        confirmed: orders.filter(o => o.status === 'confirmed').length,
-        delivered: orders.filter(o => o.status === 'delivered').length,
-        pendingPayment: orders.filter(o => o.payment_status === 'pending_verification').length,
-        totalRevenue: orders.filter(o => o.payment_status === 'paid').reduce((sum, o) => sum + o.amount, 0),
+        total: allOrders.length,
+        pending: allOrders.filter(o => o.status === 'pending').length,
+        confirmed: allOrders.filter(o => o.status === 'confirmed').length,
+        delivered: allOrders.filter(o => o.status === 'delivered').length,
+        pendingPayment: allOrders.filter(o => o.payment_status === 'pending_verification').length,
+        totalRevenue: allOrders.filter(o => o.payment_status === 'paid').reduce((sum, o) => sum + o.amount, 0),
     };
 
     const filteredOrders = orders.filter(order => {
