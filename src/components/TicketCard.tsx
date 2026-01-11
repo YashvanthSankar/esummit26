@@ -41,19 +41,39 @@ const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(
                 <div
                     style={{
                         background: `linear-gradient(90deg, ${purple}, ${purpleDark})`,
-                        padding: 'clamp(12px, 4vw, 16px) clamp(16px, 5vw, 24px)',
+                        padding: 'clamp(16px, 4vw, 20px) clamp(20px, 5vw, 28px)',
                     }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div>
-                            <h1 style={{ color: 'white', fontSize: 'clamp(20px, 6vw, 24px)', fontWeight: 'bold', margin: 0 }}>
-                                E-SUMMIT
-                            </h1>
-                            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 'clamp(12px, 3.5vw, 14px)', margin: 0 }}>&apos;26</p>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        {/* Left Side: E-Summit Logo lockup */}
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src="/esummit26-logo.png"
+                                alt="E-Summit '26"
+                                style={{
+                                    height: 'clamp(24px, 6vw, 32px)', // Significant reduction for optical balance
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.3))'
+                                }}
+                            />
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'clamp(10px, 3vw, 12px)', margin: 0 }}>IIITDM</p>
-                            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'clamp(10px, 3vw, 12px)', margin: 0 }}>KANCHEEPURAM</p>
+
+                        {/* Right Side: E-Cell Logo */}
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src="/ecell.png"
+                                alt="E-Cell IIITDM"
+                                style={{
+                                    height: 'clamp(32px, 8vw, 44px)', // Taller than E-Summit to balance the width difference
+                                    width: 'auto',
+                                    objectFit: 'contain',
+                                    opacity: 0.95,
+                                    filter: 'brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                                }}
+                            />
                         </div>
                     </div>
                 </div>
