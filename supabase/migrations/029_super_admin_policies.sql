@@ -95,19 +95,13 @@ CREATE POLICY "Admins can read all tickets"
 DROP POLICY IF EXISTS "Admins can update all tickets" ON tickets;
 
 -- NEW: Payment enforcement - only super_admin can set status to 'paid'
+-- Regular admins can update other fields (like band_issued_at) on paid tickets
 DROP POLICY IF EXISTS "Admins can update tickets (non-payment)" ON tickets;
 CREATE POLICY "Admins can update tickets (non-payment)"
     ON tickets FOR UPDATE
-    USING (is_admin())
-    WITH CHECK (
-        is_admin() AND (
-            -- If super_admin, allow any update
-            is_super_admin() 
-            OR 
-            -- Regular admin: block if changing to 'paid' from non-paid status
-            NOT (status = 'paid')
-        )
-    );
+    USING (is_admin());
+    -- Note: Payment status change restriction is now enforced at application level
+    -- This allows regular admins to issue bands on paid tickets
 
 -- =====================================================
 -- 4. ACCOMMODATION POLICIES (WITH PAYMENT ENFORCEMENT)
