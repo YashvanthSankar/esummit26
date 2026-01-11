@@ -83,20 +83,20 @@ export default function EventsPage() {
     }
 
     return (
-        <main className="min-h-screen px-4 sm:px-6 py-8 sm:py-12 relative overflow-hidden">
+        <main className="min-h-screen px-4 sm:px-6 py-6 sm:py-8 relative overflow-hidden pb-24 md:pb-8">
             {/* Background */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear_gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
 
             {/* Dock Navigation */}
-            <DashboardDock userName={profile?.full_name} userRole={profile?.role} currentPage="events" />
+            <DashboardDock userName={profile?.full_name} userRole={profile?.role} isExternal={profile?.role === 'external'} currentPage="events" />
 
             <div className="max-w-4xl mx-auto relative z-10">
                 {/* Header */}
-                <div className="mb-8 sm:mb-12">
-                    <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl text-white">
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl text-white">
                         Attended Events
                     </h1>
-                    <p className="font-body text-white/50 mt-2 text-sm sm:text-base">
+                    <p className="font-body text-white/50 mt-1 text-sm">
                         Events you&apos;ve checked into
                     </p>
                 </div>

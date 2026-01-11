@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 
 const sponsors = [
     { name: 'Unstop', logo: '/sponsors/unstop.png' },
@@ -10,6 +11,65 @@ const sponsors = [
     { name: '2IIM', logo: '/sponsors/2iim.png' },
     { name: 'RiKun', logo: '/sponsors/rikun.png' },
 ];
+
+function SponsorCard({ sponsor, index }: { sponsor: typeof sponsors[0]; index: number }) {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const [isCenter, setIsCenter] = useState(false);
+
+    useEffect(() => {
+        const card = cardRef.current;
+        if (!card) return;
+
+        const checkPosition = () => {
+            const rect = card.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const viewportCenter = window.innerWidth / 2;
+            // Tighter threshold for mobile (15%) and desktop (20%)
+            const threshold = window.innerWidth < 768 
+                ? window.innerWidth * 0.2 
+                : window.innerWidth * 0.15;
+            const distance = Math.abs(centerX - viewportCenter);
+            setIsCenter(distance < threshold);
+        };
+
+        // Check position on animation frame for smooth updates
+        let animationId: number;
+        const animate = () => {
+            checkPosition();
+            animationId = requestAnimationFrame(animate);
+        };
+        animationId = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationId);
+    }, []);
+
+    return (
+        <div
+            ref={cardRef}
+            key={`${sponsor.name}-${index}`}
+            className="mx-4 sm:mx-6 group"
+            data-hover="true"
+        >
+            <div
+                className={`glass-card px-6 sm:px-8 py-4 sm:py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-300 min-w-[160px] sm:min-w-[200px] h-[100px] sm:h-[120px] justify-center ${
+                    isCenter 
+                        ? 'grayscale-0 opacity-100 scale-105 shadow-lg shadow-[#a855f7]/10' 
+                        : 'grayscale opacity-40 scale-100'
+                }`}
+            >
+                <img
+                    src={sponsor.logo}
+                    alt={sponsor.name}
+                    className="h-10 sm:h-12 w-auto object-contain"
+                    onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerText = sponsor.name;
+                    }}
+                />
+            </div>
+        </div>
+    );
+}
 
 export default function Sponsors() {
     return (
@@ -33,55 +93,19 @@ export default function Sponsors() {
             {/* Sponsor Marquee */}
             <div className="relative overflow-hidden py-8">
                 {/* Gradient masks */}
-                <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-[#050505] to-transparent z-10" />
-                <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-[#050505] to-transparent z-10" />
+                <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-[#050505] to-transparent z-10" />
+                <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-[#050505] to-transparent z-10" />
 
                 {/* Scrolling Container */}
                 <div className="flex whitespace-nowrap">
                     <div className="flex animate-marquee">
                         {[...sponsors, ...sponsors].map((sponsor, index) => (
-                            <div
-                                key={`${sponsor.name}-${index}`}
-                                className="mx-6 group"
-                                data-hover="true"
-                            >
-                                <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 min-w-[200px] h-[120px] justify-center">
-                                    {/* <span className="text-4xl">{sponsor.emoji}</span> */}
-                                    <img
-                                        src={sponsor.logo}
-                                        alt={sponsor.name}
-                                        className="h-12 w-auto object-contain"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            e.currentTarget.parentElement!.innerText = sponsor.name; // Fallback to text
-                                        }}
-                                    />
-                                    {/* <span className="font-heading text-lg text-white/70 group-hover:text-[#a855f7] transition-colors">
-                                        {sponsor.name}
-                                    </span> */}
-                                </div>
-                            </div>
+                            <SponsorCard key={`${sponsor.name}-${index}`} sponsor={sponsor} index={index} />
                         ))}
                     </div>
                     <div className="flex animate-marquee">
                         {[...sponsors, ...sponsors].map((sponsor, index) => (
-                            <div
-                                key={`${sponsor.name}-dup-${index}`}
-                                className="mx-6 group"
-                                data-hover="true"
-                            >
-                                <div className="glass-card px-8 py-6 rounded-2xl flex flex-col items-center gap-3 transition-all duration-500 grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 min-w-[200px] h-[120px] justify-center">
-                                    <img
-                                        src={sponsor.logo}
-                                        alt={sponsor.name}
-                                        className="h-12 w-auto object-contain"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            e.currentTarget.parentElement!.innerText = sponsor.name;
-                                        }}
-                                    />
-                                </div>
-                            </div>
+                            <SponsorCard key={`${sponsor.name}-dup-${index}`} sponsor={sponsor} index={index} />
                         ))}
                     </div>
                 </div>

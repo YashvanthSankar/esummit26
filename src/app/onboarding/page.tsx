@@ -3,20 +3,25 @@
 import { createClient } from '@/lib/supabase/client';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { User, Phone, Building2, IdCard, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { User, Phone, Building2, IdCard, ArrowRight, Loader2, AlertCircle, Upload, FileCheck, FileImage } from 'lucide-react';
 import { toast } from 'sonner';
 import { validatePhoneNumber, formatPhoneForDisplay } from '@/lib/validation';
+import { compressImage } from '@/lib/utils';
 import type { OnboardingFormData, PhoneNumber } from '@/types/database';
 
 export default function OnboardingPage() {
     const supabase = createClient();
     const router = useRouter();
+    const collegeIdRef = useRef<HTMLInputElement>(null);
+    const govtIdRef = useRef<HTMLInputElement>(null);
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [isInternal, setIsInternal] = useState(false);
     const [phoneError, setPhoneError] = useState<string>('');
+    const [collegeIdProof, setCollegeIdProof] = useState<File | null>(null);
+    const [govtIdProof, setGovtIdProof] = useState<File | null>(null);
     const [formData, setFormData] = useState<OnboardingFormData>({
         full_name: '',
         phone: '',
@@ -91,6 +96,47 @@ export default function OnboardingPage() {
         const userRole = isIIITDMEmail ? 'internal' : 'external';
         const collegeName = isIIITDMEmail ? 'IIITDM Kancheepuram' : formData.college_name;
 
+        // For external users, validate and upload ID proofs
+        let collegeIdPath: string | null = null;
+        let govtIdPath: string | null = null;
+
+        if (!isIIITDMEmail) {
+            // Validate that both IDs are provided
+            if (!collegeIdProof || !govtIdProof) {
+                toast.error('Please upload both College ID and Government ID proofs');
+                setSubmitting(false);
+                return;
+            }
+
+            try {
+                // Compress and upload College ID
+                const compressedCollegeId = await compressImage(collegeIdProof);
+                const collegeIdFileName = `${user.id}/college_id_${Date.now()}.jpg`;
+                const { error: collegeUploadError, data: collegeData } = await supabase
+                    .storage
+                    .from('id_proofs')
+                    .upload(collegeIdFileName, compressedCollegeId);
+
+                if (collegeUploadError) throw new Error('Failed to upload College ID');
+                collegeIdPath = collegeData.path;
+
+                // Compress and upload Government ID
+                const compressedGovtId = await compressImage(govtIdProof);
+                const govtIdFileName = `${user.id}/govt_id_${Date.now()}.jpg`;
+                const { error: govtUploadError, data: govtData } = await supabase
+                    .storage
+                    .from('id_proofs')
+                    .upload(govtIdFileName, compressedGovtId);
+
+                if (govtUploadError) throw new Error('Failed to upload Government ID');
+                govtIdPath = govtData.path;
+            } catch (uploadError: any) {
+                toast.error(uploadError.message || 'Failed to upload ID proofs');
+                setSubmitting(false);
+                return;
+            }
+        }
+
         const { error } = await supabase
             .from('profiles')
             .upsert({
@@ -101,6 +147,8 @@ export default function OnboardingPage() {
                 college_name: collegeName, // Auto-set for IIITDM emails
                 roll_number: isIIITDMEmail ? formData.roll_number : null,
                 role: userRole, // Set role based on email domain
+                college_id_proof: collegeIdPath,
+                govt_id_proof: govtIdPath,
                 updated_at: new Date().toISOString(),
             }, {
                 onConflict: 'id'
@@ -302,6 +350,102 @@ export default function OnboardingPage() {
                                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-body placeholder:text-white/30 focus:outline-none focus:border-[#a855f7] transition-colors"
                                 placeholder="CS21B1001"
                             />
+                        </motion.div>
+                    )}
+
+                    {/* ID Proofs (External only) */}
+                    {!isInternal && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="space-y-4"
+                        >
+                            <div className="p-3 rounded-xl bg-[#a855f7]/5 border border-[#a855f7]/20">
+                                <p className="text-xs text-[#a855f7] font-body">
+                                    📋 As an external participant, please upload your ID proofs for verification.
+                                </p>
+                            </div>
+
+                            {/* College ID Proof */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 font-mono text-xs text-white/50">
+                                    <IdCard className="w-4 h-4" />
+                                    COLLEGE ID PROOF
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    ref={collegeIdRef}
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setCollegeIdProof(e.target.files[0]);
+                                        }
+                                    }}
+                                    className="hidden"
+                                />
+                                <div
+                                    onClick={() => collegeIdRef.current?.click()}
+                                    className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex items-center gap-3 transition-colors ${
+                                        collegeIdProof
+                                            ? 'border-[#a855f7] bg-[#a855f7]/5'
+                                            : 'border-white/20 hover:border-white/40'
+                                    }`}
+                                >
+                                    {collegeIdProof ? (
+                                        <>
+                                            <FileCheck className="w-5 h-5 text-[#a855f7]" />
+                                            <span className="text-white text-sm truncate flex-1">{collegeIdProof.name}</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-5 h-5 text-white/40" />
+                                            <span className="text-white/50 text-sm">Upload College ID</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Government ID Proof */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 font-mono text-xs text-white/50">
+                                    <FileImage className="w-4 h-4" />
+                                    GOVERNMENT ID PROOF
+                                </label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    ref={govtIdRef}
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setGovtIdProof(e.target.files[0]);
+                                        }
+                                    }}
+                                    className="hidden"
+                                />
+                                <div
+                                    onClick={() => govtIdRef.current?.click()}
+                                    className={`cursor-pointer border-2 border-dashed rounded-xl p-4 flex items-center gap-3 transition-colors ${
+                                        govtIdProof
+                                            ? 'border-[#a855f7] bg-[#a855f7]/5'
+                                            : 'border-white/20 hover:border-white/40'
+                                    }`}
+                                >
+                                    {govtIdProof ? (
+                                        <>
+                                            <FileCheck className="w-5 h-5 text-[#a855f7]" />
+                                            <span className="text-white text-sm truncate flex-1">{govtIdProof.name}</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-5 h-5 text-white/40" />
+                                            <span className="text-white/50 text-sm">Upload Aadhar / PAN / Driver&apos;s License</span>
+                                        </>
+                                    )}
+                                </div>
+                                <p className="text-xs text-white/30 font-body">
+                                    Aadhar Card, PAN Card, or Driver&apos;s License accepted
+                                </p>
+                            </div>
                         </motion.div>
                     )}
 

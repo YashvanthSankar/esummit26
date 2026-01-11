@@ -145,16 +145,16 @@ export default function MerchPage() {
 
             {/* Dock Navigation */}
             {profile?.role === 'admin' ? (
-                <AdminDock currentPage="dashboard" />
+                <AdminDock currentPage="merch" />
             ) : (
-                <DashboardDock userName={profile?.full_name} userRole={profile?.role} />
+                <DashboardDock userName={profile?.full_name} userRole={profile?.role} isExternal={profile?.role === 'external'} currentPage="merch" />
             )}
 
-            <div className="px-4 sm:px-6 py-8 sm:py-12 mr-0 md:mr-20 relative z-10">
+            <div className="px-4 sm:px-6 py-6 sm:py-8 mr-0 md:mr-20 relative z-10 pb-24 md:pb-8">
                 <div className="max-w-5xl mx-auto">
-                    <div className="mb-8">
-                        <h1 className="font-heading text-4xl text-white mb-2">Merchandise</h1>
-                        <p className="text-white/60">Order E-Summit merchandise</p>
+                    <div className="mb-6 sm:mb-8">
+                        <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl text-white mb-1 sm:mb-2">Merchandise</h1>
+                        <p className="text-white/60 text-sm sm:text-base">Order E-Summit merchandise</p>
                     </div>
 
                     {orders.length > 0 ? (
