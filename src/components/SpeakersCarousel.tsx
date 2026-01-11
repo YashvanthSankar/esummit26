@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Linkedin } from 'lucide-react';
 
 const speakers = [
@@ -41,42 +41,20 @@ const speakers = [
 
 export default function SpeakersCarousel() {
     const [hoveredSpeaker, setHoveredSpeaker] = useState<number | null>(null);
-    const [activeSpeaker, setActiveSpeaker] = useState<number | null>(null);
-    const [isMobile, setIsMobile] = useState(false);
-
-    // Detect mobile device
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
 
     const handleSpeakerClick = (speaker: typeof speakers[0]) => {
-        if (isMobile) {
-            // Mobile: first tap shows background, second tap goes to LinkedIn
-            if (activeSpeaker === speaker.id && speaker.linkedin) {
-                window.open(speaker.linkedin, '_blank', 'noopener,noreferrer');
-            } else {
-                setActiveSpeaker(speaker.id);
-            }
-        } else {
-            // Desktop: click goes directly to LinkedIn
-            if (speaker.linkedin) {
-                window.open(speaker.linkedin, '_blank', 'noopener,noreferrer');
-            }
+        // Click goes directly to LinkedIn on all devices
+        if (speaker.linkedin) {
+            window.open(speaker.linkedin, '_blank', 'noopener,noreferrer');
         }
     };
 
-    // Get background speaker ID (hover on desktop, active on mobile)
-    const backgroundSpeakerId = isMobile ? activeSpeaker : hoveredSpeaker;
-
     return (
         <section id="speakers" className="py-24 px-6 relative overflow-hidden">
-            {/* Background Image - Circular Reveal */}
-            {backgroundSpeakerId && (
+            {/* Background Image - Circular Reveal (Desktop only) */}
+            {hoveredSpeaker && (
                 <motion.div
-                    className="fixed inset-0 z-0"
+                    className="hidden md:block fixed inset-0 z-0 pointer-events-none"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -85,7 +63,7 @@ export default function SpeakersCarousel() {
                     <div
                         className="absolute inset-0 circular-reveal"
                         style={{
-                            backgroundImage: `url(${speakers.find(s => s.id === backgroundSpeakerId)?.image})`,
+                            backgroundImage: `url(${speakers.find(s => s.id === hoveredSpeaker)?.image})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             opacity: 0.15,
@@ -120,9 +98,9 @@ export default function SpeakersCarousel() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1, duration: 0.6 }}
-                            className={`group relative cursor-pointer ${activeSpeaker === speaker.id ? 'ring-2 ring-[#a855f7] rounded-2xl' : ''}`}
-                            onMouseEnter={() => !isMobile && setHoveredSpeaker(speaker.id)}
-                            onMouseLeave={() => !isMobile && setHoveredSpeaker(null)}
+                            className="group relative cursor-pointer"
+                            onMouseEnter={() => setHoveredSpeaker(speaker.id)}
+                            onMouseLeave={() => setHoveredSpeaker(null)}
                             onClick={() => handleSpeakerClick(speaker)}
                             data-hover="true"
                         >
@@ -146,7 +124,7 @@ export default function SpeakersCarousel() {
                                             {speaker.name}
                                         </motion.h3>
                                         {speaker.linkedin && (
-                                            <div className={`w-8 h-8 rounded-full bg-[#0077b5]/20 flex items-center justify-center transition-opacity ${isMobile ? (activeSpeaker === speaker.id ? 'opacity-100' : 'opacity-50') : 'opacity-0 group-hover:opacity-100'}`}>
+                                            <div className="w-8 h-8 rounded-full bg-[#0077b5]/20 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                 <Linkedin className="w-4 h-4 text-[#0077b5]" />
                                             </div>
                                         )}
@@ -157,12 +135,6 @@ export default function SpeakersCarousel() {
                                     <p className="font-body text-xs text-white/40">
                                         {speaker.company}
                                     </p>
-                                    {/* Mobile hint */}
-                                    {isMobile && activeSpeaker === speaker.id && speaker.linkedin && (
-                                        <p className="font-mono text-xs text-[#a855f7]/70 mt-2 animate-pulse">
-                                            Tap again to visit LinkedIn →
-                                        </p>
-                                    )}
                                 </div>
                             </div>
                         </motion.div>
