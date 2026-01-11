@@ -176,7 +176,7 @@ BEGIN
         SELECT 1 FROM information_schema.columns 
         WHERE table_name = 'tickets' AND column_name = 'approved_by'
     ) THEN
-        ALTER TABLE tickets ADD COLUMN approved_by UUID REFERENCES auth.users(id);
+        ALTER TABLE tickets ADD COLUMN approved_by UUID REFERENCES public.profiles(id);
         ALTER TABLE tickets ADD COLUMN approved_at TIMESTAMPTZ;
     END IF;
 END $$;

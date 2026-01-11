@@ -68,7 +68,7 @@ export const PaymentApprovedEmail: React.FC<PaymentApprovedEmailProps> = ({
 
                     {/* CTA Button */}
                     <Section style={{ textAlign: 'center' as const, margin: '24px 0' }}>
-                        <Link href="https://esummit.iiitdm.ac.in/dashboard" style={button}>
+                        <Link href="https://esummit26-iiitdm.vercel.app/dashboard" style={button}>
                             Check Dashboard & Download Ticket →
                         </Link>
                     </Section>
@@ -77,7 +77,7 @@ export const PaymentApprovedEmail: React.FC<PaymentApprovedEmailProps> = ({
                 {/* Footer */}
                 <Section style={footer}>
                     <Text style={footerText}>
-                        Questions? Contact us at support@esummit.iiitdm.ac.in
+                        Questions? Contact us at support@esummit26-iiitdm.vercel.app
                     </Text>
                     <Text style={footerText}>
                         © 2026 E-Cell IIITDM Kancheepuram. All rights reserved.

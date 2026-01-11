@@ -38,6 +38,10 @@ interface PaymentTicket {
         phone: string;
         college_name: string;
     } | null;
+    approver?: {
+        full_name: string;
+        email: string;
+    } | null;
 }
 
 export default function VerifyPage() {
@@ -75,7 +79,8 @@ export default function VerifyPage() {
             .from('tickets')
             .select(`
                 *,
-                user:profiles!tickets_user_id_fkey(full_name, email, phone, college_name)
+                user:profiles!tickets_user_id_fkey(full_name, email, phone, college_name),
+                approver:profiles!tickets_approved_by_fkey(full_name, email)
             `)
             .or('screenshot_path.not.is.null,utr.not.is.null') // Only tickets with pass attempts
             .order('created_at', { ascending: false }); // Newest first
@@ -430,10 +435,17 @@ export default function VerifyPage() {
                                                 </div>
                                             </div>
                                             {ticket.status !== 'pending_verification' && (
-                                                <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${ticket.status === 'paid' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                                                    }`}>
-                                                    {ticket.status}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${ticket.status === 'paid' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                                                        }`}>
+                                                        {ticket.status}
+                                                    </span>
+                                                    {ticket.approver?.full_name && (
+                                                        <span className="text-[10px] text-white/40">
+                                                            by {ticket.approver.full_name}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
 

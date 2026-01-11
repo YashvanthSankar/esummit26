@@ -173,7 +173,7 @@ const TicketCard = forwardRef<HTMLDivElement, TicketCardProps>(
                 {/* Footer */}
                 <div style={{ padding: '0 clamp(16px, 5vw, 24px) clamp(16px, 5vw, 24px) clamp(16px, 5vw, 24px)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'rgba(255,255,255,0.3)', fontSize: 'clamp(10px, 3vw, 12px)' }}>
-                        <span>esummit.iiitdm.ac.in</span>
+                        <span>esummit26-iiitdm.vercel.app</span>
                         <span>2026</span>
                     </div>
                 </div>
