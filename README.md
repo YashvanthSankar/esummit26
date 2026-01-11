@@ -11,7 +11,7 @@ The official web platform for E-Summit '26, featuring a high-performance landing
 - **Database & Auth**: Supabase (Postgres)
 - **Caching**: Redis (Pro-tier caching for high-speed scanning)
 - **Styling**: Tailwind CSS, Framer Motion
-- **Performance**: Server Actions, RPC Functions, Optimistic UI
+- **Performance**: Server Actions, RPC Functions
 
 ## Core Features
 
