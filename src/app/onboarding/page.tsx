@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { User, Phone, Building2, IdCard, ArrowRight, Loader2, AlertCircle, Upload, FileCheck, FileImage } from 'lucide-react';
+import { User, Phone, Building2, IdCard, ArrowRight, ArrowLeft, Loader2, AlertCircle, Upload, FileCheck, FileImage } from 'lucide-react';
 import { toast } from 'sonner';
 import { validatePhoneNumber, formatPhoneForDisplay } from '@/lib/validation';
 import { compressImage } from '@/lib/utils';
@@ -227,6 +227,17 @@ export default function OnboardingPage() {
                     <p className="font-body text-white/50">
                         We need a few more details to get you started
                     </p>
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            await supabase.auth.signOut();
+                            window.location.href = '/login';
+                        }}
+                        className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 text-sm font-body transition-all"
+                    >
+                        <ArrowLeft className="w-4 h-4" />
+                        Wrong account? Go back
+                    </button>
                 </div>
 
                 {/* Form */}
