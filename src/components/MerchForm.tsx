@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, Upload, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, ShoppingBag, Package, Users } from 'lucide-react';
-import { compressImage } from '@/lib/utils';
+import { compressImage, validateFile } from '@/lib/utils';
 import {
     MERCH_ITEMS,
     MERCH_BUNDLES,
@@ -115,11 +115,22 @@ export default function MerchForm() {
             formData.bundle_items.every(item => item.item !== '' && item.size !== '');
     };
 
-    // Payment proof file handler
+    // Payment proof file handler with validation
     const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setPaymentProof(e.target.files[0]);
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const validation = validateFile(file, {
+            allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+        });
+
+        if (!validation.valid) {
+            toast.error(validation.error);
+            e.target.value = '';
+            return;
         }
+
+        setPaymentProof(file);
     };
 
     // Upload file to Supabase Storage
@@ -652,6 +663,7 @@ export default function MerchForm() {
                                     <div className="text-center">
                                         <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
                                         <p className="font-body text-white/70 text-sm">Upload Screenshot</p>
+                                        <p className="font-body text-white/30 text-xs mt-1">Max 200KB • JPG, PNG, WebP</p>
                                     </div>
                                 )}
                             </div>

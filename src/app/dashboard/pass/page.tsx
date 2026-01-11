@@ -11,7 +11,7 @@ import DashboardDock from '@/components/DashboardDock';
 import AdminDock from '@/components/AdminDock';
 import { Ticket, Users, Loader2, Download, Upload, CheckCircle, Clock, AlertTriangle, ArrowLeft, UserPlus, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
-import { compressImage } from '@/lib/utils';
+import { compressImage, validateFile } from '@/lib/utils';
 
 const UPI_ID = UPI_CONFIG.VPA;
 const RECIPIENT_NAME = UPI_CONFIG.NAME;
@@ -146,9 +146,20 @@ export default function PassPage() {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setPaymentProof(e.target.files[0]);
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const validation = validateFile(file, {
+            allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+        });
+
+        if (!validation.valid) {
+            toast.error(validation.error);
+            e.target.value = '';
+            return;
         }
+
+        setPaymentProof(file);
     };
 
     const handleSubmitPayment = async () => {
@@ -589,6 +600,7 @@ export default function PassPage() {
                                                 <div className="text-center">
                                                     <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-white/40 mx-auto mb-2" />
                                                     <p className="font-body text-white/70 text-xs sm:text-sm">Upload Screenshot</p>
+                                                    <p className="font-body text-white/30 text-xs mt-1">Max 200KB • JPG, PNG, WebP</p>
                                                 </div>
                                             )}
                                         </div>

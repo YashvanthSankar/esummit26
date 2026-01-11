@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, Upload, CheckCircle, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
-import { compressImage } from '@/lib/utils';
+import { compressImage, validateFile } from '@/lib/utils';
 import { ACCOMMODATION_PRICE, UPI_CONFIG } from '@/types/payment';
 import QRCode from 'react-qr-code';
 
@@ -69,21 +69,17 @@ export default function AccommodationForm() {
         fetchUserData();
     }, [supabase]);
 
-    // ID Proof file validation and preview
+    // ID Proof file validation and preview (images or PDF)
     const handleIdProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
-        if (!validTypes.includes(file.type)) {
-            toast.error('Invalid file type. Please upload an image (JPG, PNG, WebP) or PDF.');
-            e.target.value = '';
-            return;
-        }
+        const validation = validateFile(file, {
+            allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
+        });
 
-        const maxSize = 2 * 1024 * 1024;
-        if (file.size > maxSize) {
-            toast.error('File too large. Maximum size is 2MB.');
+        if (!validation.valid) {
+            toast.error(validation.error);
             e.target.value = '';
             return;
         }
@@ -101,11 +97,22 @@ export default function AccommodationForm() {
         }
     };
 
-    // Payment proof file handler
+    // Payment proof file handler with validation (images only)
     const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setPaymentProof(e.target.files[0]);
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const validation = validateFile(file, {
+            allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+        });
+
+        if (!validation.valid) {
+            toast.error(validation.error);
+            e.target.value = '';
+            return;
         }
+
+        setPaymentProof(file);
     };
 
     // Compress image before upload
@@ -489,7 +496,7 @@ export default function AccommodationForm() {
                                         {idProof ? idProof.name : 'Click to upload Government ID'}
                                     </p>
                                     <p className="text-white/40 text-xs mt-1">
-                                        Max 2MB • JPG, PNG, WebP or PDF
+                                        Images: Max 200KB • PDF: Max 500KB
                                     </p>
                                 </div>
                             </label>
@@ -606,6 +613,7 @@ export default function AccommodationForm() {
                                     <div className="text-center">
                                         <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
                                         <p className="font-body text-white/70 text-sm">Upload Screenshot</p>
+                                        <p className="font-body text-white/30 text-xs mt-1">Max 200KB • JPG, PNG, WebP</p>
                                     </div>
                                 )}
                             </div>

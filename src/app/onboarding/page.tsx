@@ -7,7 +7,7 @@ import { useEffect, useState, useRef } from 'react';
 import { User, Phone, Building2, IdCard, ArrowRight, ArrowLeft, Loader2, AlertCircle, Upload, FileCheck, FileImage } from 'lucide-react';
 import { toast } from 'sonner';
 import { validatePhoneNumber, formatPhoneForDisplay } from '@/lib/validation';
-import { compressImage } from '@/lib/utils';
+import { compressImage, validateFile } from '@/lib/utils';
 import type { OnboardingFormData, PhoneNumber } from '@/types/database';
 
 export default function OnboardingPage() {
@@ -120,9 +120,11 @@ export default function OnboardingPage() {
                 if (collegeUploadError) throw new Error('Failed to upload College ID');
                 collegeIdPath = collegeData.path;
 
-                // Compress and upload Government ID
-                const compressedGovtId = await compressImage(govtIdProof);
-                const govtIdFileName = `${user.id}/govt_id_${Date.now()}.jpg`;
+                // Compress and upload Government ID (handle PDF separately)
+                const isPdf = govtIdProof.type === 'application/pdf';
+                const compressedGovtId = isPdf ? govtIdProof : await compressImage(govtIdProof);
+                const govtIdExt = isPdf ? 'pdf' : 'jpg';
+                const govtIdFileName = `${user.id}/govt_id_${Date.now()}.${govtIdExt}`;
                 const { error: govtUploadError, data: govtData } = await supabase
                     .storage
                     .from('id_proofs')
@@ -389,9 +391,20 @@ export default function OnboardingPage() {
                                     accept="image/*"
                                     ref={collegeIdRef}
                                     onChange={(e) => {
-                                        if (e.target.files && e.target.files[0]) {
-                                            setCollegeIdProof(e.target.files[0]);
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        
+                                        const validation = validateFile(file, {
+                                            allowedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                                        });
+                                        
+                                        if (!validation.valid) {
+                                            toast.error(validation.error);
+                                            e.target.value = '';
+                                            return;
                                         }
+                                        
+                                        setCollegeIdProof(file);
                                     }}
                                     className="hidden"
                                 />
@@ -408,10 +421,13 @@ export default function OnboardingPage() {
                                             <span className="text-white text-sm truncate flex-1">{collegeIdProof.name}</span>
                                         </>
                                     ) : (
-                                        <>
-                                            <Upload className="w-5 h-5 text-white/40" />
-                                            <span className="text-white/50 text-sm">Upload College ID</span>
-                                        </>
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2">
+                                                <Upload className="w-5 h-5 text-white/40" />
+                                                <span className="text-white/50 text-sm">Upload College ID</span>
+                                            </div>
+                                            <span className="text-white/30 text-xs mt-1">Max 200KB • JPG, PNG, WebP</span>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -424,12 +440,23 @@ export default function OnboardingPage() {
                                 </label>
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/*,.pdf"
                                     ref={govtIdRef}
                                     onChange={(e) => {
-                                        if (e.target.files && e.target.files[0]) {
-                                            setGovtIdProof(e.target.files[0]);
+                                        const file = e.target.files?.[0];
+                                        if (!file) return;
+                                        
+                                        const validation = validateFile(file, {
+                                            allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
+                                        });
+                                        
+                                        if (!validation.valid) {
+                                            toast.error(validation.error);
+                                            e.target.value = '';
+                                            return;
                                         }
+                                        
+                                        setGovtIdProof(file);
                                     }}
                                     className="hidden"
                                 />
@@ -446,10 +473,13 @@ export default function OnboardingPage() {
                                             <span className="text-white text-sm truncate flex-1">{govtIdProof.name}</span>
                                         </>
                                     ) : (
-                                        <>
-                                            <Upload className="w-5 h-5 text-white/40" />
-                                            <span className="text-white/50 text-sm">Upload Aadhar / PAN / Driver&apos;s License</span>
-                                        </>
+                                        <div className="flex flex-col">
+                                            <div className="flex items-center gap-2">
+                                                <Upload className="w-5 h-5 text-white/40" />
+                                                <span className="text-white/50 text-sm">Upload Aadhar / PAN / Driver&apos;s License</span>
+                                            </div>
+                                            <span className="text-white/30 text-xs mt-1">Image: Max 200KB • PDF: Max 500KB</span>
+                                        </div>
                                     )}
                                 </div>
                                 <p className="text-xs text-white/30 font-body">
