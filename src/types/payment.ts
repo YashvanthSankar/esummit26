@@ -1,5 +1,5 @@
 export const UPI_CONFIG = {
-    VPA: 'asmitsd2023@okhdfcbank',
+    VPA: 'asmitsd2023@okaxis',
     NAME: 'Asmit Kumar Sahoo',
 };
 
