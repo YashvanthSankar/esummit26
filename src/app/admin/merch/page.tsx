@@ -8,6 +8,23 @@ import AdminDock from '@/components/AdminDock';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { canApprovePayments, type UserRole } from '@/types/database';
+import { MERCH_ITEMS, MerchItemType } from '@/types/payment';
+
+// Helper to get item label safely
+const getItemLabel = (itemKey: string): string => {
+    if (itemKey in MERCH_ITEMS) {
+        return MERCH_ITEMS[itemKey as MerchItemType].label;
+    }
+    return itemKey; // Fallback to raw key for legacy orders
+};
+
+// Helper to get item image safely
+const getItemImage = (itemKey: string): string | null => {
+    if (itemKey in MERCH_ITEMS) {
+        return MERCH_ITEMS[itemKey as MerchItemType].image;
+    }
+    return null;
+};
 
 // Bundle Item Interface
 interface BundleItem {
@@ -349,9 +366,20 @@ export default function AdminMerchPage() {
 
                                         <div className="space-y-1 mb-3 pl-2 border-l-2 border-white/10">
                                             {order.bundle_items.slice(0, 2).map((item, idx) => (
-                                                <p key={idx} className="text-white/60 text-xs">
-                                                    • {item.item} ({item.size})
-                                                </p>
+                                                <div key={idx} className="flex items-center gap-2 text-white/60 text-xs">
+                                                    {getItemImage(item.item) && (
+                                                        <div className="relative w-6 h-6 rounded overflow-hidden bg-white/5 flex-shrink-0">
+                                                            <Image
+                                                                src={getItemImage(item.item)!}
+                                                                alt={getItemLabel(item.item)}
+                                                                fill
+                                                                className="object-contain"
+                                                                sizes="24px"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                    <span>• {getItemLabel(item.item)} ({item.size})</span>
+                                                </div>
                                             ))}
                                             {order.bundle_items.length > 2 && (
                                                 <p className="text-white/40 text-xs italic">
@@ -433,12 +461,25 @@ export default function AdminMerchPage() {
                                 <div className="space-y-2">
                                     <p className="text-white/50 text-xs uppercase font-bold tracking-wider">Items included:</p>
                                     {selectedOrder.bundle_items.map((item, index) => (
-                                        <div key={index} className="flex justify-between items-center bg-black/20 p-2 rounded">
-                                            <span className="text-white text-sm">
-                                                {index + 1}. {item.item}
-                                            </span>
-                                            <span className="text-white font-mono bg-white/10 px-2 py-0.5 rounded text-xs">
-                                                Size: {item.size}
+                                        <div key={index} className="flex items-center gap-3 bg-black/20 p-3 rounded-lg">
+                                            {getItemImage(item.item) && (
+                                                <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+                                                    <Image
+                                                        src={getItemImage(item.item)!}
+                                                        alt={getItemLabel(item.item)}
+                                                        fill
+                                                        className="object-contain p-1"
+                                                        sizes="48px"
+                                                    />
+                                                </div>
+                                            )}
+                                            <div className="flex-1">
+                                                <span className="text-white text-sm font-medium">
+                                                    {index + 1}. {getItemLabel(item.item)}
+                                                </span>
+                                            </div>
+                                            <span className="text-white font-mono bg-white/10 px-3 py-1 rounded text-sm">
+                                                {item.size}
                                             </span>
                                         </div>
                                     ))}

@@ -15,6 +15,7 @@ import {
     BundleItem
 } from '@/types/payment';
 import QRCode from 'react-qr-code';
+import Image from 'next/image';
 
 interface FormData {
     name: string;
@@ -437,35 +438,76 @@ export default function MerchForm() {
                                     <label className="block text-sm font-medium text-white/80 mb-2">
                                         Select Item <span className="text-red-400">*</span>
                                     </label>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {(Object.entries(MERCH_ITEMS) as [MerchItemType, typeof MERCH_ITEMS[MerchItemType]][]).map(([key, item]) => (
-                                            <button
-                                                key={key}
-                                                type="button"
-                                                onClick={() => updateBundleItemType(index, key)}
-                                                className={`p-3 rounded-lg border text-left transition-all ${bundleItem.item === key
-                                                        ? 'border-[#a855f7] bg-[#a855f7]/10'
-                                                        : 'border-white/10 hover:border-white/30'
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${bundleItem.item === key
-                                                            ? 'border-[#a855f7] bg-[#a855f7]'
-                                                            : 'border-white/40'
-                                                        }`}>
-                                                        {bundleItem.item === key && (
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                                        )}
+                                    
+                                    {/* Individual T-Shirts */}
+                                    <p className="text-white/50 text-xs mb-2">Individual T-Shirts</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                                        {(['tshirt1', 'tshirt2', 'tshirt3'] as MerchItemType[]).map((key) => {
+                                            const item = MERCH_ITEMS[key];
+                                            return (
+                                                <button
+                                                    key={key}
+                                                    type="button"
+                                                    onClick={() => updateBundleItemType(index, key)}
+                                                    className={`p-3 rounded-xl border text-center transition-all ${bundleItem.item === key
+                                                            ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
+                                                            : 'border-white/10 hover:border-white/30'
+                                                        }`}
+                                                >
+                                                    <div className="relative w-full aspect-square mb-2 rounded-lg overflow-hidden bg-white/5">
+                                                        <Image
+                                                            src={item.image}
+                                                            alt={item.label}
+                                                            fill
+                                                            className="object-contain p-2"
+                                                            sizes="(max-width: 640px) 100vw, 33vw"
+                                                        />
                                                     </div>
-                                                    <ShoppingBag className={`w-6 h-6 ${bundleItem.item === key ? 'text-[#a855f7]' : 'text-white/40'}`} />
-                                                    <div className="flex-1">
-                                                        <p className="text-white font-semibold text-sm">{item.label}</p>
-                                                        <p className="text-white/50 text-xs">{item.description}</p>
+                                                    <p className="text-white font-semibold text-sm">{item.label}</p>
+                                                    <p className="text-[#a855f7] font-heading text-lg">₹{item.price}</p>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    {/* Combo Offers */}
+                                    <p className="text-white/50 text-xs mb-2">Combo Offers (Save ₹49)</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        {(['combo12', 'combo23', 'combo31'] as MerchItemType[]).map((key) => {
+                                            const item = MERCH_ITEMS[key];
+                                            return (
+                                                <button
+                                                    key={key}
+                                                    type="button"
+                                                    onClick={() => updateBundleItemType(index, key)}
+                                                    className={`p-3 rounded-xl border text-center transition-all ${bundleItem.item === key
+                                                            ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
+                                                            : 'border-white/10 hover:border-white/30'
+                                                        }`}
+                                                >
+                                                    <div className="relative w-full aspect-[2/1] mb-2 rounded-lg overflow-hidden bg-white/5">
+                                                        <div className="absolute inset-0 flex">
+                                                            {item.images?.map((img, idx) => (
+                                                                <div key={idx} className="relative flex-1">
+                                                                    <Image
+                                                                        src={img}
+                                                                        alt={`${item.label} - ${idx + 1}`}
+                                                                        fill
+                                                                        className="object-contain p-1"
+                                                                        sizes="(max-width: 640px) 50vw, 16vw"
+                                                                    />
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                    <p className="text-[#a855f7] font-heading">₹{item.price}</p>
-                                                </div>
-                                            </button>
-                                        ))}
+                                                    <p className="text-white font-semibold text-xs">{item.label}</p>
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <span className="text-white/40 line-through text-xs">₹798</span>
+                                                        <span className="text-[#a855f7] font-heading">₹{item.price}</span>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
 

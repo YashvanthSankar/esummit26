@@ -1,6 +1,6 @@
 export const UPI_CONFIG = {
-    VPA: 'yashvanthsankar-1@okicici',
-    NAME: 'Yashvanth S',
+    VPA: 'asmitsd2023@okhdfcbank',
+    NAME: 'Asmit Kumar Sahoo',
 };
 
 export const TICKET_PRICES: Record<string, { amount: number; pax: number; label: string }> = {
@@ -14,17 +14,59 @@ export type TicketType = keyof typeof TICKET_PRICES;
 // Accommodation pricing
 export const ACCOMMODATION_PRICE = 500; // Flat rate in INR
 
-// Merchandise Item Types
-export type MerchItemType = 'tshirt1' | 'tshirt2' | 'combo';
+// Merchandise Item Types - 3 individual + 3 combos
+export type MerchItemType = 'tshirt1' | 'tshirt2' | 'tshirt3' | 'combo12' | 'combo23' | 'combo31';
 
 // Merchandise Bundle Types
 export type MerchBundleType = 'solo' | 'duo' | 'quad';
 
-// Merchandise Items (T-shirts only, no hoodies)
-export const MERCH_ITEMS: Record<MerchItemType, { price: number; label: string; description: string }> = {
-    tshirt1: { price: 399, label: 'T-Shirt 1', description: 'E-Summit Classic Design' },
-    tshirt2: { price: 399, label: 'T-Shirt 2', description: 'E-Summit Signature Edition' },
-    combo: { price: 749, label: 'Combo (Both)', description: 'Get both T-shirts - Save ₹49!' },
+// Merchandise Items - 3 T-shirts + 3 Combo options
+export const MERCH_ITEMS: Record<MerchItemType, { 
+    price: number; 
+    label: string; 
+    description: string; 
+    image: string;
+    images?: string[]; // For combos with multiple images
+}> = {
+    tshirt1: { 
+        price: 399, 
+        label: 'T-Shirt Design 1', 
+        description: 'E-Summit Classic Design',
+        image: '/merch/tshirt1.png'
+    },
+    tshirt2: { 
+        price: 399, 
+        label: 'T-Shirt Design 2', 
+        description: 'E-Summit Signature Edition',
+        image: '/merch/tshirt2.png'
+    },
+    tshirt3: { 
+        price: 399, 
+        label: 'T-Shirt Design 3', 
+        description: 'E-Summit Premium Collection',
+        image: '/merch/tshirt3.png'
+    },
+    combo12: { 
+        price: 749, 
+        label: 'Combo: Design 1 + 2', 
+        description: 'Get both designs - Save ₹49!',
+        image: '/merch/tshirt1.png',
+        images: ['/merch/tshirt1.png', '/merch/tshirt2.png']
+    },
+    combo23: { 
+        price: 749, 
+        label: 'Combo: Design 2 + 3', 
+        description: 'Get both designs - Save ₹49!',
+        image: '/merch/tshirt2.png',
+        images: ['/merch/tshirt2.png', '/merch/tshirt3.png']
+    },
+    combo31: { 
+        price: 749, 
+        label: 'Combo: Design 3 + 1', 
+        description: 'Get both designs - Save ₹49!',
+        image: '/merch/tshirt3.png',
+        images: ['/merch/tshirt3.png', '/merch/tshirt1.png']
+    },
 };
 
 // Bundle pricing with discounts (discount applied to total cart)

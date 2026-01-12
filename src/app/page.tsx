@@ -25,13 +25,26 @@ export default function Home() {
         <DockNavigation />
 
         {/* E-Summit Logo - Top Left (scrolls with page) */}
-        <Link href="/" className="absolute top-6 left-6 z-20 opacity-80 hover:opacity-100 transition-opacity">
+        <Link href="/" className="absolute top-6 left-6 md:top-8 md:left-8 z-20 opacity-80 hover:opacity-100 transition-opacity">
           <Image
             src="/esummit26-logo.png"
             alt="E-Summit '26"
-            width={120}
-            height={32}
-            className="h-8 w-auto"
+            width={180}
+            height={48}
+            className="h-8 md:h-12 w-auto"
+            unoptimized
+            priority
+          />
+        </Link>
+
+        {/* IIITDM Logo - Top Right */}
+        <Link href="https://www.iiitdm.ac.in" target="_blank" rel="noopener noreferrer" className="absolute top-6 right-6 md:top-8 md:right-8 z-20 opacity-80 hover:opacity-100 transition-opacity">
+          <Image
+            src="/iiitdm.png"
+            alt="IIITDM Kancheepuram"
+            width={56}
+            height={56}
+            className="h-10 md:h-14 w-auto brightness-0 invert"
             unoptimized
             priority
           />
