@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Heart, Instagram, Linkedin } from 'lucide-react';
+import { Instagram, Linkedin } from 'lucide-react';
 
 const socialLinks = [
     { icon: Instagram, href: 'https://www.instagram.com/ecell_iiitdm/', label: 'Instagram' },
@@ -160,7 +160,7 @@ export default function Footer() {
                     className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4"
                 >
                     <p className="font-body text-white/30 text-sm">
-                        © 2026 E-Summit. All rights reserved.
+                        © 2026 E-Summit &apos;26, IIITDM Kancheepuram. All rights reserved.
                     </p>
 
                     <div className="flex items-center gap-4">
@@ -181,9 +181,25 @@ export default function Footer() {
                         </a>
                     </div>
 
-                    <p className="font-body text-white/30 text-sm flex items-center gap-2">
-                        Made with <Heart className="w-4 h-4 text-red-500 fill-red-500" /> by{' '}
-                        <span className="text-[#a855f7] font-semibold">E-Cell IIITDM</span>
+                    <p className="font-body text-white/30 text-sm">
+                        Developed by{' '}
+                        <a
+                            href="https://yashvanth.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#a855f7] font-semibold hover:underline"
+                        >
+                            Yashvanth S
+                        </a>
+                        <span className="text-white/60">, </span>
+                        <a
+                            href="https://iiitdmk-ecell.vercel.app/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[#a855f7] font-semibold hover:underline"
+                        >
+                            E-Cell IIITDM
+                        </a>
                     </p>
                 </motion.div>
             </div>
