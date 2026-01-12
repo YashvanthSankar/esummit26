@@ -82,7 +82,7 @@ export const MERCH_BUNDLES: Record<MerchBundleType, {
     },
     quad: {
         quantity: 4,
-        earlyBirdPrice: 1119,
+        earlyBirdPrice: 1199,
         actualPrice: 1399,
         label: 'Quad Bundle',
         description: '4 T-Shirts',
