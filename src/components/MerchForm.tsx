@@ -578,7 +578,7 @@ export default function MerchForm() {
                                     <div className="space-y-1 pl-3">
                                         {formData.bundle_items.map((item, i) => (
                                             <p key={i} className="text-white/60 text-xs">
-                                                {i + 1}. {item.item && MERCH_ITEMS[item.item].label} - Size {item.size} - ₹{item.item && MERCH_ITEMS[item.item].price}
+                                                {i + 1}. {item.item && MERCH_ITEMS[item.item].label} - Size {item.size}
                                             </p>
                                         ))}
                                     </div>
