@@ -42,7 +42,7 @@ interface MerchOrder {
     phone_number: string;
 
     // Bundle fields
-    bundle_type: 'solo' | 'duo' | 'quad';
+    bundle_type: 'solo' | 'duo' | 'triple' | 'quad';
     item_type: string;
     bundle_items: BundleItem[];
     total_items: number;
@@ -64,6 +64,7 @@ interface MerchOrder {
 const BUNDLE_LABELS = {
     solo: { label: 'Solo Bundle', color: 'text-blue-400', bg: 'bg-blue-500/10' },
     duo: { label: 'Duo Bundle', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+    triple: { label: 'Triple Bundle', color: 'text-orange-400', bg: 'bg-orange-500/10' },
     quad: { label: 'Quad Bundle', color: 'text-amber-400', bg: 'bg-amber-500/10' },
 };
 

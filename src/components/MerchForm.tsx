@@ -87,7 +87,7 @@ export default function MerchForm() {
 
     // Calculate total amount
     const getTotalAmount = () => {
-        return calculateBundlePrice(formData.bundle_items, formData.bundle_type);
+        return calculateBundlePrice(formData.bundle_type);
     };
 
     // Update item for a specific bundle position
@@ -275,7 +275,7 @@ export default function MerchForm() {
             case 1:
                 return 'Step 1: Contact details and bundle type';
             case 2:
-                return `Step 2: Select items for ${MERCH_BUNDLES[formData.bundle_type].itemCount} member(s)`;
+                return `Step 2: Select items for ${MERCH_BUNDLES[formData.bundle_type].itemCount} items`;
             case 3:
                 return `Step 3: Complete payment of ₹${getTotalAmount()}`;
         }
@@ -294,8 +294,8 @@ export default function MerchForm() {
                     {[1, 2, 3].map((s) => (
                         <div key={s} className="flex items-center">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${step > s ? 'bg-green-500 text-white' :
-                                    step === s ? 'bg-[#a855f7] text-white' :
-                                        'bg-white/20 text-white/40'
+                                step === s ? 'bg-[#a855f7] text-white' :
+                                    'bg-white/20 text-white/40'
                                 }`}>
                                 {step > s ? '✓' : s}
                             </div>
@@ -342,7 +342,7 @@ export default function MerchForm() {
                         <label className="block text-sm font-medium text-white/80 mb-3">
                             Select Bundle Type <span className="text-red-400">*</span>
                         </label>
-                        <p className="text-white/50 text-xs mb-3">How many members are purchasing?</p>
+                        <p className="text-white/50 text-xs mb-3">Select quantity of t-shirts</p>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {(Object.entries(MERCH_BUNDLES) as [MerchBundleType, typeof MERCH_BUNDLES[MerchBundleType]][]).map(([key, bundle]) => (
                                 <button
@@ -350,8 +350,8 @@ export default function MerchForm() {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, bundle_type: key })}
                                     className={`p-5 rounded-xl border text-center transition-all ${formData.bundle_type === key
-                                            ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
-                                            : 'border-white/10 hover:border-white/30'
+                                        ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
+                                        : 'border-white/10 hover:border-white/30'
                                         }`}
                                 >
                                     <div className="flex flex-col items-center gap-2">
@@ -413,7 +413,7 @@ export default function MerchForm() {
                     <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
                         <h4 className="text-white font-bold mb-2">Select Item & Size for Each Member</h4>
                         <p className="text-white/50 text-sm">
-                            Configure {formData.bundle_items.length} product(s) - each member can choose their preferred item and size.
+                            Configure {formData.bundle_items.length} product(s) - select item and size for each.
                         </p>
                     </div>
 
@@ -425,7 +425,7 @@ export default function MerchForm() {
                                         {index + 1}
                                     </div>
                                     <div>
-                                        <p className="text-white font-bold">Member {index + 1}</p>
+                                        <p className="text-white font-bold">Item {index + 1}</p>
                                         <p className="text-white/50 text-xs">
                                             {bundleItem.item && bundleItem.size
                                                 ? `${MERCH_ITEMS[bundleItem.item].label} - Size ${bundleItem.size}`
@@ -438,7 +438,7 @@ export default function MerchForm() {
                                     <label className="block text-sm font-medium text-white/80 mb-2">
                                         Select Item <span className="text-red-400">*</span>
                                     </label>
-                                    
+
                                     {/* Individual T-Shirts */}
                                     <p className="text-white/50 text-xs mb-2">Individual T-Shirts</p>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -450,8 +450,8 @@ export default function MerchForm() {
                                                     type="button"
                                                     onClick={() => updateBundleItemType(index, key)}
                                                     className={`p-3 rounded-xl border text-center transition-all ${bundleItem.item === key
-                                                            ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
-                                                            : 'border-white/10 hover:border-white/30'
+                                                        ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
+                                                        : 'border-white/10 hover:border-white/30'
                                                         }`}
                                                 >
                                                     <div className="relative w-full aspect-square mb-2 rounded-lg overflow-hidden bg-white/5">
@@ -464,51 +464,13 @@ export default function MerchForm() {
                                                         />
                                                     </div>
                                                     <p className="text-white font-semibold text-sm">{item.label}</p>
-                                                    <p className="text-[#a855f7] font-heading text-lg">₹{item.price}</p>
+
                                                 </button>
                                             );
                                         })}
                                     </div>
-                                    
-                                    {/* Combo Offers */}
-                                    <p className="text-white/50 text-xs mb-2">Combo Offers (Save ₹49)</p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                        {(['combo12', 'combo23', 'combo31'] as MerchItemType[]).map((key) => {
-                                            const item = MERCH_ITEMS[key];
-                                            return (
-                                                <button
-                                                    key={key}
-                                                    type="button"
-                                                    onClick={() => updateBundleItemType(index, key)}
-                                                    className={`p-3 rounded-xl border text-center transition-all ${bundleItem.item === key
-                                                            ? 'border-[#a855f7] bg-[#a855f7]/10 ring-2 ring-[#a855f7]/30'
-                                                            : 'border-white/10 hover:border-white/30'
-                                                        }`}
-                                                >
-                                                    <div className="relative w-full aspect-[2/1] mb-2 rounded-lg overflow-hidden bg-white/5">
-                                                        <div className="absolute inset-0 flex">
-                                                            {item.images?.map((img, idx) => (
-                                                                <div key={idx} className="relative flex-1">
-                                                                    <Image
-                                                                        src={img}
-                                                                        alt={`${item.label} - ${idx + 1}`}
-                                                                        fill
-                                                                        className="object-contain p-1"
-                                                                        sizes="(max-width: 640px) 50vw, 16vw"
-                                                                    />
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-white font-semibold text-xs">{item.label}</p>
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <span className="text-white/40 line-through text-xs">₹798</span>
-                                                        <span className="text-[#a855f7] font-heading">₹{item.price}</span>
-                                                    </div>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
+
+
                                 </div>
 
                                 {bundleItem.item && (
@@ -523,8 +485,8 @@ export default function MerchForm() {
                                                     type="button"
                                                     onClick={() => updateBundleItemSize(index, size)}
                                                     className={`px-4 py-2 rounded-lg border font-mono text-sm transition-all ${bundleItem.size === size
-                                                            ? 'border-[#a855f7] bg-[#a855f7] text-white'
-                                                            : 'border-white/20 text-white/60 hover:border-white/40'
+                                                        ? 'border-[#a855f7] bg-[#a855f7] text-white'
+                                                        : 'border-white/20 text-white/60 hover:border-white/40'
                                                         }`}
                                                 >
                                                     {size}
@@ -538,7 +500,7 @@ export default function MerchForm() {
                                     <div className="flex items-center gap-2 pt-2 border-t border-white/10">
                                         <CheckCircle className="w-4 h-4 text-green-400" />
                                         <p className="text-green-400 text-sm">
-                                            Member {index + 1} configured: {MERCH_ITEMS[bundleItem.item].label} (Size {bundleItem.size})
+                                            Item {index + 1} configured: {MERCH_ITEMS[bundleItem.item].label} (Size {bundleItem.size})
                                         </p>
                                     </div>
                                 )}
@@ -548,7 +510,7 @@ export default function MerchForm() {
 
                     <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
                         <div className="flex justify-between items-center mb-2">
-                            <span className="text-white/70 text-sm">Members configured</span>
+                            <span className="text-white/70 text-sm">Items configured</span>
                             <span className="text-white font-mono">
                                 {formData.bundle_items.filter(i => i.item && i.size).length} / {formData.bundle_items.length}
                             </span>
@@ -591,150 +553,153 @@ export default function MerchForm() {
                         <ArrowRight className="w-5 h-5" />
                     </button>
                 </div>
-            )}
+            )
+            }
 
-            {step === 3 && (
-                <div className="space-y-6">
-                    <button
-                        onClick={() => setStep(2)}
-                        className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Sizes
-                    </button>
+            {
+                step === 3 && (
+                    <div className="space-y-6">
+                        <button
+                            onClick={() => setStep(2)}
+                            className="flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            Back to Sizes
+                        </button>
 
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
-                        <h4 className="text-white font-bold mb-3">Order Summary</h4>
-                        <div className="space-y-2 text-sm">
-                            <p className="text-white/70">
-                                Bundle: <span className="text-white">{MERCH_BUNDLES[formData.bundle_type].label} ({formData.bundle_items.length} items)</span>
-                            </p>
-                            <div className="border-t border-white/10 pt-2 mt-2">
-                                <p className="text-white/70 mb-2">Items:</p>
-                                <div className="space-y-1 pl-3">
-                                    {formData.bundle_items.map((item, i) => (
-                                        <p key={i} className="text-white/60 text-xs">
-                                            {i + 1}. {item.item && MERCH_ITEMS[item.item].label} - Size {item.size} - ₹{item.item && MERCH_ITEMS[item.item].price}
-                                        </p>
-                                    ))}
-                                </div>
-                            </div>
-                            {MERCH_BUNDLES[formData.bundle_type].discount > 0 && (
-                                <p className="text-green-400 text-xs pt-2">
-                                    Bundle discount: {Math.round(MERCH_BUNDLES[formData.bundle_type].discount * 100)}% applied
+                        <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                            <h4 className="text-white font-bold mb-3">Order Summary</h4>
+                            <div className="space-y-2 text-sm">
+                                <p className="text-white/70">
+                                    Bundle: <span className="text-white">{MERCH_BUNDLES[formData.bundle_type].label} ({formData.bundle_items.length} items)</span>
                                 </p>
-                            )}
-                            <p className="text-white/70 pt-2 border-t border-white/10">
-                                Total: <span className="text-[#a855f7] font-bold text-lg">₹{getTotalAmount()}</span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="flex flex-col items-center p-6 rounded-2xl bg-white">
-                            <h3 className="text-black font-heading text-xl mb-4 text-center">
-                                Scan to Pay ₹{getTotalAmount()}
-                            </h3>
-                            <div className="p-2 border-2 border-black rounded-lg mb-4 bg-white">
-                                <QRCode value={getUPIString()} size={200} />
+                                <div className="border-t border-white/10 pt-2 mt-2">
+                                    <p className="text-white/70 mb-2">Items:</p>
+                                    <div className="space-y-1 pl-3">
+                                        {formData.bundle_items.map((item, i) => (
+                                            <p key={i} className="text-white/60 text-xs">
+                                                {i + 1}. {item.item && MERCH_ITEMS[item.item].label} - Size {item.size} - ₹{item.item && MERCH_ITEMS[item.item].price}
+                                            </p>
+                                        ))}
+                                    </div>
+                                </div>
+                                {MERCH_BUNDLES[formData.bundle_type].discount > 0 && (
+                                    <p className="text-green-400 text-xs pt-2">
+                                        Bundle discount: {Math.round(MERCH_BUNDLES[formData.bundle_type].discount * 100)}% applied
+                                    </p>
+                                )}
+                                <p className="text-white/70 pt-2 border-t border-white/10">
+                                    Total: <span className="text-[#a855f7] font-bold text-lg">₹{getTotalAmount()}</span>
+                                </p>
                             </div>
-                            <p className="font-mono text-xs text-black/60 text-center break-all max-w-[200px]">
-                                {UPI_CONFIG.VPA}
-                            </p>
                         </div>
 
-                        <div>
-                            <h3 className="font-heading text-2xl text-white mb-2">Confirm Payment</h3>
-                            <p className="font-body text-white/50 text-sm mb-6">
-                                1. Transfer ₹{getTotalAmount()}.<br />
-                                2. Enter UTR/Reference ID.<br />
-                                3. Upload screenshot.
-                            </p>
-
-                            <div className="mb-4">
-                                <label className="block font-mono text-xs text-white/40 mb-2">UTR / REFERENCE NO.</label>
-                                <input
-                                    type="text"
-                                    value={paymentUtr}
-                                    onChange={(e) => setPaymentUtr(e.target.value)}
-                                    placeholder="e.g. 432189012345"
-                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-[#a855f7]"
-                                />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="flex flex-col items-center p-6 rounded-2xl bg-white">
+                                <h3 className="text-black font-heading text-xl mb-4 text-center">
+                                    Scan to Pay ₹{getTotalAmount()}
+                                </h3>
+                                <div className="p-2 border-2 border-black rounded-lg mb-4 bg-white">
+                                    <QRCode value={getUPIString()} size={200} />
+                                </div>
+                                <p className="font-mono text-xs text-black/60 text-center break-all max-w-[200px]">
+                                    {UPI_CONFIG.VPA}
+                                </p>
                             </div>
 
-                            {paymentUtr && (
-                                <div className="mb-4 animate-in fade-in slide-in-from-top-2">
-                                    <label className="block font-mono text-xs text-white/40 mb-2">ACCOUNT OWNER NAME <span className="text-red-400">*</span></label>
+                            <div>
+                                <h3 className="font-heading text-2xl text-white mb-2">Confirm Payment</h3>
+                                <p className="font-body text-white/50 text-sm mb-6">
+                                    1. Transfer ₹{getTotalAmount()}.<br />
+                                    2. Enter UTR/Reference ID.<br />
+                                    3. Upload screenshot.
+                                </p>
+
+                                <div className="mb-4">
+                                    <label className="block font-mono text-xs text-white/40 mb-2">UTR / REFERENCE NO.</label>
                                     <input
                                         type="text"
-                                        value={paymentOwnerName}
-                                        onChange={(e) => setPaymentOwnerName(e.target.value)}
-                                        placeholder="Name on Bank Account / UPI"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#a855f7]"
+                                        value={paymentUtr}
+                                        onChange={(e) => setPaymentUtr(e.target.value)}
+                                        placeholder="e.g. 432189012345"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white font-mono focus:outline-none focus:border-[#a855f7]"
                                     />
-                                    <p className="text-white/30 text-xs mt-1">Required for verifying the UTR</p>
                                 </div>
-                            )}
 
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="h-px bg-white/10 flex-1"></div>
-                                <span className="text-white/40 text-xs font-mono">OR</span>
-                                <div className="h-px bg-white/10 flex-1"></div>
-                            </div>
+                                {paymentUtr && (
+                                    <div className="mb-4 animate-in fade-in slide-in-from-top-2">
+                                        <label className="block font-mono text-xs text-white/40 mb-2">ACCOUNT OWNER NAME <span className="text-red-400">*</span></label>
+                                        <input
+                                            type="text"
+                                            value={paymentOwnerName}
+                                            onChange={(e) => setPaymentOwnerName(e.target.value)}
+                                            placeholder="Name on Bank Account / UPI"
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#a855f7]"
+                                        />
+                                        <p className="text-white/30 text-xs mt-1">Required for verifying the UTR</p>
+                                    </div>
+                                )}
 
-                            <input
-                                type="file"
-                                accept="image/*"
-                                ref={paymentFileRef}
-                                onChange={handlePaymentProofChange}
-                                className="hidden"
-                            />
-                            <div
-                                onClick={() => paymentFileRef.current?.click()}
-                                className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors mb-6 ${paymentProof
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="h-px bg-white/10 flex-1"></div>
+                                    <span className="text-white/40 text-xs font-mono">OR</span>
+                                    <div className="h-px bg-white/10 flex-1"></div>
+                                </div>
+
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    ref={paymentFileRef}
+                                    onChange={handlePaymentProofChange}
+                                    className="hidden"
+                                />
+                                <div
+                                    onClick={() => paymentFileRef.current?.click()}
+                                    className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer transition-colors mb-6 ${paymentProof
                                         ? 'border-[#a855f7] bg-[#a855f7]/5'
                                         : 'border-white/20 hover:border-white/40 hover:bg-white/5'
-                                    }`}
-                            >
-                                {paymentProof ? (
-                                    <div className="text-center">
-                                        <CheckCircle className="w-8 h-8 text-[#a855f7] mx-auto mb-2" />
-                                        <p className="font-body text-white text-sm truncate max-w-[200px]">{paymentProof.name}</p>
-                                    </div>
-                                ) : (
-                                    <div className="text-center">
-                                        <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
-                                        <p className="font-body text-white/70 text-sm">Upload Screenshot</p>
-                                        <p className="font-body text-white/30 text-xs mt-1">Max 500KB • JPG, PNG, WebP</p>
-                                    </div>
-                                )}
-                            </div>
+                                        }`}
+                                >
+                                    {paymentProof ? (
+                                        <div className="text-center">
+                                            <CheckCircle className="w-8 h-8 text-[#a855f7] mx-auto mb-2" />
+                                            <p className="font-body text-white text-sm truncate max-w-[200px]">{paymentProof.name}</p>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center">
+                                            <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
+                                            <p className="font-body text-white/70 text-sm">Upload Screenshot</p>
+                                            <p className="font-body text-white/30 text-xs mt-1">Max 500KB • JPG, PNG, WebP</p>
+                                        </div>
+                                    )}
+                                </div>
 
-                            <button
-                                onClick={handleSubmit}
-                                disabled={(!paymentProof && !paymentUtr) || loading}
-                                className="w-full py-4 rounded-xl bg-[#a855f7] text-white font-heading text-lg font-bold hover:bg-[#9333ea] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                                {loading ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                        Submitting...
-                                    </span>
-                                ) : (
-                                    'Submit Order'
-                                )}
-                            </button>
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={(!paymentProof && !paymentUtr) || loading}
+                                    className="w-full py-4 rounded-xl bg-[#a855f7] text-white font-heading text-lg font-bold hover:bg-[#9333ea] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {loading ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            Submitting...
+                                        </span>
+                                    ) : (
+                                        'Submit Order'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                            <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                            <p className="text-blue-300 text-sm">
+                                Payment will be verified within 24 hours. Merchandise will be available for collection at the event venue.
+                            </p>
                         </div>
                     </div>
-
-                    <div className="flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                        <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-blue-300 text-sm">
-                            Payment will be verified within 24 hours. Merchandise will be available for collection at the event venue.
-                        </p>
-                    </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
