@@ -426,7 +426,7 @@ export default function OnboardingPage() {
                                                 <Upload className="w-5 h-5 text-white/40" />
                                                 <span className="text-white/50 text-sm">Upload College ID</span>
                                             </div>
-                                            <span className="text-white/30 text-xs mt-1">Max 200KB • JPG, PNG, WebP</span>
+                                            <span className="text-white/30 text-xs mt-1">Max 500KB • JPG, PNG, WebP</span>
                                         </div>
                                     )}
                                 </div>
@@ -478,7 +478,7 @@ export default function OnboardingPage() {
                                                 <Upload className="w-5 h-5 text-white/40" />
                                                 <span className="text-white/50 text-sm">Upload Aadhar / PAN / Driver&apos;s License</span>
                                             </div>
-                                            <span className="text-white/30 text-xs mt-1">Image: Max 200KB • PDF: Max 500KB</span>
+                                            <span className="text-white/30 text-xs mt-1">Image: Max 500KB • PDF: Max 500KB</span>
                                         </div>
                                     )}
                                 </div>

@@ -194,7 +194,7 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // Admin route protection - allow both admin and super_admin
+    // Admin route protection - allow both admin and super_admin only
     if (user && pathname.startsWith('/admin')) {
         const profile = await getProfile();
 
@@ -205,6 +205,7 @@ export async function updateSession(request: NextRequest) {
             cached: !!getCachedProfile(request, user.id)
         });
 
+        // Normal admin route protection
         if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
             console.log('[Middleware] Access Denied. Redirecting to /dashboard');
             const url = request.nextUrl.clone();

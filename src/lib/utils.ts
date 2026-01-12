@@ -1,9 +1,9 @@
 // File size limits
 export const FILE_SIZE_LIMITS = {
-    MAX_IMAGE_SIZE: 200 * 1024, // 200KB max for images (before compression)
+    MAX_IMAGE_SIZE: 500 * 1024, // 500KB max for images (before compression)
     MAX_PDF_SIZE: 500 * 1024, // 500KB max for PDFs
-    TARGET_SIZE: 50 * 1024, // Target < 50KB after compression for images
-    WARN_SIZE: 100 * 1024, // Warn if compressed result > 100KB
+    TARGET_SIZE: 100 * 1024, // Target < 100KB after compression for images
+    WARN_SIZE: 150 * 1024, // Warn if compressed result > 150KB
 };
 
 // Validate file before upload
@@ -37,7 +37,7 @@ export const validateFile = (file: File, options?: {
     return { valid: true };
 };
 
-// Smart compress - aggressively compresses to < 50KB target
+// Smart compress - aggressively compresses to < 100KB target
 export const compressImage = async (file: File, options?: {
     maxWidth?: number;
     maxHeight?: number;
@@ -49,15 +49,16 @@ export const compressImage = async (file: File, options?: {
         return file;
     }
 
-    // Smaller dimensions for aggressive compression to < 50KB
-    const maxWidth = options?.maxWidth || 800;
-    const maxHeight = options?.maxHeight || 800;
-    const targetSize = options?.targetSize || FILE_SIZE_LIMITS.TARGET_SIZE; // 50KB
+    // Slightly larger dimensions for better quality, compression will handle size
+    const maxWidth = options?.maxWidth || 1200;
+    const maxHeight = options?.maxHeight || 1200;
+    const targetSize = options?.targetSize || FILE_SIZE_LIMITS.TARGET_SIZE; // 100KB
     
-    // Start with aggressive quality since max input is 200KB
-    let quality = options?.quality || 0.5;
-    if (file.size > 150 * 1024) quality = 0.4; // 150KB+ = 40% quality
-    else if (file.size > 100 * 1024) quality = 0.45; // 100KB+ = 45% quality
+    // Start with quality based on input size (500KB max input)
+    let quality = options?.quality || 0.6;
+    if (file.size > 400 * 1024) quality = 0.4; // 400KB+ = 40% quality
+    else if (file.size > 300 * 1024) quality = 0.5; // 300KB+ = 50% quality
+    else if (file.size > 200 * 1024) quality = 0.55; // 200KB+ = 55% quality
 
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -88,7 +89,7 @@ export const compressImage = async (file: File, options?: {
                 const ctx = canvas.getContext('2d');
                 ctx?.drawImage(img, 0, 0, width, height);
 
-                // Try compression with decreasing quality until target size (< 50KB)
+                // Try compression with decreasing quality until target size (< 100KB)
                 const tryCompress = (currentQuality: number): Promise<File> => {
                     return new Promise((res, rej) => {
                         canvas.toBlob((blob) => {
@@ -102,13 +103,13 @@ export const compressImage = async (file: File, options?: {
                                 lastModified: Date.now(),
                             });
 
-                            // If still too large and quality > 0.15, try again with lower quality
-                            if (compressedFile.size > targetSize && currentQuality > 0.15) {
+                            // If still too large and quality > 0.1, try again with lower quality
+                            if (compressedFile.size > targetSize && currentQuality > 0.1) {
                                 res(tryCompress(currentQuality - 0.05));
                             } else {
-                                // Warn if compressed result is still > 100KB
+                                // Warn if compressed result is still > 150KB
                                 if (compressedFile.size > FILE_SIZE_LIMITS.WARN_SIZE) {
-                                    console.warn(`[Compress] Warning: ${file.name} is ${(compressedFile.size/1024).toFixed(0)}KB (target: <50KB)`);
+                                    console.warn(`[Compress] Warning: ${file.name} is ${(compressedFile.size/1024).toFixed(0)}KB (target: <100KB)`);
                                 }
                                 res(compressedFile);
                             }

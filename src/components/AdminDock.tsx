@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Bed, ShoppingBag, Database, Tag, Search, Crown } from 'lucide-react';
+import { LogOut, Menu, X, LayoutDashboard, CheckCircle, QrCode, Users, Shield, Bed, ShoppingBag, Database, Tag, Search, Crown, Settings } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { canApprovePayments, type UserRole } from '@/types/database';
 
@@ -16,7 +16,7 @@ interface SearchRoute {
 
 interface AdminDockProps {
     userName?: string;
-    currentPage?: 'dashboard' | 'admin' | 'verify' | 'scan' | 'users' | 'accommodation' | 'merch' | 'unified' | 'bands';
+    currentPage?: 'dashboard' | 'admin' | 'verify' | 'scan' | 'users' | 'accommodation' | 'merch' | 'unified' | 'bands' | 'settings';
 }
 
 export default function AdminDock({ userName, currentPage }: AdminDockProps) {
@@ -48,7 +48,7 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
 
     // Define all admin routes for search
     const getSearchRoutes = useCallback((): SearchRoute[] => {
-        return [
+        const routes: SearchRoute[] = [
             { name: 'Admin Dashboard', description: 'Main admin panel', href: '/admin', icon: Shield, keywords: ['admin', 'dashboard', 'home', 'main'] },
             { name: 'Unified View', description: 'All data in one view', href: '/admin/unified', icon: Database, keywords: ['unified', 'all', 'data', 'view', 'overview'] },
             { name: 'Pass Verification', description: 'Verify payment proofs', href: '/admin/verify', icon: CheckCircle, keywords: ['verify', 'pass', 'ticket', 'payment', 'approve'] },
@@ -59,7 +59,20 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
             { name: 'Merchandise', description: 'Manage merch orders', href: '/admin/merch', icon: ShoppingBag, keywords: ['merch', 'merchandise', 'orders', 'tshirt', 'hoodie'] },
             { name: 'User Dashboard', description: 'View as user', href: '/dashboard', icon: LayoutDashboard, keywords: ['user', 'dashboard', 'participant'] },
         ];
-    }, []);
+        
+        // Add settings for super_admin only
+        if (isSuperAdmin) {
+            routes.push({ 
+                name: 'Super Admin Settings', 
+                description: 'Manage admin passwords', 
+                href: '/admin/settings', 
+                icon: Settings, 
+                keywords: ['settings', 'password', 'admin', 'access', 'super'] 
+            });
+        }
+        
+        return routes;
+    }, [isSuperAdmin]);
 
     const filteredRoutes = searchQuery
         ? getSearchRoutes().filter(route =>
@@ -98,6 +111,8 @@ export default function AdminDock({ userName, currentPage }: AdminDockProps) {
         { id: 'verify', icon: CheckCircle, label: 'Pass', href: '/admin/verify' },
         { id: 'scan', icon: QrCode, label: 'Scanner', href: '/admin/scan' },
         { id: 'users', icon: Users, label: 'Users', href: '/admin/users' },
+        // Settings only visible to super_admin
+        ...(isSuperAdmin ? [{ id: 'settings', icon: Settings, label: 'Settings', href: '/admin/settings' }] : []),
     ];
 
     return (

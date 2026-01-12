@@ -33,7 +33,7 @@ export default function DashboardPage() {
     const [ticket, setTicket] = useState<UserTicket | null>(null);
 
     const isExternal = profile?.role === 'external';
-    const isAdmin = profile?.role === 'admin';
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
 
     useEffect(() => {
         const loadData = async () => {

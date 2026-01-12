@@ -600,7 +600,7 @@ export default function PassPage() {
                                                 <div className="text-center">
                                                     <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-white/40 mx-auto mb-2" />
                                                     <p className="font-body text-white/70 text-xs sm:text-sm">Upload Screenshot</p>
-                                                    <p className="font-body text-white/30 text-xs mt-1">Max 200KB • JPG, PNG, WebP</p>
+                                                    <p className="font-body text-white/30 text-xs mt-1">Max 500KB • JPG, PNG, WebP</p>
                                                 </div>
                                             )}
                                         </div>

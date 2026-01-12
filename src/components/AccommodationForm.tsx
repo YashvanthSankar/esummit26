@@ -496,7 +496,7 @@ export default function AccommodationForm() {
                                         {idProof ? idProof.name : 'Click to upload Government ID'}
                                     </p>
                                     <p className="text-white/40 text-xs mt-1">
-                                        Images: Max 200KB • PDF: Max 500KB
+                                        Images: Max 500KB • PDF: Max 500KB
                                     </p>
                                 </div>
                             </label>
@@ -613,7 +613,7 @@ export default function AccommodationForm() {
                                     <div className="text-center">
                                         <Upload className="w-8 h-8 text-white/40 mx-auto mb-2" />
                                         <p className="font-body text-white/70 text-sm">Upload Screenshot</p>
-                                        <p className="font-body text-white/30 text-xs mt-1">Max 200KB • JPG, PNG, WebP</p>
+                                        <p className="font-body text-white/30 text-xs mt-1">Max 500KB • JPG, PNG, WebP</p>
                                     </div>
                                 )}
                             </div>
