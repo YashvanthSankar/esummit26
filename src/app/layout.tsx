@@ -41,6 +41,7 @@ export const metadata: Metadata = {
 import { Bricolage_Grotesque } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import WebAnalytics from "@/components/Analytics";
 import CustomCursor from "@/components/CustomCursor";
 import ToastProvider from "@/components/ToastProvider";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
@@ -72,6 +73,7 @@ export default function RootLayout({
           <ToastProvider />
           <PWAInstallPrompt />
           {children}
+          <WebAnalytics />
           <Analytics />
           <SpeedInsights />
         </PWAProvider>
