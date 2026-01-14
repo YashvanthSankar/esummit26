@@ -28,7 +28,7 @@ interface Profile {
 
 interface UserTicket {
     id: string;
-    type: 'solo' | 'duo' | 'quad';
+    type: 'solo' | 'duo' | 'quad' | 'bumper';
     amount: number;
     status: 'pending' | 'paid' | 'failed' | 'pending_verification' | 'rejected';
     qr_secret: string;
@@ -409,7 +409,7 @@ export default function PassPage() {
                         !showPaymentModal ? (
                             <div>
                                 <h2 className="font-heading text-xl sm:text-2xl text-white mb-4 sm:mb-6">Select a Pass</h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
                                     {Object.entries(TICKET_PRICES).map(([type, info]) => (
                                         <motion.button
                                             key={type}
@@ -419,7 +419,7 @@ export default function PassPage() {
                                             className={`relative p-4 sm:p-6 rounded-xl sm:rounded-2xl border transition-all duration-300 text-left ${type === 'duo'
                                                 ? 'border-[#a855f7] bg-[#a855f7]/5'
                                                 : 'border-white/10 hover:border-white/30'
-                                            }`}
+                                                }`}
                                         >
                                             <h3 className="font-heading text-lg sm:text-xl text-white mb-1 sm:mb-2">{info.label}</h3>
                                             <p className="font-heading text-2xl sm:text-3xl text-[#a855f7]">₹{info.amount}</p>
@@ -589,7 +589,7 @@ export default function PassPage() {
                                             className={`border-2 border-dashed rounded-xl p-4 sm:p-6 flex flex-col items-center justify-center cursor-pointer transition-colors mb-4 sm:mb-6 ${paymentProof
                                                 ? 'border-[#a855f7] bg-[#a855f7]/5'
                                                 : 'border-white/20 hover:border-white/40 hover:bg-white/5'
-                                            }`}
+                                                }`}
                                         >
                                             {paymentProof ? (
                                                 <div className="text-center">
@@ -633,7 +633,7 @@ export default function PassPage() {
                             <div className={`mb-4 sm:mb-6 px-3 sm:px-6 py-2 sm:py-3 rounded-full border flex items-center gap-2 text-xs sm:text-sm ${ticket.band_issued_at
                                 ? 'bg-green-500/10 border-green-500/20 text-green-400'
                                 : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'
-                            }`}>
+                                }`}>
                                 {ticket.band_issued_at ? (
                                     <>
                                         <CheckCircle className="w-4 h-4" />

@@ -7,6 +7,7 @@ export const TICKET_PRICES: Record<string, { amount: number; pax: number; label:
     solo: { amount: 200, pax: 1, label: 'Solo Pass' },
     duo: { amount: 360, pax: 2, label: 'Duo Pass' },
     quad: { amount: 680, pax: 4, label: 'Quad Pass' },
+    bumper: { amount: 1499, pax: 10, label: 'Bumper Pass' },
 };
 
 export type TicketType = keyof typeof TICKET_PRICES;

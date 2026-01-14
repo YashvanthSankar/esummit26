@@ -6,7 +6,7 @@ import QRCode from 'react-qr-code';
 interface TicketCardProps {
     userName: string;
     rollNumber?: string | null;
-    ticketType: 'solo' | 'duo' | 'quad';
+    ticketType: 'solo' | 'duo' | 'quad' | 'bumper';
     qrSecret: string;
     ticketId: string;
     paxCount: number;
