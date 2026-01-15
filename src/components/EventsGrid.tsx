@@ -26,6 +26,7 @@ const events = [
         icon: Mic,
         image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop',
         span: 'col-span-4 md:col-span-6 row-span-2',
+        unstopLink: 'https://unstop.com/competitions/mun-g20-summit-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kan-1622132',
     },
     // Formal Events
     {
@@ -48,6 +49,7 @@ const events = [
         icon: Trophy,
         image: 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
+        unstopLink: 'https://unstop.com/quiz/business-verse-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepura-1621530',
     },
     {
         id: 5,
@@ -59,6 +61,7 @@ const events = [
         icon: Code,
         image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
+        unstopLink: 'https://unstop.com/competitions/case-closed-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kanche-1621979',
     },
     {
         id: 6,
@@ -81,6 +84,7 @@ const events = [
         icon: Rocket,
         image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
         span: 'col-span-4 md:col-span-6 row-span-1',
+        unstopLink: 'https://unstop.com/competitions/bid-and-build-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kanc-1621434',
     },
     // Informal Events
     {
@@ -115,6 +119,7 @@ const events = [
         icon: Users,
         image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
+        unstopLink: 'https://unstop.com/events/kaala-bazaar-30-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheep-1620952',
     },
 ];
 
