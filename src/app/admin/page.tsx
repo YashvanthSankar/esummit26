@@ -2,8 +2,8 @@
 
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import AdminDock from '@/components/AdminDock';
+import AdminChart from '@/components/AdminChart';
 import { Loader2, DollarSign, Ticket, Clock, Star, CheckCircle, ShoppingBag } from 'lucide-react';
 import { hasAdminAccess } from '@/types/database';
 
@@ -258,51 +258,13 @@ export default function AdminOverview() {
                     </div>
                 </div>
 
+
                 {/* Charts Section */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
                     {/* Sales Chart */}
                     <div className="glass-card p-6 rounded-2xl">
                         <h3 className="font-heading text-xl text-white mb-6">Pass Sales by Type</h3>
-                        <div className="h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData}>
-                                    <XAxis
-                                        dataKey="name"
-                                        stroke="#ffffff50"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <YAxis
-                                        stroke="#ffffff50"
-                                        fontSize={12}
-                                        tickLine={false}
-                                        axisLine={false}
-                                    />
-                                    <Tooltip
-                                        cursor={{ fill: '#ffffff10' }}
-                                        content={({ active, payload }) => {
-                                            if (active && payload && payload.length) {
-                                                const data = payload[0].payload;
-                                                return (
-                                                    <div className="bg-[#1a1a1a] border border-white/20 rounded-xl p-3 shadow-xl">
-                                                        <p className="text-white font-bold mb-1">{data.name}</p>
-                                                        <p className="text-white/70 text-sm">Sold: <span className="text-white">{data.count}</span></p>
-                                                        <p className="text-white/70 text-sm">Revenue: <span className="text-white">₹{data.revenue?.toLocaleString()}</span></p>
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        }}
-                                    />
-                                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                                        {chartData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.color} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
+                        <AdminChart data={chartData} />
                     </div>
 
                     {/* Recent Activity */}

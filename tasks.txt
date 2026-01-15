@@ -1,0 +1,4 @@
+1. external price update
+2. excel sheet
+3. revenue differentiation in app vs offline
+4. feed offline sales

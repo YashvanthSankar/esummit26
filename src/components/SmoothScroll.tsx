@@ -1,31 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
-import Lenis from '@studio-freight/lenis';
-
+// Lightweight replacement for Lenis - uses native CSS smooth scroll
+// This eliminates the continuous RAF loop for better performance
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
-    useEffect(() => {
-        const lenis = new Lenis({
-            duration: 0.5,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            orientation: 'vertical',
-            gestureOrientation: 'vertical',
-            smoothWheel: true,
-            wheelMultiplier: 1,
-            touchMultiplier: 2,
-        });
-
-        function raf(time: number) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-
-        requestAnimationFrame(raf);
-
-        return () => {
-            lenis.destroy();
-        };
-    }, []);
-
-    return <>{children}</>;
+    return <div className="smooth-scroll-wrapper">{children}</div>;
 }

@@ -32,8 +32,9 @@ export default function Home() {
             width={180}
             height={48}
             className="h-8 md:h-12 w-auto"
-            unoptimized
             priority
+            quality={85}
+            sizes="(max-width: 768px) 128px, 180px"
           />
         </Link>
 
@@ -45,8 +46,9 @@ export default function Home() {
             width={56}
             height={56}
             className="h-10 md:h-14 w-auto brightness-0 invert"
-            unoptimized
             priority
+            quality={90}
+            sizes="(max-width: 768px) 40px, 56px"
           />
         </Link>
 

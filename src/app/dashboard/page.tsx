@@ -1,79 +1,20 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
-import { useEffect, useState } from 'react';
+import { useProfile } from '@/lib/hooks/useProfile';
+import { useTicket } from '@/lib/hooks/useTicket';
 import { motion } from 'framer-motion';
 import DashboardDock from '@/components/DashboardDock';
 import AdminDock from '@/components/AdminDock';
 import AppRating from '@/components/AppRating';
 import { User, Loader2, Ticket, ShoppingBag, Bed, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
-interface Profile {
-    id: string;
-    email: string;
-    full_name: string;
-    phone: string;
-    college_name: string;
-    roll_number: string | null;
-    role: string;
-}
-
-interface UserTicket {
-    id: string;
-    type: 'solo' | 'duo' | 'quad';
-    status: 'pending' | 'paid' | 'failed' | 'pending_verification' | 'rejected';
-    band_issued_at?: string | null;
-}
-
 export default function DashboardPage() {
-    const supabase = createClient();
+    const { data: profile, isLoading: profileLoading } = useProfile();
+    const { data: ticket, isLoading: ticketLoading } = useTicket(profile?.email);
 
-    const [loading, setLoading] = useState(true);
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const [ticket, setTicket] = useState<UserTicket | null>(null);
-
+    const loading = profileLoading || ticketLoading;
     const isExternal = profile?.role === 'external';
     const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
-
-    useEffect(() => {
-        const loadData = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                window.location.href = '/login';
-                return;
-            }
-
-            const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-
-            if (profileError || !profileData) {
-                window.location.href = '/login';
-                return;
-            }
-
-            setProfile(profileData);
-
-            // Fetch ticket status
-            const { data: ticketData } = await supabase
-                .from('tickets')
-                .select('id, type, status, band_issued_at')
-                .or(`user_id.eq.${user.id},pending_email.eq.${profileData.email}`)
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .single();
-
-            if (ticketData) {
-                setTicket(ticketData);
-            }
-
-            setLoading(false);
-        };
-
-        loadData();
-    }, [supabase]);
 
     const getTicketStatusBadge = () => {
         if (!ticket) {
@@ -124,6 +65,13 @@ export default function DashboardPage() {
         );
     }
 
+    if (!profile) {
+        if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+        }
+        return null;
+    }
+
     // Quick action cards
     const quickActions = [
         {
@@ -159,9 +107,9 @@ export default function DashboardPage() {
             {isAdmin ? (
                 <AdminDock currentPage="dashboard" userName={profile?.full_name} />
             ) : (
-                <DashboardDock 
-                    userName={profile?.full_name} 
-                    userRole={profile?.role} 
+                <DashboardDock
+                    userName={profile?.full_name}
+                    userRole={profile?.role}
                     isExternal={isExternal}
                     currentPage="dashboard"
                 />
@@ -233,7 +181,7 @@ export default function DashboardPage() {
                             >
                                 {/* Gradient Overlay */}
                                 <div className={`absolute inset-0 bg-gradient-to-br ${action.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                                
+
                                 <div className="relative flex items-start gap-3">
                                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${action.color} flex items-center justify-center flex-shrink-0`}>
                                         <action.icon className="w-5 h-5 text-white" />

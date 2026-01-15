@@ -37,13 +37,13 @@ export default function InstallApp() {
                         {/* Icon - Using actual PWA icon */}
                         <div className="flex-shrink-0">
                             <div className="w-20 h-20 rounded-2xl bg-[#a855f7]/20 border border-[#a855f7]/30 flex items-center justify-center overflow-hidden">
-                                <Image 
-                                    src="/icon-192x192.png" 
-                                    alt="E-Summit App Icon" 
-                                    width={80} 
-                                    height={80}
-                                    className="w-full h-full object-cover"
-                                    unoptimized
+                                <Image
+                                    src="/esummit26-logo.png"
+                                    alt="E-Summit '26"
+                                    width={120}
+                                    height={32}
+                                    className="h-8 w-auto"
+                                    quality={85}
                                 />
                             </div>
                         </div>

@@ -42,11 +42,12 @@ import { Bricolage_Grotesque } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import WebAnalytics from "@/components/Analytics";
-import CustomCursor from "@/components/CustomCursor";
 import ToastProvider from "@/components/ToastProvider";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import { PWAProvider } from "@/context/PWAContext";
+import QueryProvider from "@/components/QueryProvider";
+import ClientProviders from "@/components/ClientProviders";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -68,14 +69,17 @@ export default function RootLayout({
       </head>
       <body className={`antialiased bg-[#050505] ${bricolage.variable} font-sans`}>
         <PWAProvider>
-          <ServiceWorkerRegister />
-          <CustomCursor />
-          <ToastProvider />
-          <PWAInstallPrompt />
-          {children}
-          <WebAnalytics />
-          <Analytics />
-          <SpeedInsights />
+          <QueryProvider>
+            <ClientProviders>
+              <ServiceWorkerRegister />
+              <ToastProvider />
+              <PWAInstallPrompt />
+              {children}
+              <WebAnalytics />
+              <Analytics />
+              <SpeedInsights />
+            </ClientProviders>
+          </QueryProvider>
         </PWAProvider>
       </body>
     </html>
