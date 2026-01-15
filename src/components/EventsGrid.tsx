@@ -7,7 +7,7 @@ const events = [
     // Flagship Events
     {
         id: 1,
-        title: 'Pitch',
+        title: 'Pitch Perfect 3.0',
         description: 'Present your startup idea to top VCs',
         prize: '₹30,000',
         breakdown: '15k, 9k, 6k',
@@ -19,7 +19,7 @@ const events = [
     },
     {
         id: 2,
-        title: 'MUN',
+        title: 'MUN - G20 Summit',
         description: 'Model United Nations - Debate and diplomacy',
         prize: '₹30,000',
         category: 'Flagship',
@@ -42,7 +42,7 @@ const events = [
     },
     {
         id: 4,
-        title: 'Quiz',
+        title: 'Business Verse',
         description: 'Test your knowledge across domains',
         prize: '₹18,000',
         category: 'Formal',
@@ -53,7 +53,7 @@ const events = [
     },
     {
         id: 5,
-        title: 'Case Study',
+        title: 'Case Closed',
         description: 'Solve real-world business challenges',
         prize: '₹15,000',
         breakdown: '7.5k, 5k, 2.5k',
@@ -101,7 +101,7 @@ const events = [
     },
     {
         id: 9,
-        title: 'Geoguessr',
+        title: 'Geoguesser',
         description: 'Test your geography knowledge',
         prize: '₹4,000',
         category: 'Informal',
@@ -112,7 +112,7 @@ const events = [
     },
     {
         id: 10,
-        title: 'Kalabazaar',
+        title: 'Kaala Bazaar 3.0',
         description: 'Cultural marketplace and trading game',
         prize: '₹4,000',
         category: 'Informal',
