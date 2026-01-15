@@ -151,14 +151,13 @@ export default function UnifiedAdminView() {
             }
 
             const headers = [
-                'Ticket ID', 'Name', 'Email', 'Phone', 'College',
+                'Name', 'Email', 'Phone', 'College',
                 'Ticket Type', 'Amount', 'Payment Status',
                 'PAX Count', 'Group ID', 'Group Leader',
                 'Band Status', 'Band Issued At', 'UTR', 'Booking Date'
             ];
 
             const csvData = result.data.map((ticket: any) => [
-                ticket.ticket_id,
                 ticket.user_name,
                 ticket.user_email,
                 ticket.user_phone,

@@ -303,12 +303,35 @@ export default function VerifyPage() {
             utr.toLowerCase().includes(search);
     });
 
+    // For revenue, we need to count all group members, not just the leader
+    // Each ticket in a group has amount = total_amount / pax_count
+    // So summing all ticket amounts (including group members) gives correct total
+    const calculateGroupAwareRevenue = () => {
+        const seenGroups = new Set<string>();
+        let revenue = 0;
+
+        allTickets.filter(t => t.status === 'paid').forEach(ticket => {
+            if (ticket.booking_group_id) {
+                // For group tickets, count the full group amount (amount * group size)
+                if (!seenGroups.has(ticket.booking_group_id)) {
+                    seenGroups.add(ticket.booking_group_id);
+                    const groupSize = ticket.groupMembers?.length || 1;
+                    revenue += ticket.amount * groupSize;
+                }
+            } else {
+                // Solo ticket
+                revenue += ticket.amount;
+            }
+        });
+        return revenue;
+    };
+
     const stats = {
         total: allTickets.length,
         pending: allTickets.filter(t => t.status === 'pending_verification').length,
         approved: allTickets.filter(t => t.status === 'paid').length,
         rejected: allTickets.filter(t => t.status === 'rejected').length,
-        totalRevenue: allTickets.filter(t => t.status === 'paid').reduce((sum, t) => sum + t.amount, 0)
+        totalRevenue: calculateGroupAwareRevenue()
     };
 
 
@@ -456,9 +479,13 @@ export default function VerifyPage() {
                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${ticket.type.includes('quad') || ticket.type === 'bumper' ? 'border-purple-500/30 text-purple-400' : 'border-blue-500/30 text-blue-400'
                                                     }`}>{ticket.type}</span>
                                                 <div className="flex flex-col">
-                                                    <span className="font-heading text-white">₹{ticket.amount}</span>
+                                                    <span className="font-heading text-white">
+                                                        ₹{ticket.groupMembers && ticket.groupMembers.length > 1
+                                                            ? ticket.amount * ticket.groupMembers.length
+                                                            : ticket.amount}
+                                                    </span>
                                                     {ticket.groupMembers && ticket.groupMembers.length > 1 && (
-                                                        <span className="text-[10px] text-white/50">{ticket.groupMembers.length} people</span>
+                                                        <span className="text-[10px] text-white/50">{ticket.groupMembers.length} people (₹{ticket.amount}/person)</span>
                                                     )}
                                                 </div>
                                             </div>
