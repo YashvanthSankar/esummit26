@@ -308,7 +308,10 @@ export default function VerifyPage() {
         pending: allTickets.filter(t => t.status === 'pending_verification').length,
         approved: allTickets.filter(t => t.status === 'paid').length,
         rejected: allTickets.filter(t => t.status === 'rejected').length,
-        totalRevenue: allTickets.filter(t => t.status === 'paid').reduce((sum, t) => sum + t.amount, 0)
+        totalRevenue: allTickets.filter(t => t.status === 'paid').reduce((sum, t) => {
+            const priceInfo = TICKET_PRICES[t.type as keyof typeof TICKET_PRICES];
+            return sum + (priceInfo ? priceInfo.amount : t.amount);
+        }, 0)
     };
 
     return (

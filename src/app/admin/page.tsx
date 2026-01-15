@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import AdminDock from '@/components/AdminDock';
-import { Loader2, DollarSign, Ticket, Clock, Star, CheckCircle } from 'lucide-react';
+import { Loader2, DollarSign, Ticket, Clock, Star, CheckCircle, ShoppingBag } from 'lucide-react';
 import { hasAdminAccess } from '@/types/database';
 
 export default function AdminOverview() {
@@ -13,6 +13,8 @@ export default function AdminOverview() {
     const [stats, setStats] = useState({
         revenue: 0,
         ticketsSold: 0,
+        merchOrders: 0,
+        merchItems: 0,
         pending: 0,
     });
     const [chartData, setChartData] = useState<any[]>([]);
@@ -51,8 +53,8 @@ export default function AdminOverview() {
 
             // Parallel queries for better performance
             const [statsResult, chartResult, recentActivityResult, ratingsResult] = await Promise.all([
-                // Stats aggregation
-                supabase.rpc('get_ticket_stats'),
+                // Stats aggregation (tickets + merch)
+                supabase.rpc('get_dashboard_stats'),
 
                 // Chart data aggregation  
                 supabase.rpc('get_ticket_type_distribution'),
@@ -79,19 +81,33 @@ export default function AdminOverview() {
                     .select('id, amount')
                     .eq('status', 'paid');
 
+                const { data: paidMerch } = await supabase
+                    .from('merch_orders')
+                    .select('amount, total_items')
+                    .eq('payment_status', 'paid');
+
                 const { data: pendingTickets } = await supabase
                     .from('tickets')
                     .select('id, booking_group_id, screenshot_path, utr')
                     .eq('status', 'pending_verification')
                     .or('screenshot_path.not.is.null,utr.not.is.null');
 
-                const revenue = paidTickets?.reduce((sum, t) => sum + t.amount, 0) || 0;
+                const { data: pendingMerch } = await supabase
+                    .from('merch_orders')
+                    .select('id')
+                    .eq('payment_status', 'pending_verification');
+
+                const ticketRevenue = paidTickets?.reduce((sum, t) => sum + t.amount, 0) || 0;
+                const merchRevenue = paidMerch?.reduce((sum, m) => sum + m.amount, 0) || 0;
+                const merchItems = paidMerch?.reduce((sum, m) => sum + m.total_items, 0) || 0;
                 const pendingBookingGroups = new Set(pendingTickets?.map(t => t.booking_group_id || t.id));
 
                 setStats({
-                    revenue,
+                    revenue: ticketRevenue + merchRevenue,
                     ticketsSold: paidTickets?.length || 0,
-                    pending: pendingBookingGroups.size,
+                    merchOrders: paidMerch?.length || 0,
+                    merchItems: merchItems,
+                    pending: pendingBookingGroups.size + (pendingMerch?.length || 0),
                 });
 
                 // Chart data fallback
@@ -113,19 +129,29 @@ export default function AdminOverview() {
             } else {
                 // Use RPC results
                 if (statsResult.data) {
-                    setStats(statsResult.data[0] || { revenue: 0, ticketsSold: 0, pending: 0 });
+                    const data = statsResult.data[0];
+                    setStats({
+                        revenue: data.total_revenue || 0,
+                        ticketsSold: data.tickets_sold || 0,
+                        merchOrders: data.merch_orders_sold || 0,
+                        merchItems: data.merch_items_sold || 0,
+                        pending: (data.pending_tickets || 0) + (data.pending_merch || 0)
+                    });
                 }
 
                 if (chartResult.data) {
+                    console.log('[AdminDebug] Ticket Breakdown:', chartResult.data);
+
                     const types = chartResult.data.reduce((acc: any, row: any) => {
-                        acc[row.type] = row.count;
+                        acc[row.type] = { count: row.count, revenue: row.revenue };
                         return acc;
-                    }, { solo: 0, duo: 0, quad: 0 });
+                    }, { solo: { count: 0, revenue: 0 }, duo: { count: 0, revenue: 0 }, quad: { count: 0, revenue: 0 }, bumper: { count: 0, revenue: 0 } });
 
                     setChartData([
-                        { name: 'Solo', count: types.solo || 0, color: '#a855f7' },
-                        { name: 'Duo', count: types.duo || 0, color: '#3b82f6' },
-                        { name: 'Quad', count: types.quad || 0, color: '#10b981' },
+                        { name: 'Solo', count: types.solo?.count || 0, revenue: types.solo?.revenue || 0, color: '#a855f7' },
+                        { name: 'Duo', count: types.duo?.count || 0, revenue: types.duo?.revenue || 0, color: '#3b82f6' },
+                        { name: 'Quad', count: types.quad?.count || 0, revenue: types.quad?.revenue || 0, color: '#10b981' },
+                        { name: 'Bumper', count: types.bumper?.count || 0, revenue: types.bumper?.revenue || 0, color: '#f59e0b' },
                     ]);
                 }
             }
@@ -172,13 +198,13 @@ export default function AdminOverview() {
                 <h2 className="font-heading text-3xl sm:text-4xl text-white mb-8">Dashboard Overview</h2>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="glass-card p-6 rounded-2xl border-l-4 border-[#10b981]">
                         <div className="flex items-center gap-4 mb-2">
                             <div className="p-3 rounded-lg bg-[#10b981]/10 text-[#10b981]">
                                 <DollarSign className="w-6 h-6" />
                             </div>
-                            <span className="text-white/50 text-sm font-bold uppercase">Ticket Revenue</span>
+                            <span className="text-white/50 text-sm font-bold uppercase">Total Revenue</span>
                         </div>
                         <p className="font-heading text-3xl text-white">₹{stats.revenue.toLocaleString()}</p>
                     </div>
@@ -188,9 +214,22 @@ export default function AdminOverview() {
                             <div className="p-3 rounded-lg bg-[#a855f7]/10 text-[#a855f7]">
                                 <Ticket className="w-6 h-6" />
                             </div>
-                            <span className="text-white/50 text-sm font-bold uppercase">Passes Sold</span>
+                            <span className="text-white/50 text-sm font-bold uppercase">Passes (Attendees)</span>
                         </div>
                         <p className="font-heading text-3xl text-white">{stats.ticketsSold}</p>
+                    </div>
+
+                    <div className="glass-card p-6 rounded-2xl border-l-4 border-blue-500">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="p-3 rounded-lg bg-blue-500/10 text-blue-500">
+                                <ShoppingBag className="w-6 h-6" />
+                            </div>
+                            <span className="text-white/50 text-sm font-bold uppercase">Merch Sold</span>
+                        </div>
+                        <div className="flex items-end gap-2">
+                            <p className="font-heading text-3xl text-white">{stats.merchItems}</p>
+                            <p className="text-white/40 text-sm mb-1">({stats.merchOrders} orders)</p>
+                        </div>
                     </div>
 
                     <div className="glass-card p-6 rounded-2xl border-l-4 border-[#f59e0b]">
@@ -242,11 +281,18 @@ export default function AdminOverview() {
                                     />
                                     <Tooltip
                                         cursor={{ fill: '#ffffff10' }}
-                                        contentStyle={{
-                                            backgroundColor: '#1a1a1a',
-                                            borderRadius: '12px',
-                                            border: '1px solid #ffffff20',
-                                            color: '#fff'
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload.length) {
+                                                const data = payload[0].payload;
+                                                return (
+                                                    <div className="bg-[#1a1a1a] border border-white/20 rounded-xl p-3 shadow-xl">
+                                                        <p className="text-white font-bold mb-1">{data.name}</p>
+                                                        <p className="text-white/70 text-sm">Sold: <span className="text-white">{data.count}</span></p>
+                                                        <p className="text-white/70 text-sm">Revenue: <span className="text-white">₹{data.revenue?.toLocaleString()}</span></p>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
                                         }}
                                     />
                                     <Bar dataKey="count" radius={[4, 4, 0, 0]}>
