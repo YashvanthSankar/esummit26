@@ -189,7 +189,7 @@ export default function EventsGrid() {
                             </div>
 
                             {/* Content */}
-                            <div className="relative h-full p-6 flex flex-col justify-end">
+                            <div className="relative h-full p-6 pt-20 flex flex-col justify-end">
                                 {/* Icon */}
                                 <div className="absolute top-6 left-6">
                                     <div className="w-12 h-12 rounded-xl glass-card flex items-center justify-center">
@@ -198,7 +198,7 @@ export default function EventsGrid() {
                                 </div>
 
                                 {/* Title & Description */}
-                                <div>
+                                <div className="mt-20">
                                     <h3 className="font-heading text-2xl sm:text-3xl text-white title-lift mb-2">
                                         {event.title}
                                     </h3>

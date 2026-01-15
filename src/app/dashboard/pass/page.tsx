@@ -1,9 +1,10 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import { TICKET_PRICES, UPI_CONFIG, AttendeeInfo } from '@/types/payment';
+import { UPI_CONFIG, AttendeeInfo } from '@/types/payment';
+import { calculateTicketPrice, PriceCalculation } from '@/lib/pricing';
 import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import QRCode from 'react-qr-code';
 import TicketCard from '@/components/TicketCard';
@@ -50,7 +51,8 @@ export default function PassPage() {
     const [ticket, setTicket] = useState<UserTicket | null>(null);
 
     // Payment Flow States
-    const [selectedPass, setSelectedPass] = useState<string | null>(null);
+    const [attendeeCount, setAttendeeCount] = useState(1);
+    const [pricingData, setPricingData] = useState<PriceCalculation | null>(null);
     const [uploading, setUploading] = useState(false);
     const [paymentProof, setPaymentProof] = useState<File | null>(null);
     const [utr, setUtr] = useState('');
@@ -114,35 +116,46 @@ export default function PassPage() {
         loadData();
     }, [supabase]);
 
-    const handleSelectPass = (type: string) => {
-        const paxCount = TICKET_PRICES[type].pax;
+    useEffect(() => {
+        if (profile) {
+            const pricing = calculateTicketPrice(attendeeCount, profile.role);
+            setPricingData(pricing);
 
-        if (paxCount === 1) {
-            setAttendees([{
-                name: profile?.full_name || '',
-                email: profile?.email || '',
-                phone: profile?.phone || ''
-            }]);
-            setShowAttendeeForm(false);
-            setSelectedPass(type);
-            setShowPaymentModal(true);
-            return;
+            // Update attendees array - should have attendeeCount items total
+            setAttendees(prev => {
+                const newAttendees: AttendeeInfo[] = [];
+
+                // First attendee is always the purchaser (pre-filled, read-only)
+                newAttendees.push({
+                    name: profile.full_name || '',
+                    email: profile.email || '',
+                    phone: profile.phone || ''
+                });
+
+                // Add remaining attendees (n-1)
+                for (let i = 1; i < attendeeCount; i++) {
+                    // Try to preserve existing data if user already filled it
+                    if (prev[i]) {
+                        newAttendees.push(prev[i]);
+                    } else {
+                        newAttendees.push({ name: '', email: '', phone: '' });
+                    }
+                }
+
+                return newAttendees;
+            });
+            setShowAttendeeForm(attendeeCount > 1);
         }
+    }, [profile, attendeeCount]);
 
-        const initialAttendees: AttendeeInfo[] = [{
-            name: profile?.full_name || '',
-            email: profile?.email || '',
-            phone: profile?.phone || ''
-        }];
+    const handleQuantityChange = (delta: number) => {
+        setAttendeeCount(prev => Math.max(1, prev + delta));
+    };
 
-        for (let i = 1; i < paxCount; i++) {
-            initialAttendees.push({ name: '', email: '', phone: '' });
-        }
-
-        setAttendees(initialAttendees);
-        setSelectedPass(type);
-        setShowAttendeeForm(true);
-        setShowPaymentModal(true);
+    const handleAttendeeChange = (index: number, field: keyof AttendeeInfo, value: string) => {
+        const newAttendees = [...attendees];
+        newAttendees[index] = { ...newAttendees[index], [field]: value };
+        setAttendees(newAttendees);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,7 +176,7 @@ export default function PassPage() {
     };
 
     const handleSubmitPayment = async () => {
-        if (!selectedPass || !profile) return;
+        if (!pricingData || !profile) return;
 
         if (!utr && !paymentProof) {
             toast.error('Please provide EITHER a Transaction UTR OR a Payment Screenshot.');
@@ -175,8 +188,7 @@ export default function PassPage() {
             return;
         }
 
-        const ticketInfo = TICKET_PRICES[selectedPass];
-        if (ticketInfo.pax > 1) {
+        if (attendeeCount > 1) {
             for (let i = 0; i < attendees.length; i++) {
                 const attendee = attendees[i];
                 if (!attendee.name || !attendee.email || !attendee.phone) {
@@ -215,14 +227,14 @@ export default function PassPage() {
             }
 
             let bookingGroupId: string | null = null;
-            if (ticketInfo.pax > 1) {
+            if (attendeeCount > 1) {
                 const { data: groupData, error: groupError } = await supabase
                     .from('booking_groups')
                     .insert({
                         purchaser_id: profile.id,
-                        ticket_type: selectedPass,
-                        total_amount: ticketInfo.amount,
-                        pax_count: ticketInfo.pax
+                        ticket_type: pricingData.label.toLowerCase(),
+                        total_amount: pricingData.totalAmount,
+                        pax_count: attendeeCount
                     })
                     .select()
                     .single();
@@ -250,15 +262,16 @@ export default function PassPage() {
                         pending_email: (isPurchaser || existingUserId) ? null : attendee.email.toLowerCase(),
                         pending_name: (isPurchaser || existingUserId) ? null : attendee.name,
                         pending_phone: (isPurchaser || existingUserId) ? null : attendee.phone,
-                        type: selectedPass,
-                        amount: Math.floor(ticketInfo.amount / ticketInfo.pax),
+                        type: pricingData.label.toLowerCase(),
+                        amount: Math.floor(pricingData.totalAmount / attendeeCount),
                         status: 'pending_verification',
                         pax_count: 1,
                         qr_secret: 'pending_' + Date.now() + '_' + index,
                         screenshot_path: index === 0 ? screenshotPath : null,
                         utr: index === 0 ? (utr || null) : null,
                         payment_owner_name: (index === 0 && utr) ? paymentOwnerName : null,
-                        booking_group_id: bookingGroupId
+                        booking_group_id: bookingGroupId,
+                        payment_category: profile.role // Add payment category
                     };
                 })
             );
@@ -271,7 +284,7 @@ export default function PassPage() {
 
             const otherAttendees = attendees.filter(a => a.email.toLowerCase() !== profile.email.toLowerCase());
             toast.success('Booking submitted successfully!', {
-                description: ticketInfo.pax > 1
+                description: attendeeCount > 1
                     ? `Payment will be verified shortly. ${otherAttendees.length} other attendee(s) will receive their tickets.`
                     : 'Your payment will be verified shortly.',
                 duration: 6000,
@@ -366,8 +379,8 @@ export default function PassPage() {
     };
 
     const getUPIString = () => {
-        if (!selectedPass) return '';
-        const amount = TICKET_PRICES[selectedPass].amount;
+        if (!pricingData) return '';
+        const amount = pricingData.totalAmount;
         return `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent(RECIPIENT_NAME)}&am=${amount}&tn=ESummit26`;
     };
 
@@ -408,30 +421,106 @@ export default function PassPage() {
                     {!ticket ? (
                         !showPaymentModal ? (
                             <div>
-                                <h2 className="font-heading text-xl sm:text-2xl text-white mb-4 sm:mb-6">Select a Pass</h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-                                    {Object.entries(TICKET_PRICES).map(([type, info]) => (
-                                        <motion.button
-                                            key={type}
-                                            onClick={() => handleSelectPass(type)}
-                                            whileHover={{ scale: 1.02 }}
-                                            whileTap={{ scale: 0.98 }}
-                                            className={`relative p-4 sm:p-6 rounded-xl sm:rounded-2xl border transition-all duration-300 text-left ${type === 'duo'
-                                                ? 'border-[#a855f7] bg-[#a855f7]/5'
-                                                : 'border-white/10 hover:border-white/30'
-                                                }`}
-                                        >
-                                            <h3 className="font-heading text-lg sm:text-xl text-white mb-1 sm:mb-2">{info.label}</h3>
-                                            <p className="font-heading text-2xl sm:text-3xl text-[#a855f7]">₹{info.amount}</p>
-                                            <div className="flex items-center gap-2 mt-3 sm:mt-4">
-                                                <Users className="w-4 h-4 text-white/50" />
-                                                <span className="font-mono text-xs text-white/50">
-                                                    {info.pax} {info.pax === 1 ? 'PERSON' : 'PEOPLE'}
-                                                </span>
-                                            </div>
-                                        </motion.button>
-                                    ))}
+                                <h2 className="font-heading text-xl sm:text-2xl text-white mb-4 sm:mb-6">Select Attendees</h2>
+
+                                {/* Pricing Tiers Info */}
+                                <div className="glass-card p-4 sm:p-6 rounded-xl border border-white/10 mb-6">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Ticket className="w-5 h-5 text-[#a855f7]" />
+                                        <h3 className="font-heading text-lg text-white">Pricing Tiers</h3>
+                                        <span className={`ml-auto px-2 py-1 rounded text-xs font-bold ${isExternal ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                                            {isExternal ? 'EXTERNAL' : 'INTERNAL'}
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {isExternal ? (
+                                            <>
+                                                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                                    <span className="text-white/70 text-sm">1 person</span>
+                                                    <span className="text-white font-mono text-sm">₹349 / head</span>
+                                                </div>
+                                                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                                    <span className="text-white/70 text-sm">2-6 people</span>
+                                                    <span className="text-[#a855f7] font-mono text-sm font-bold">₹325 / head</span>
+                                                </div>
+                                                <div className="flex justify-between items-center py-2">
+                                                    <span className="text-white/70 text-sm">7+ people</span>
+                                                    <span className="text-green-400 font-mono text-sm font-bold">₹300 / head</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                                    <span className="text-white/70 text-sm">1 person</span>
+                                                    <span className="text-white font-mono text-sm">₹199 / head</span>
+                                                </div>
+                                                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                                    <span className="text-white/70 text-sm">2-3 people</span>
+                                                    <span className="text-white font-mono text-sm">₹180 / head</span>
+                                                </div>
+                                                <div className="flex justify-between items-center py-2 border-b border-white/10">
+                                                    <span className="text-white/70 text-sm">4-9 people</span>
+                                                    <span className="text-[#a855f7] font-mono text-sm font-bold">₹170 / head</span>
+                                                </div>
+                                                <div className="flex justify-between items-center py-2">
+                                                    <span className="text-white/70 text-sm">10+ people</span>
+                                                    <span className="text-green-400 font-mono text-sm font-bold">₹149 / head</span>
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                    <p className="text-xs text-white/40 mt-3 text-center">💡 The more you bring, the less you pay!</p>
                                 </div>
+
+                                <div className="glass-card p-6 rounded-2xl border border-white/10 relative overflow-hidden mb-8">
+
+                                    <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center justify-between">
+                                        <div className="flex flex-col gap-4 items-center md:items-start">
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => handleQuantityChange(-1)}
+                                                    className="w-12 h-12 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors border border-white/5"
+                                                    disabled={attendeeCount <= 1}
+                                                >
+                                                    <span className="text-2xl">-</span>
+                                                </button>
+                                                <div className="w-20 text-center">
+                                                    <span className="text-4xl font-heading text-white">{attendeeCount}</span>
+                                                    <p className="text-xs text-white/40 font-mono mt-1">PERSON{attendeeCount > 1 ? 'S' : ''}</p>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleQuantityChange(1)}
+                                                    className="w-12 h-12 rounded-xl bg-[#a855f7] hover:bg-[#9333ea] flex items-center justify-center text-white transition-colors shadow-lg shadow-[#a855f7]/25"
+                                                >
+                                                    <span className="text-2xl">+</span>
+                                                </button>
+                                            </div>
+                                            <p className="text-sm text-white/50 max-w-[300px] text-center md:text-left">
+                                                {attendeeCount === 1
+                                                    ? "Buying for yourself? Grab a solo pass!"
+                                                    : "Bring your friends along! The more, the merrier (and cheaper!)."}
+                                            </p>
+                                        </div>
+
+                                        <div className="text-center md:text-right">
+                                            <div className="text-sm text-[#a855f7] font-bold mb-1 uppercase tracking-wider">{pricingData?.label}</div>
+                                            <div className="text-5xl font-heading text-white mb-2">
+                                                ₹{pricingData?.totalAmount}
+                                            </div>
+                                            <div className="text-sm text-white/50">
+                                                ₹{pricingData?.pricePerHead} per person
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setShowPaymentModal(true)}
+                                    className="w-full py-4 rounded-xl bg-gradient-to-r from-[#a855f7] to-[#ec4899] text-white font-bold text-lg shadow-lg hover:shadow-[#a855f7]/25 transition-all duration-300 transform hover:scale-[1.01]"
+                                >
+                                    Proceed to Pay ₹{pricingData?.totalAmount}
+                                </button>
                             </div>
                         ) : (
                             <motion.div
@@ -443,11 +532,11 @@ export default function PassPage() {
                                     className="flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-4 sm:mb-6 text-sm font-body"
                                 >
                                     <ArrowLeft className="w-4 h-4" />
-                                    Change Plan
+                                    Change Quantity
                                 </button>
 
-                                {/* Attendee Form for Duo/Quad */}
-                                {showAttendeeForm && selectedPass && TICKET_PRICES[selectedPass].pax > 1 && (
+                                {/* Attendee Form for Multi-Pax */}
+                                {showAttendeeForm && attendeeCount > 1 && (
                                     <div className="mb-6 sm:mb-8 pb-6 sm:pb-8 border-b border-white/10">
                                         <div className="flex items-center gap-3 mb-4 sm:mb-6">
                                             <UserPlus className="w-5 h-5 sm:w-6 sm:h-6 text-[#a855f7]" />
@@ -456,7 +545,7 @@ export default function PassPage() {
                                             </h3>
                                         </div>
                                         <p className="text-white/50 text-xs sm:text-sm mb-4 sm:mb-6 font-body">
-                                            Enter the details of all {TICKET_PRICES[selectedPass].pax} people.
+                                            Enter the details of all {attendeeCount} people.
                                         </p>
 
                                         <div className="space-y-4 sm:space-y-6">
@@ -528,7 +617,7 @@ export default function PassPage() {
                                     {/* QR Code Column */}
                                     <div className="flex flex-col items-center p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-white order-2 md:order-1">
                                         <h3 className="text-black font-heading text-lg sm:text-xl mb-3 sm:mb-4 text-center">
-                                            Scan to Pay ₹{selectedPass && TICKET_PRICES[selectedPass].amount}
+                                            Scan to Pay ₹{pricingData?.totalAmount}
                                         </h3>
                                         <div className="p-2 border-2 border-black rounded-lg mb-3 sm:mb-4 bg-white">
                                             <QRCode value={getUPIString()} size={160} className="sm:w-[200px] sm:h-[200px]" />
@@ -730,7 +819,6 @@ export default function PassPage() {
 
                                                 toast.success('Ready to try again!');
                                                 setTicket(null);
-                                                setSelectedPass(null);
                                                 setPaymentProof(null);
                                                 setUtr('');
                                             } catch {

@@ -9,7 +9,7 @@ import AdminDock from '@/components/AdminDock';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
 import { canApprovePayments, type UserRole } from '@/types/database';
-import { TICKET_PRICES } from '@/types/payment';
+
 
 interface GroupMember {
     id: string;
@@ -308,11 +308,9 @@ export default function VerifyPage() {
         pending: allTickets.filter(t => t.status === 'pending_verification').length,
         approved: allTickets.filter(t => t.status === 'paid').length,
         rejected: allTickets.filter(t => t.status === 'rejected').length,
-        totalRevenue: allTickets.filter(t => t.status === 'paid').reduce((sum, t) => {
-            const priceInfo = TICKET_PRICES[t.type as keyof typeof TICKET_PRICES];
-            return sum + (priceInfo ? priceInfo.amount : t.amount);
-        }, 0)
+        totalRevenue: allTickets.filter(t => t.status === 'paid').reduce((sum, t) => sum + t.amount, 0)
     };
+
 
     return (
         <main className="min-h-screen bg-[#050505] relative">
@@ -457,7 +455,12 @@ export default function VerifyPage() {
                                             <div className="flex items-center gap-3">
                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${ticket.type.includes('quad') || ticket.type === 'bumper' ? 'border-purple-500/30 text-purple-400' : 'border-blue-500/30 text-blue-400'
                                                     }`}>{ticket.type}</span>
-                                                <span className="font-heading text-white">₹{TICKET_PRICES[ticket.type]?.amount || ticket.amount}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="font-heading text-white">₹{ticket.amount}</span>
+                                                    {ticket.groupMembers && ticket.groupMembers.length > 1 && (
+                                                        <span className="text-[10px] text-white/50">{ticket.groupMembers.length} people</span>
+                                                    )}
+                                                </div>
                                             </div>
 
                                             {ticket.status === 'pending_verification' && (
