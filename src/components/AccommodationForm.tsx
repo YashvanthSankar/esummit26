@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Upload, CheckCircle, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Loader2, Upload, CheckCircle, AlertCircle, ArrowLeft, ArrowRight, Info, Clock } from 'lucide-react';
 import { compressImage, validateFile } from '@/lib/utils';
-import { ACCOMMODATION_PRICE, UPI_CONFIG } from '@/types/payment';
+import { ACCOMMODATION_DATES, ACCOMMODATION_PRICES, getAccommodationPrice, UPI_CONFIG } from '@/types/payment';
 import QRCode from 'react-qr-code';
 
 interface FormData {
@@ -15,8 +15,7 @@ interface FormData {
     gender: 'Male' | 'Female' | '';
     email: string;
     college_name: string;
-    date_of_arrival: string;
-    date_of_departure: string;
+    selectedDays: string[]; // Array of selected day IDs
 }
 
 export default function AccommodationForm() {
@@ -31,8 +30,7 @@ export default function AccommodationForm() {
         gender: '',
         email: '',
         college_name: '',
-        date_of_arrival: '',
-        date_of_departure: '',
+        selectedDays: [],
     });
     const [idProof, setIdProof] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -42,6 +40,9 @@ export default function AccommodationForm() {
     const [paymentUtr, setPaymentUtr] = useState('');
     const [paymentOwnerName, setPaymentOwnerName] = useState('');
     const paymentFileRef = useRef<HTMLInputElement>(null);
+
+    // Calculate price based on selected days
+    const calculatedPrice = getAccommodationPrice(formData.selectedDays.length);
 
     // Fetch user profile data and pre-fill form
     useEffect(() => {
@@ -68,6 +69,24 @@ export default function AccommodationForm() {
 
         fetchUserData();
     }, [supabase]);
+
+    // Handle day selection toggle
+    const handleDayToggle = (dayId: string) => {
+        setFormData(prev => {
+            const isSelected = prev.selectedDays.includes(dayId);
+            if (isSelected) {
+                return {
+                    ...prev,
+                    selectedDays: prev.selectedDays.filter(d => d !== dayId)
+                };
+            } else {
+                return {
+                    ...prev,
+                    selectedDays: [...prev.selectedDays, dayId]
+                };
+            }
+        });
+    };
 
     // ID Proof file validation and preview (images or PDF)
     const handleIdProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,21 +170,18 @@ export default function AccommodationForm() {
     // Validate step 1 data
     const validateStep1 = (): boolean => {
         if (!formData.name || !formData.phone_number || !formData.age || !formData.gender ||
-            !formData.email || !formData.college_name || !formData.date_of_arrival ||
-            !formData.date_of_departure) {
+            !formData.email || !formData.college_name) {
             toast.error('Please fill in all fields');
+            return false;
+        }
+
+        if (formData.selectedDays.length === 0) {
+            toast.error('Please select at least one day for accommodation');
             return false;
         }
 
         if (!idProof) {
             toast.error('Please upload your ID proof');
-            return false;
-        }
-
-        const arrival = new Date(formData.date_of_arrival);
-        const departure = new Date(formData.date_of_departure);
-        if (departure <= arrival) {
-            toast.error('Departure date must be after arrival date');
             return false;
         }
 
@@ -227,6 +243,12 @@ export default function AccommodationForm() {
 
             setUploadProgress(80);
 
+            // Get selected dates from the day IDs
+            const selectedDates = formData.selectedDays.map(dayId => {
+                const dayInfo = ACCOMMODATION_DATES.find(d => d.id === dayId);
+                return dayInfo?.date || '';
+            }).filter(Boolean);
+
             // Insert into database
             toast.loading('Submitting registration...', { id: 'submit' });
             const { error: insertError } = await supabase
@@ -240,11 +262,10 @@ export default function AccommodationForm() {
                         gender: formData.gender,
                         email: formData.email,
                         college_name: formData.college_name,
-                        date_of_arrival: formData.date_of_arrival,
-                        date_of_departure: formData.date_of_departure,
+                        selected_days: selectedDates, // Store as array of dates
                         id_proof_url: idProofUrl,
                         payment_status: 'pending_verification',
-                        payment_amount: ACCOMMODATION_PRICE,
+                        payment_amount: calculatedPrice,
                         payment_utr: paymentUtr || null,
                         payment_owner_name: paymentUtr ? paymentOwnerName : null,
                         payment_screenshot_path: paymentScreenshotPath,
@@ -295,7 +316,7 @@ export default function AccommodationForm() {
 
     // Generate UPI payment string
     const getUPIString = () => {
-        return `upi://pay?pa=${UPI_CONFIG.VPA}&pn=${encodeURIComponent(UPI_CONFIG.NAME)}&am=${ACCOMMODATION_PRICE}&tn=ESummit26_Accommodation`;
+        return `upi://pay?pa=${UPI_CONFIG.VPA}&pn=${encodeURIComponent(UPI_CONFIG.NAME)}&am=${calculatedPrice}&tn=ESummit26_Accommodation`;
     };
 
     return (
@@ -306,10 +327,34 @@ export default function AccommodationForm() {
                 </h2>
                 <p className="text-white/60 text-sm">
                     {step === 1
-                        ? 'Step 1: Fill in your details. Limited spots available (60 per gender).'
-                        : `Step 2: Complete payment of ₹${ACCOMMODATION_PRICE}`
+                        ? 'Step 1: Fill in your details and select your stay days. Limited spots available (60 per gender).'
+                        : `Step 2: Complete payment of ₹${calculatedPrice}`
                     }
                 </p>
+
+                {/* External only notice */}
+                {/* <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2">
+                    <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-amber-300 text-xs">
+                        Accommodation is available <strong>only for external participants</strong>. VIT students are not eligible for accommodation.
+                    </p>
+                </div> */}
+
+                {/* Food info notice */}
+                <div className="mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-blue-300 text-xs">
+                        <strong>No Food included in the package. Participants can either pay and take their food from the hostel mess or arrange their own meals.</strong>
+                    </p>
+                </div>
+
+                {/* Check-in/Check-out time notice */}
+                <div className="mt-2 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-start gap-2">
+                    <Clock className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-purple-300 text-xs">
+                        <strong>Check-in & Check-out Time:</strong> 10:00 AM
+                    </p>
+                </div>
 
                 {/* Step indicator */}
                 <div className="flex items-center gap-2 mt-4">
@@ -436,38 +481,42 @@ export default function AccommodationForm() {
                         />
                     </div>
 
-                    {/* Arrival and Departure Dates */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="date_of_arrival" className="block text-sm font-medium text-white/80 mb-2">
-                                Date of Arrival <span className="text-red-400">*</span>
-                            </label>
-                            <input
-                                type="date"
-                                id="date_of_arrival"
-                                name="date_of_arrival"
-                                value={formData.date_of_arrival}
-                                onChange={handleChange}
-                                required
-                                min={new Date().toISOString().split('T')[0]}
-                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#a855f7]/50 focus:bg-white/10 transition-all"
-                            />
+                    {/* Day Selection */}
+                    <div>
+                        <label className="block text-sm font-medium text-white/80 mb-3">
+                            Select Accommodation Days <span className="text-red-400">*</span>
+                        </label>
+                        <div className="space-y-3">
+                            {ACCOMMODATION_DATES.map((day) => (
+                                <label
+                                    key={day.id}
+                                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${formData.selectedDays.includes(day.id)
+                                        ? 'bg-[#a855f7]/10 border-[#a855f7]/50'
+                                        : 'bg-white/5 border-white/10 hover:border-white/20'
+                                        }`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={formData.selectedDays.includes(day.id)}
+                                        onChange={() => handleDayToggle(day.id)}
+                                        className="w-5 h-5 rounded border-white/20 bg-white/5 text-[#a855f7] focus:ring-[#a855f7]/50 focus:ring-offset-0"
+                                    />
+                                    <span className="text-white font-medium">{day.label}</span>
+                                </label>
+                            ))}
                         </div>
 
-                        <div>
-                            <label htmlFor="date_of_departure" className="block text-sm font-medium text-white/80 mb-2">
-                                Date of Departure <span className="text-red-400">*</span>
-                            </label>
-                            <input
-                                type="date"
-                                id="date_of_departure"
-                                name="date_of_departure"
-                                value={formData.date_of_departure}
-                                onChange={handleChange}
-                                required
-                                min={formData.date_of_arrival || new Date().toISOString().split('T')[0]}
-                                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-[#a855f7]/50 focus:bg-white/10 transition-all"
-                            />
+                        {/* Price Display */}
+                        <div className="mt-4 p-4 bg-gradient-to-r from-[#a855f7]/10 to-[#7c3aed]/10 border border-[#a855f7]/30 rounded-xl">
+                            <div className="flex items-center justify-between">
+                                <span className="text-white/70">Selected: {formData.selectedDays.length} day(s)</span>
+                                <span className="text-2xl font-bold text-white">
+                                    {calculatedPrice > 0 ? `₹${calculatedPrice}` : '—'}
+                                </span>
+                            </div>
+                            <div className="mt-2 text-xs text-white/50">
+                                Pricing: 1 day = ₹{ACCOMMODATION_PRICES[1]} | 2 days = ₹{ACCOMMODATION_PRICES[2]} | 3 days = ₹{ACCOMMODATION_PRICES[3]}
+                            </div>
                         </div>
                     </div>
 
@@ -517,7 +566,8 @@ export default function AccommodationForm() {
                     {/* Proceed Button */}
                     <button
                         type="submit"
-                        className="w-full py-4 px-6 bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-[#a855f7]/20 hover:shadow-[#a855f7]/40"
+                        disabled={formData.selectedDays.length === 0}
+                        className="w-full py-4 px-6 bg-[#a855f7] hover:bg-[#9333ea] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 shadow-lg shadow-[#a855f7]/20 hover:shadow-[#a855f7]/40"
                     >
                         <span>Proceed to Payment</span>
                         <ArrowRight className="w-5 h-5" />
@@ -538,7 +588,7 @@ export default function AccommodationForm() {
                         {/* QR Code Column */}
                         <div className="flex flex-col items-center p-6 rounded-2xl bg-white">
                             <h3 className="text-black font-heading text-xl mb-4 text-center">
-                                Scan to Pay ₹{ACCOMMODATION_PRICE}
+                                Scan to Pay ₹{calculatedPrice}
                             </h3>
                             <div className="p-2 border-2 border-black rounded-lg mb-4 bg-white">
                                 <QRCode value={getUPIString()} size={200} />
@@ -552,7 +602,7 @@ export default function AccommodationForm() {
                         <div>
                             <h3 className="font-heading text-2xl text-white mb-2">Confirm Payment</h3>
                             <p className="font-body text-white/50 text-sm mb-6">
-                                1. Transfer ₹{ACCOMMODATION_PRICE}.<br />
+                                1. Transfer ₹{calculatedPrice}.<br />
                                 2. Enter UTR/Reference ID.<br />
                                 3. Upload screenshot.
                             </p>

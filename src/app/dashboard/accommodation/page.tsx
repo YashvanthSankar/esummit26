@@ -3,11 +3,10 @@
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Mail, Phone, Building2, FileText, CreditCard } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock, Calendar, User, Mail, Phone, Building2, CreditCard, AlertCircle } from 'lucide-react';
 import AccommodationForm from '@/components/AccommodationForm';
 import DashboardDock from '@/components/DashboardDock';
 import AdminDock from '@/components/AdminDock';
-import { ACCOMMODATION_PRICE } from '@/types/payment';
 
 interface AccommodationRequest {
     id: string;
@@ -17,8 +16,7 @@ interface AccommodationRequest {
     gender: string;
     email: string;
     college_name: string;
-    date_of_arrival: string;
-    date_of_departure: string;
+    selected_days: string[]; // Array of selected dates
     id_proof_url: string;
     status: 'pending' | 'approved' | 'rejected';
     admin_notes: string | null;
@@ -125,6 +123,19 @@ export default function AccommodationPage() {
         }
     };
 
+    // Format selected days for display
+    const formatSelectedDays = (days: string[]) => {
+        if (!days || days.length === 0) return 'No days selected';
+        return days.map(date => {
+            const d = new Date(date);
+            return d.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }).join(', ');
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#050505] flex items-center justify-center">
@@ -132,6 +143,9 @@ export default function AccommodationPage() {
             </div>
         );
     }
+
+    // Check if user is external
+    const isExternal = profile?.role === 'external';
 
     return (
         <main className="min-h-screen bg-[#050505] relative overflow-hidden">
@@ -143,7 +157,7 @@ export default function AccommodationPage() {
             {profile?.role === 'admin' ? (
                 <AdminDock currentPage="accommodation" />
             ) : (
-                <DashboardDock userName={profile?.full_name} userRole={profile?.role} isExternal={profile?.role === 'external'} currentPage="accommodation" />
+                <DashboardDock userName={profile?.full_name} userRole={profile?.role} isExternal={isExternal} currentPage="accommodation" />
             )}
 
             <div className="px-4 sm:px-6 py-6 sm:py-8 mr-0 md:mr-20 relative z-10 pb-24 md:pb-8">
@@ -153,7 +167,25 @@ export default function AccommodationPage() {
                         <p className="text-white/60 text-sm sm:text-base">Request accommodation for the event</p>
                     </div>
 
-                    {request ? (
+                    {/* Show message for non-external users */}
+                    {!isExternal && profile?.role !== 'admin' ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-[#0a0a0a]/90 backdrop-blur-sm border border-amber-500/30 rounded-2xl p-6"
+                        >
+                            <div className="flex items-start gap-4">
+                                <AlertCircle className="w-8 h-8 text-amber-400 flex-shrink-0" />
+                                <div>
+                                    <h2 className="text-xl font-heading text-white mb-2">Accommodation Not Available</h2>
+                                    <p className="text-white/60">
+                                        Accommodation is available <strong className="text-amber-400">only for external participants</strong>.
+                                        As a VIT student, you are not eligible for accommodation.
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ) : request ? (
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -169,11 +201,27 @@ export default function AccommodationPage() {
                                     </div>
                                 </div>
 
+                                {/* Food info reminder */}
+                                <div className="mb-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                                    <p className="text-blue-300 text-xs">
+                                        <strong>Food:</strong> Participants can either pay and take their food from the hostel mess or arrange their own meals.
+                                    </p>
+                                </div>
+
+                                {/* Check-in/Check-out time notice */}
+                                <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-start gap-2">
+                                    <Clock className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
+                                    <p className="text-purple-300 text-xs">
+                                        <strong>Check-in & Check-out Time:</strong> 10:00 AM
+                                    </p>
+                                </div>
+
                                 {/* Payment Status Messages */}
                                 {request.payment_status === 'pending_verification' && request.status !== 'rejected' && (
                                     <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
                                         <p className="text-amber-300 text-sm">
-                                            ⏳ Your payment of ₹{request.payment_amount || ACCOMMODATION_PRICE} is being verified. This typically takes 24 hours.
+                                            ⏳ Your payment of ₹{request.payment_amount} is being verified. This typically takes 24 hours.
                                             {request.payment_utr && (
                                                 <span className="block mt-1 font-mono text-amber-400">UTR: {request.payment_utr}</span>
                                             )}
@@ -268,39 +316,11 @@ export default function AccommodationPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start gap-3">
+                                    <div className="flex items-start gap-3 md:col-span-2">
                                         <Calendar className="w-5 h-5 text-white/40 mt-0.5" />
                                         <div>
-                                            <p className="text-white/50 text-xs">Check-in</p>
-                                            <p className="text-white font-medium">
-                                                {new Date(request.date_of_arrival).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    year: 'numeric'
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3">
-                                        <Calendar className="w-5 h-5 text-white/40 mt-0.5" />
-                                        <div>
-                                            <p className="text-white/50 text-xs">Check-out</p>
-                                            <p className="text-white font-medium">
-                                                {new Date(request.date_of_departure).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    year: 'numeric'
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-start gap-3">
-                                        <FileText className="w-5 h-5 text-white/40 mt-0.5" />
-                                        <div>
-                                            <p className="text-white/50 text-xs">Gender</p>
-                                            <p className="text-white font-medium">{request.gender}</p>
+                                            <p className="text-white/50 text-xs">Selected Days ({request.selected_days?.length || 0})</p>
+                                            <p className="text-white font-medium">{formatSelectedDays(request.selected_days)}</p>
                                         </div>
                                     </div>
 
@@ -308,7 +328,7 @@ export default function AccommodationPage() {
                                         <CreditCard className="w-5 h-5 text-white/40 mt-0.5" />
                                         <div>
                                             <p className="text-white/50 text-xs">Payment Amount</p>
-                                            <p className="text-white font-medium">₹{request.payment_amount || ACCOMMODATION_PRICE}</p>
+                                            <p className="text-white font-medium">₹{request.payment_amount}</p>
                                         </div>
                                     </div>
                                 </div>

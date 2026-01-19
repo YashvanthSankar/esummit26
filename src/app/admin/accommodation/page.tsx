@@ -18,8 +18,7 @@ interface AccommodationRequest {
     gender: string;
     email: string;
     college_name: string;
-    date_of_arrival: string;
-    date_of_departure: string;
+    selected_days: string[]; // Array of selected dates
     id_proof_url: string;
     status: 'pending' | 'approved' | 'rejected';
     admin_notes: string | null;
@@ -335,6 +334,15 @@ export default function AdminAccommodationPage() {
         return imageUrls[path] || null;
     };
 
+    // Format selected days for display
+    const formatSelectedDays = (days: string[] | null | undefined) => {
+        if (!days || days.length === 0) return 'No days';
+        return days.map(date => {
+            const d = new Date(date);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }).join(', ');
+    };
+
     const stats = {
         total: allRequests.length,
         pending: allRequests.filter(r => r.status === 'pending').length,
@@ -503,7 +511,7 @@ export default function AdminAccommodationPage() {
                                         <div className="flex items-center gap-2 text-sm">
                                             <Calendar className="w-4 h-4 text-white/40" />
                                             <span className="text-white/70">
-                                                {new Date(request.date_of_arrival).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {new Date(request.date_of_departure).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                {formatSelectedDays(request.selected_days)} ({request.selected_days?.length || 0} day{(request.selected_days?.length || 0) !== 1 ? 's' : ''})
                                             </span>
                                         </div>
                                         {request.payment_utr && (
@@ -580,12 +588,18 @@ export default function AdminAccommodationPage() {
 
                                     {selectedRequest.payment_screenshot_path && (
                                         <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
-                                            <Image
-                                                src={getPaymentScreenshotUrl(selectedRequest.payment_screenshot_path) || ''}
-                                                alt="Payment Screenshot"
-                                                fill
-                                                className="object-contain"
-                                            />
+                                            {getPaymentScreenshotUrl(selectedRequest.payment_screenshot_path) ? (
+                                                <Image
+                                                    src={getPaymentScreenshotUrl(selectedRequest.payment_screenshot_path)!}
+                                                    alt="Payment Screenshot"
+                                                    fill
+                                                    className="object-contain"
+                                                />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full">
+                                                    <Loader2 className="w-6 h-6 text-white/40 animate-spin" />
+                                                </div>
+                                            )}
                                         </div>
                                     )}
 
@@ -658,24 +672,10 @@ export default function AdminAccommodationPage() {
                                     <p className="text-white/40 text-xs mb-1">College</p>
                                     <p className="text-white">{selectedRequest.college_name}</p>
                                 </div>
-                                <div>
-                                    <p className="text-white/40 text-xs mb-1">Check-in</p>
+                                <div className="col-span-2">
+                                    <p className="text-white/40 text-xs mb-1">Selected Days ({selectedRequest.selected_days?.length || 0})</p>
                                     <p className="text-white">
-                                        {new Date(selectedRequest.date_of_arrival).toLocaleDateString('en-US', {
-                                            month: 'short',
-                                            day: 'numeric',
-                                            year: 'numeric'
-                                        })}
-                                    </p>
-                                </div>
-                                <div>
-                                    <p className="text-white/40 text-xs mb-1">Check-out</p>
-                                    <p className="text-white">
-                                        {new Date(selectedRequest.date_of_departure).toLocaleDateString('en-US', {
-                                            month: 'short',
-                                            day: 'numeric',
-                                            year: 'numeric'
-                                        })}
+                                        {formatSelectedDays(selectedRequest.selected_days)}
                                     </p>
                                 </div>
                             </div>

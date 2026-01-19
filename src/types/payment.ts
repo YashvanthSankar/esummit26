@@ -12,8 +12,27 @@ export const TICKET_PRICES: Record<string, { amount: number; pax: number; label:
 
 export type TicketType = keyof typeof TICKET_PRICES;
 
-// Accommodation pricing
-export const ACCOMMODATION_PRICE = 500; // Flat rate in INR
+// Accommodation pricing - based on number of days
+export const ACCOMMODATION_PRICES: Record<1 | 2 | 3, number> = {
+    1: 399,
+    2: 699,
+    3: 999,
+};
+
+// Available accommodation dates
+export const ACCOMMODATION_DATES = [
+    { id: 'day1', date: '2026-01-30', label: '30th Jan 2026 (Day 1)' },
+    { id: 'day2', date: '2026-01-31', label: '31st Jan 2026 (Day 2)' },
+    { id: 'day3', date: '2026-02-01', label: '1st Feb 2026 (Day 3)' },
+];
+
+// Calculate accommodation price based on selected days
+export const getAccommodationPrice = (daysSelected: number): number => {
+    if (daysSelected === 1) return ACCOMMODATION_PRICES[1];
+    if (daysSelected === 2) return ACCOMMODATION_PRICES[2];
+    if (daysSelected === 3) return ACCOMMODATION_PRICES[3];
+    return 0;
+};
 
 // Merchandise Item Types - 3 individual t-shirt designs
 export type MerchItemType = 'tshirt1' | 'tshirt2' | 'tshirt3';
