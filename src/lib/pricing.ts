@@ -11,11 +11,17 @@ export const EXTERNAL_PRICING: PricingTier[] = [
     { min: 7, max: null, price: 300, label: 'Group Pass (Large)' },
 ];
 
-export const INTERNAL_PRICING: PricingTier[] = [
-    { min: 1, max: 1, price: 199, label: 'Solo Pass' },
-    { min: 2, max: 3, price: 180, label: 'Group Pass (Mini)' },
-    { min: 4, max: 9, price: 170, label: 'Group Pass (Mid)' },
-    { min: 10, max: null, price: 149, label: 'Group Pass (Mega)' },
+export interface InternalPricingTier extends PricingTier {
+    strikePrice?: number;
+    strikeTotalPrice?: number;
+    fixedTotal?: number; // For combo offers with fixed total price
+    offerTag?: string;
+}
+
+export const INTERNAL_PRICING: InternalPricingTier[] = [
+    { min: 1, max: 3, price: 199, strikePrice: 249, label: 'Solo Pass', offerTag: 'Early Bird' },
+    { min: 4, max: 9, price: 190, label: 'Group Pass (Mid)' },
+    { min: 10, max: null, price: 175, label: 'Bumper Pass (10+)', offerTag: 'Bumper Offer!!' },
 ];
 
 export interface PriceCalculation {
@@ -37,9 +43,24 @@ export function calculateTicketPrice(count: number, role: string): PriceCalculat
     // Fallback to highest tier if not found (should not happen with open-ended max)
     const activeTier = tier || tiers[tiers.length - 1];
 
+    // Check for fixedTotal (combo offers) for internal tiers
+    const internalTier = activeTier as InternalPricingTier;
+    let totalAmount: number;
+
+    if (!isExternal && internalTier.fixedTotal !== undefined) {
+        if (internalTier.fixedTotal === -1) {
+            // Special case: price*count - 1 (for prices ending in 9)
+            totalAmount = activeTier.price * count - 1;
+        } else {
+            totalAmount = internalTier.fixedTotal;
+        }
+    } else {
+        totalAmount = activeTier.price * count;
+    }
+
     return {
-        totalAmount: activeTier.price * count,
-        pricePerHead: activeTier.price,
+        totalAmount,
+        pricePerHead: Math.floor(totalAmount / count),
         label: activeTier.label,
         isExternal
     };

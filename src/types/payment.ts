@@ -75,38 +75,38 @@ export const MERCH_BUNDLES: Record<MerchBundleType, {
 }> = {
     solo: {
         quantity: 1,
-        earlyBirdPrice: 325,
-        actualPrice: 349,
+        earlyBirdPrice: 349,
+        actualPrice: 399,
         label: 'Solo Bundle',
         description: '1 T-Shirt',
-        discount: 0,
+        discount: 0.13,
         itemCount: 1
     },
     duo: {
         quantity: 2,
-        earlyBirdPrice: 619,
-        actualPrice: 699,
+        earlyBirdPrice: 679,
+        actualPrice: 799,
         label: 'Duo Bundle',
         description: '2 T-Shirts',
-        discount: 0.11,
+        discount: 0.15,
         itemCount: 2
     },
     triple: {
         quantity: 3,
-        earlyBirdPrice: 929,
-        actualPrice: 1049,
+        earlyBirdPrice: 999,
+        actualPrice: 1199,
         label: 'Triple Bundle',
         description: '3 T-Shirts',
-        discount: 0.11,
+        discount: 0.17,
         itemCount: 3
     },
     quad: {
         quantity: 4,
-        earlyBirdPrice: 1199,
-        actualPrice: 1399,
+        earlyBirdPrice: 1299,
+        actualPrice: 1499,
         label: 'Quad Bundle',
         description: '4 T-Shirts',
-        discount: 0.20,
+        discount: 0.13,
         itemCount: 4
     },
 };

@@ -452,20 +452,25 @@ export default function PassPage() {
                                         ) : (
                                             <>
                                                 <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                                    <span className="text-white/70 text-sm">1 person</span>
-                                                    <span className="text-white font-mono text-sm">₹199 / head</span>
-                                                </div>
-                                                <div className="flex justify-between items-center py-2 border-b border-white/10">
-                                                    <span className="text-white/70 text-sm">2-3 people</span>
-                                                    <span className="text-white font-mono text-sm">₹180 / head</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-white/70 text-sm">1-3 people</span>
+                                                        <span className="px-1.5 py-0.5 text-[10px] bg-green-500/20 text-green-400 rounded font-bold">EARLY BIRD</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-white/40 line-through text-xs">₹249</span>
+                                                        <span className="text-green-400 font-mono text-sm font-bold">₹199 / head</span>
+                                                    </div>
                                                 </div>
                                                 <div className="flex justify-between items-center py-2 border-b border-white/10">
                                                     <span className="text-white/70 text-sm">4-9 people</span>
-                                                    <span className="text-[#a855f7] font-mono text-sm font-bold">₹170 / head</span>
+                                                    <span className="text-[#a855f7] font-mono text-sm font-bold">₹190 / head</span>
                                                 </div>
                                                 <div className="flex justify-between items-center py-2">
-                                                    <span className="text-white/70 text-sm">10+ people</span>
-                                                    <span className="text-green-400 font-mono text-sm font-bold">₹149 / head</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-white/70 text-sm">10+ people</span>
+                                                        <span className="px-1.5 py-0.5 text-[10px] bg-yellow-500/20 text-yellow-400 rounded font-bold animate-pulse">BUMPER OFFER!!</span>
+                                                    </div>
+                                                    <span className="text-yellow-400 font-mono text-sm font-bold">₹175 / head</span>
                                                 </div>
                                             </>
                                         )}
