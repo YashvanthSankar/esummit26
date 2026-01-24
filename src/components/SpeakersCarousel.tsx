@@ -7,34 +7,34 @@ import { Linkedin } from 'lucide-react';
 const speakers = [
     {
         id: 1,
-        name: 'Nagaraja Prakasam',
-        role: 'Author, Angel Investor, Mentor, Fund Advisor',
+        name: 'Suresh Narasimha',
+        role: 'CoCreate Ventures',
         company: '',
-        image: '/speakers/nagaraja.jpg',
-        linkedin: 'https://www.linkedin.com/in/nagapr/',
+        image: '/speakers/suresh.webp',
+        linkedin: null,
     },
     {
         id: 2,
-        name: 'Coming Soon',
-        role: 'To Be Announced',
-        company: 'Stay Tuned! 🎉',
-        image: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=500&fit=crop&blur=50',
+        name: 'Dr. Mylswamy Annadurai',
+        role: 'Moon Man of India',
+        company: '',
+        image: '/speakers/mylswamy.webp',
         linkedin: null,
     },
     {
         id: 3,
-        name: 'Coming Soon',
-        role: 'To Be Announced',
-        company: 'Stay Tuned! 🎉',
-        image: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=500&fit=crop&blur=50',
-        linkedin: null,
+        name: 'Nagaraja Prakasam',
+        role: 'Angel Investor | Author',
+        company: '',
+        image: '/speakers/nagaraja.webp',
+        linkedin: 'https://www.linkedin.com/in/nagapr/',
     },
     {
         id: 4,
-        name: 'Coming Soon',
-        role: 'To Be Announced',
-        company: 'Stay Tuned! 🎉',
-        image: 'https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=500&fit=crop&blur=50',
+        name: 'Arunabh Parihar',
+        role: 'Co Founder - Zoop Money',
+        company: '',
+        image: '/speakers/arunabh.webp',
         linkedin: null,
     },
 ];
@@ -105,14 +105,21 @@ export default function SpeakersCarousel() {
                             data-hover="true"
                         >
                             <div className="glass-card rounded-2xl overflow-hidden aspect-[3/4]">
+                                {/* Professional Gradient Background - sleek charcoal that blends with photos */}
+                                <div className="absolute inset-0 bg-gradient-to-b from-[#2a2a2a] via-[#1a1a1a] to-[#0a0a0a]" />
+
+                                {/* Subtle purple accent glow at edges */}
+                                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(168,85,247,0.15)_0%,transparent_50%)]" />
+
                                 {/* Image */}
                                 <div className="absolute inset-0">
                                     <img
                                         src={speaker.image}
                                         alt={speaker.name}
-                                        className="w-full h-full object-cover grayscale-hover"
+                                        className="w-full h-full object-cover object-top grayscale-hover"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent" />
+                                    {/* Gradient overlay for text readability */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent" />
                                 </div>
 
                                 {/* Info */}

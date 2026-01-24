@@ -66,7 +66,7 @@ export default function Home() {
           <EventsGrid />
 
           {/* Speakers */}
-          {/* <SpeakersCarousel /> */}
+          <SpeakersCarousel />
 
           {/* Schedule Timeline */}
           {/* <Schedule /> */}
