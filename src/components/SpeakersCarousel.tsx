@@ -116,7 +116,7 @@ export default function SpeakersCarousel() {
                                     <img
                                         src={speaker.image}
                                         alt={speaker.name}
-                                        className="w-full h-full object-cover object-top grayscale-hover"
+                                        className="w-full h-full object-cover object-top"
                                     />
                                     {/* Gradient overlay for text readability */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent" />
