@@ -11,7 +11,7 @@ const speakers = [
         role: 'CoCreate Ventures',
         company: '',
         image: '/speakers/suresh.webp',
-        linkedin: null,
+        linkedin: 'https://www.linkedin.com/in/cocreator/',
     },
     {
         id: 2,
@@ -19,7 +19,7 @@ const speakers = [
         role: 'Moon Man of India',
         company: '',
         image: '/speakers/mylswamy.webp',
-        linkedin: null,
+        linkedin: 'https://www.linkedin.com/in/mylswamy-annadurai-63aab431/',
     },
     {
         id: 3,
@@ -35,7 +35,7 @@ const speakers = [
         role: 'Co Founder - Zoop Money',
         company: '',
         image: '/speakers/arunabh.webp',
-        linkedin: null,
+        linkedin: 'https://www.linkedin.com/in/arunabhparihar/',
     },
 ];
 
