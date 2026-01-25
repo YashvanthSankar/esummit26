@@ -69,7 +69,7 @@ export default function Home() {
           <SpeakersCarousel />
 
           {/* Schedule Timeline */}
-          {/* <Schedule /> */}
+          <Schedule />
 
           {/* Sponsors Section */}
           <Sponsors />
