@@ -39,6 +39,7 @@ const events = [
         icon: Lightbulb,
         image: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&h=400&fit=crop',
         span: 'col-span-4 row-span-1',
+        unstopLink: 'https://unstop.com/p/ideathon-e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-1628112',
     },
     {
         id: 4,
