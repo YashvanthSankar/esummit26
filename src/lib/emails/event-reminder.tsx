@@ -135,31 +135,19 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                         <Section className="email-info-section" style={styles.infoSection}>
                             <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tr>
-                                    <td width="50%" style={styles.infoCell}>
-                                        <table cellPadding="0" cellSpacing="0" style={{ margin: '0 auto' }}>
-                                            <tr>
-                                                <td style={styles.infoIconCell}>
-                                                    <div style={styles.infoIcon}>📅</div>
-                                                </td>
-                                                <td style={styles.infoTextCell}>
-                                                    <Text className="email-info-label" style={styles.infoLabel}>WHEN</Text>
-                                                    <Text className="email-info-value" style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                    <td width="50%" align="center" valign="middle" style={styles.infoCell}>
+                                        <div style={styles.infoBlock}>
+                                            <span style={styles.infoIcon}>📅</span>
+                                            <Text className="email-info-label" style={styles.infoLabel}>WHEN</Text>
+                                            <Text className="email-info-value" style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
+                                        </div>
                                     </td>
-                                    <td width="50%" style={styles.infoCell}>
-                                        <table cellPadding="0" cellSpacing="0" style={{ margin: '0 auto' }}>
-                                            <tr>
-                                                <td style={styles.infoIconCell}>
-                                                    <div style={styles.infoIcon}>📍</div>
-                                                </td>
-                                                <td style={styles.infoTextCell}>
-                                                    <Text className="email-info-label" style={styles.infoLabel}>WHERE</Text>
-                                                    <Text className="email-info-value" style={styles.infoValue}>IIITDM Campus</Text>
-                                                </td>
-                                            </tr>
-                                        </table>
+                                    <td width="50%" align="center" valign="middle" style={styles.infoCell}>
+                                        <div style={styles.infoBlock}>
+                                            <span style={styles.infoIcon}>📍</span>
+                                            <Text className="email-info-label" style={styles.infoLabel}>WHERE</Text>
+                                            <Text className="email-info-value" style={styles.infoValue}>IIITDM Campus</Text>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
@@ -294,28 +282,25 @@ const styles: Record<string, React.CSSProperties> = {
         boxShadow: '0 4px 24px rgba(147, 51, 234, 0.35)',
     },
 
-    // Info Section - Fixed consistent layout
+    // Info Section - Centered stacked layout
     infoSection: {
         margin: '0 32px 32px',
-        padding: '20px 16px',
+        padding: '24px 16px',
         backgroundColor: 'rgba(147, 51, 234, 0.06)',
         border: '1px solid rgba(147, 51, 234, 0.15)',
         borderRadius: '16px',
     },
     infoCell: {
-        padding: '8px 4px',
-        verticalAlign: 'top' as const,
+        padding: '8px',
+        verticalAlign: 'middle' as const,
     },
-    infoIconCell: {
-        verticalAlign: 'top' as const,
-        paddingRight: '12px',
+    infoBlock: {
+        textAlign: 'center' as const,
     },
     infoIcon: {
-        fontSize: '20px',
-        lineHeight: '1',
-    },
-    infoTextCell: {
-        verticalAlign: 'top' as const,
+        fontSize: '24px',
+        display: 'block',
+        marginBottom: '8px',
     },
     infoLabel: {
         color: 'rgba(255, 255, 255, 0.45)',
@@ -324,13 +309,14 @@ const styles: Record<string, React.CSSProperties> = {
         letterSpacing: '1.5px',
         textTransform: 'uppercase' as const,
         margin: '0 0 4px 0',
+        textAlign: 'center' as const,
     },
     infoValue: {
         color: '#ffffff',
         fontSize: '14px',
         fontWeight: '600',
         margin: 0,
-        whiteSpace: 'nowrap' as const,
+        textAlign: 'center' as const,
     },
 
     // Footer
