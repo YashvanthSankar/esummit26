@@ -212,26 +212,43 @@ export async function POST(request: NextRequest) {
                         websiteUrl: 'https://esummit26-iiitdm.vercel.app',
                     },
                     events: events || [
-                        { name: 'Startup Pitch', date: 'Jan 31', prize: '₹50,000' },
-                        { name: 'Mock IPL Auction', date: 'Jan 30', prize: '₹30,000' },
-                        { name: 'E-Quiz', date: 'Feb 1', prize: '₹15,000' },
-                        { name: 'Crisis Management', date: 'Jan 31', prize: '₹20,000' },
+                        { name: 'Startup Pitch', date: 'Jan 31', prize: '₹30,000' },
+                        { name: 'Model United Nations', date: 'Jan 30-31', prize: '₹30,000' },
+                        { name: 'Ideathon', date: 'Jan 31', prize: '₹18,000' },
+                        { name: 'Mock IPL Auction', date: 'Feb 1', prize: '₹12,000' },
                     ],
                     speakers: speakers || [
                         {
                             name: 'Harsha Vardhan',
-                            title: 'Founder, Codedale | Ex-SDE Zomato',
-                            image: 'https://yt3.googleusercontent.com/ytc/AIdro_k4k-Gf1X4yHwNjjX4NqJ_1_4X4_4X4_4X4_4X4=s900-c-k-c0x00ffffff-no-rj', // Placeholder or real if available, using a generic placeholder for safety if this link dies, often better to rely on project assets if possible
+                            title: 'Founder, Codedale | HarshaVerse',
+                            image: 'https://yt3.googleusercontent.com/ytc/AIdro_k4k-Gf1X4yHwNjjX4NqJ_1_4X4_4X4_4X4_4X4=s900-c-k-c0x00ffffff-no-rj',
                         },
                         {
-                            name: 'Industry Leaders',
-                            title: 'CXOs & Founders',
-                            image: 'https://ui-avatars.com/api/?name=I+L&background=random',
+                            name: 'Dr. Mylswamy Annadurai',
+                            title: 'Moon Man of India',
+                            image: 'https://esummit26-iiitdm.vercel.app/speakers/mylswamy.webp',
+                        },
+                        {
+                            name: 'Suresh Narasimha',
+                            title: 'CoCreate Ventures',
+                            image: 'https://esummit26-iiitdm.vercel.app/speakers/suresh.webp',
+                        },
+                        {
+                            name: 'Nagaraja Prakasam',
+                            title: 'Angel Investor | Author',
+                            image: 'https://esummit26-iiitdm.vercel.app/speakers/nagaraja.webp',
+                        },
+                        {
+                            name: 'Arunabh Parihar',
+                            title: 'Co-Founder, Zoop Money',
+                            image: 'https://esummit26-iiitdm.vercel.app/speakers/arunabh.webp',
                         }
                     ],
                     sponsors: sponsors || [
                         { name: 'Unstop', logo: 'https://d8it4huxumps7.cloudfront.net/uploads/images/unstop/branding-guide/logos/Unstop-Logo-White-min.png' },
-                        { name: 'Resend', logo: 'https://resend.com/static/brand/resend-icon-white.png' },
+                        { name: 'StockGro', logo: 'https://esummit26-iiitdm.vercel.app/sponsors/stockgro.png' },
+                        { name: 'GeeksforGeeks', logo: 'https://esummit26-iiitdm.vercel.app/sponsors/gfg.png' },
+                        { name: 'StartupNews.fyi', logo: 'https://esummit26-iiitdm.vercel.app/sponsors/startupnewsfyi.png' },
                     ],
                 })
             );
