@@ -9,6 +9,7 @@ import {
     Link,
     Heading,
     Hr,
+    Img,
 } from '@react-email/components';
 
 interface EventReminderEmailProps {
@@ -16,6 +17,8 @@ interface EventReminderEmailProps {
     subject: string;
     message: string;
 }
+
+const BASE_URL = 'https://esummit26-iiitdm.vercel.app';
 
 export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
     userName,
@@ -34,9 +37,7 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                 @media (prefers-color-scheme: light) {
                     .email-body { background-color: #f5f5f7 !important; }
                     .email-container { background-color: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
-                    .email-header { background: linear-gradient(180deg, rgba(147, 51, 234, 0.05) 0%, transparent 100%) !important; }
-                    .email-logo-text { color: #1a1a1a !important; }
-                    .email-logo-subtext { color: rgba(0,0,0,0.5) !important; }
+                    .email-header { background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important; }
                     .email-greeting { color: rgba(0,0,0,0.6) !important; }
                     .email-headline { color: #1a1a1a !important; }
                     .email-message { color: rgba(0,0,0,0.7) !important; }
@@ -51,9 +52,7 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                 @media (prefers-color-scheme: dark) {
                     .email-body { background-color: #000000 !important; }
                     .email-container { background-color: #0c0c0c !important; border-color: rgba(255,255,255,0.08) !important; }
-                    .email-header { background: linear-gradient(180deg, rgba(147, 51, 234, 0.08) 0%, transparent 100%) !important; }
-                    .email-logo-text { color: #ffffff !important; }
-                    .email-logo-subtext { color: rgba(255,255,255,0.4) !important; }
+                    .email-header { background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%) !important; }
                     .email-greeting { color: rgba(255,255,255,0.6) !important; }
                     .email-headline { color: #ffffff !important; }
                     .email-message { color: rgba(255,255,255,0.75) !important; }
@@ -72,22 +71,27 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                 <div style={styles.glowWrapper}>
                     <Container className="email-container" style={styles.container}>
 
-                        {/* ═══════════════ HEADER ═══════════════ */}
+                        {/* ═══════════════ LOGO HEADER ═══════════════ */}
                         <Section className="email-header" style={styles.header}>
                             <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tr>
-                                    <td align="center">
-                                        <div style={styles.logoMark}>E</div>
+                                    <td align="left" style={{ width: '50%' }}>
+                                        <Img
+                                            src={`${BASE_URL}/esummit26-logo.png`}
+                                            alt="E-Summit '26"
+                                            width="120"
+                                            height="auto"
+                                            style={styles.esummitLogo}
+                                        />
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td align="center">
-                                        <Heading className="email-logo-text" style={styles.logoText}>E-SUMMIT'26</Heading>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="center">
-                                        <Text className="email-logo-subtext" style={styles.logoSubtext}>IIITDM KANCHEEPURAM</Text>
+                                    <td align="right" style={{ width: '50%' }}>
+                                        <Img
+                                            src={`${BASE_URL}/ecell.png`}
+                                            alt="E-Cell IIITDM"
+                                            width="80"
+                                            height="auto"
+                                            style={styles.ecellLogo}
+                                        />
                                     </td>
                                 </tr>
                             </table>
@@ -132,12 +136,30 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                             <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tr>
                                     <td width="50%" style={styles.infoCell}>
-                                        <Text className="email-info-label" style={styles.infoLabel}>📅 WHEN</Text>
-                                        <Text className="email-info-value" style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
+                                        <table cellPadding="0" cellSpacing="0" style={{ margin: '0 auto' }}>
+                                            <tr>
+                                                <td style={styles.infoIconCell}>
+                                                    <div style={styles.infoIcon}>📅</div>
+                                                </td>
+                                                <td style={styles.infoTextCell}>
+                                                    <Text className="email-info-label" style={styles.infoLabel}>WHEN</Text>
+                                                    <Text className="email-info-value" style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                     <td width="50%" style={styles.infoCell}>
-                                        <Text className="email-info-label" style={styles.infoLabel}>📍 WHERE</Text>
-                                        <Text className="email-info-value" style={styles.infoValue}>IIITDM Campus</Text>
+                                        <table cellPadding="0" cellSpacing="0" style={{ margin: '0 auto' }}>
+                                            <tr>
+                                                <td style={styles.infoIconCell}>
+                                                    <div style={styles.infoIcon}>📍</div>
+                                                </td>
+                                                <td style={styles.infoTextCell}>
+                                                    <Text className="email-info-label" style={styles.infoLabel}>WHERE</Text>
+                                                    <Text className="email-info-value" style={styles.infoValue}>IIITDM Campus</Text>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -178,13 +200,13 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
 export default EventReminderEmail;
 
 // ════════════════════════════════════════════════════════════════
-// STYLES - Default Dark Theme (Light mode overrides via CSS media query)
+// STYLES - Premium Dark Theme with Light Mode Support
 // ════════════════════════════════════════════════════════════════
 
 const styles: Record<string, React.CSSProperties> = {
     // Base
     body: {
-        backgroundColor: '#000000', // Dark default
+        backgroundColor: '#000000',
         margin: 0,
         padding: '48px 16px',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
@@ -200,44 +222,25 @@ const styles: Record<string, React.CSSProperties> = {
         padding: '1px',
     },
     container: {
-        backgroundColor: '#0c0c0c', // Dark default
+        backgroundColor: '#0c0c0c',
         borderRadius: '28px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
     },
 
-    // Header
+    // Header with Logos
     header: {
-        padding: '48px 40px 32px',
-        textAlign: 'center' as const,
-        background: 'linear-gradient(180deg, rgba(147, 51, 234, 0.08) 0%, transparent 100%)',
-    },
-    logoMark: {
-        width: '56px',
-        height: '56px',
-        borderRadius: '16px',
+        padding: '24px 32px',
         background: 'linear-gradient(135deg, #9333ea 0%, #7c3aed 100%)',
-        color: '#ffffff',
-        fontSize: '28px',
-        fontWeight: '700',
-        lineHeight: '56px',
-        textAlign: 'center' as const,
-        marginBottom: '16px',
-        boxShadow: '0 8px 32px rgba(147, 51, 234, 0.4)',
     },
-    logoText: {
-        color: '#ffffff', // Dark default
-        fontSize: '24px',
-        fontWeight: '700',
-        margin: '0 0 4px 0',
-        letterSpacing: '3px',
+    esummitLogo: {
+        height: '32px',
+        width: 'auto',
     },
-    logoSubtext: {
-        color: 'rgba(255, 255, 255, 0.4)', // Dark default
-        fontSize: '11px',
-        fontWeight: '500',
-        letterSpacing: '2px',
-        margin: 0,
+    ecellLogo: {
+        height: '40px',
+        width: 'auto',
+        opacity: 0.95,
     },
 
     // Content
@@ -245,7 +248,7 @@ const styles: Record<string, React.CSSProperties> = {
         padding: '40px 40px 48px',
     },
     greeting: {
-        color: 'rgba(255, 255, 255, 0.6)', // Dark default
+        color: 'rgba(255, 255, 255, 0.6)',
         fontSize: '15px',
         fontWeight: '400',
         margin: '0 0 8px 0',
@@ -255,7 +258,7 @@ const styles: Record<string, React.CSSProperties> = {
         fontWeight: '500',
     },
     headline: {
-        color: '#ffffff', // Dark default
+        color: '#ffffff',
         fontSize: '28px',
         fontWeight: '600',
         lineHeight: '1.35',
@@ -272,7 +275,7 @@ const styles: Record<string, React.CSSProperties> = {
         marginBottom: '8px',
     },
     messageLine: {
-        color: 'rgba(255, 255, 255, 0.75)', // Dark default
+        color: 'rgba(255, 255, 255, 0.75)',
         fontSize: '15px',
         lineHeight: '1.7',
         margin: '0 0 8px 0',
@@ -291,39 +294,52 @@ const styles: Record<string, React.CSSProperties> = {
         boxShadow: '0 4px 24px rgba(147, 51, 234, 0.35)',
     },
 
-    // Info Section
+    // Info Section - Fixed consistent layout
     infoSection: {
-        margin: '0 40px 40px',
-        padding: '24px',
-        backgroundColor: 'rgba(147, 51, 234, 0.06)', // Dark default
+        margin: '0 32px 32px',
+        padding: '20px 16px',
+        backgroundColor: 'rgba(147, 51, 234, 0.06)',
         border: '1px solid rgba(147, 51, 234, 0.15)',
         borderRadius: '16px',
     },
     infoCell: {
-        textAlign: 'center' as const,
-        padding: '8px',
+        padding: '8px 4px',
+        verticalAlign: 'top' as const,
+    },
+    infoIconCell: {
+        verticalAlign: 'top' as const,
+        paddingRight: '12px',
+    },
+    infoIcon: {
+        fontSize: '20px',
+        lineHeight: '1',
+    },
+    infoTextCell: {
+        verticalAlign: 'top' as const,
     },
     infoLabel: {
-        color: 'rgba(255, 255, 255, 0.45)', // Dark default
-        fontSize: '11px',
+        color: 'rgba(255, 255, 255, 0.45)',
+        fontSize: '10px',
         fontWeight: '600',
-        letterSpacing: '1px',
-        margin: '0 0 6px 0',
+        letterSpacing: '1.5px',
+        textTransform: 'uppercase' as const,
+        margin: '0 0 4px 0',
     },
     infoValue: {
-        color: '#ffffff', // Dark default
+        color: '#ffffff',
         fontSize: '14px',
-        fontWeight: '500',
+        fontWeight: '600',
         margin: 0,
+        whiteSpace: 'nowrap' as const,
     },
 
     // Footer
     footer: {
-        padding: '0 40px 40px',
+        padding: '0 32px 32px',
         textAlign: 'center' as const,
     },
     divider: {
-        borderColor: 'rgba(255, 255, 255, 0.08)', // Dark default
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         margin: '0 0 24px 0',
     },
     socialLink: {
@@ -338,12 +354,12 @@ const styles: Record<string, React.CSSProperties> = {
         fontSize: '14px',
     },
     footerNote: {
-        color: 'rgba(255, 255, 255, 0.35)', // Dark default
+        color: 'rgba(255, 255, 255, 0.35)',
         fontSize: '12px',
         margin: '0 0 8px 0',
     },
     copyright: {
-        color: 'rgba(255, 255, 255, 0.25)', // Dark default
+        color: 'rgba(255, 255, 255, 0.25)',
         fontSize: '11px',
         margin: 0,
     },
