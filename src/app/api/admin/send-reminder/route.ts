@@ -25,7 +25,7 @@ function getEmailProvider(): 'gmail' | 'resend' {
     return 'resend';
 }
 
-// Gmail SMTP transport with connection pool and timeout
+// Gmail SMTP transport (Simplified - No Pool to avoid timeouts)
 function createGmailTransport() {
     return nodemailer.createTransport({
         service: 'gmail',
@@ -33,11 +33,6 @@ function createGmailTransport() {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_APP_PASSWORD,
         },
-        pool: true, // Use connection pool
-        maxConnections: 1, // Limit connections
-        maxMessages: 100, // Max messages per connection
-        rateDelta: 1000, // 1 second between messages
-        rateLimit: 1, // 1 message per rateDelta
     });
 }
 
@@ -347,12 +342,13 @@ export async function POST(request: NextRequest) {
             }
 
             console.log('[SendReminder] Test email sent successfully!');
+            const msgId = 'messageId' in result ? result.messageId : result.id;
             return NextResponse.json({
                 success: true,
                 message: `✅ Test email sent successfully via ${provider}!`,
                 provider,
                 recipient: testEmail,
-                messageId: result.messageId || result.id,
+                messageId: msgId,
             });
         }
 
