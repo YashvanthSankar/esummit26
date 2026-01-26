@@ -9,8 +9,41 @@ interface TicketHolder {
     name: string;
 }
 
-// Use fetch directly instead of Resend SDK for better reliability
-async function sendEmailViaResend(
+interface EmailPayload {
+    from: string;
+    to: string[];
+    subject: string;
+    html: string;
+}
+
+// Use Resend Batch API for faster sending (up to 100 emails per request)
+async function sendBatchEmails(
+    emails: EmailPayload[]
+): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+        const response = await fetch('https://api.resend.com/emails/batch', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emails),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return { success: false, error: data.message || 'Batch send failed' };
+        }
+
+        return { success: true, data };
+    } catch (err: any) {
+        return { success: false, error: err.message };
+    }
+}
+
+// Single email send (for test mode)
+async function sendSingleEmail(
     to: string,
     subject: string,
     html: string,
@@ -94,7 +127,7 @@ export async function POST(request: NextRequest) {
                 })
             );
 
-            const result = await sendEmailViaResend(testEmail, `[TEST] ${subject}`, emailHtml, fromEmail);
+            const result = await sendSingleEmail(testEmail, `[TEST] ${subject}`, emailHtml, fromEmail);
 
             if (!result.success) {
                 console.error('[SendReminder] Resend error:', result.error);
@@ -157,48 +190,58 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No ticket holders found' }, { status: 400 });
         }
 
-        // Send emails in batches
-        const BATCH_SIZE = 10;
+        console.log('[SendReminder] Sending to', recipients.length, 'recipients');
+
+        // Prepare all emails with personalized content
+        const emailPayloads: EmailPayload[] = await Promise.all(
+            recipients.map(async (recipient) => {
+                const emailHtml = await render(
+                    React.createElement(EventReminderEmail, {
+                        userName: recipient.name,
+                        subject,
+                        message,
+                    })
+                );
+
+                return {
+                    from: fromEmail,
+                    to: [recipient.email],
+                    subject,
+                    html: emailHtml,
+                };
+            })
+        );
+
+        // Send in batches of 100 (Resend batch limit)
+        const BATCH_SIZE = 100;
         const results = {
             sent: 0,
             failed: 0,
             errors: [] as string[],
         };
 
-        for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
-            const batch = recipients.slice(i, i + BATCH_SIZE);
+        for (let i = 0; i < emailPayloads.length; i += BATCH_SIZE) {
+            const batch = emailPayloads.slice(i, i + BATCH_SIZE);
+            console.log(`[SendReminder] Sending batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(emailPayloads.length / BATCH_SIZE)}`);
 
-            const batchPromises = batch.map(async (recipient) => {
-                try {
-                    const emailHtml = await render(
-                        React.createElement(EventReminderEmail, {
-                            userName: recipient.name,
-                            subject,
-                            message,
-                        })
-                    );
+            const batchResult = await sendBatchEmails(batch);
 
-                    const result = await sendEmailViaResend(recipient.email, subject, emailHtml, fromEmail);
+            if (batchResult.success) {
+                results.sent += batch.length;
+                console.log(`[SendReminder] Batch sent successfully:`, batchResult.data?.data?.length || batch.length);
+            } else {
+                results.failed += batch.length;
+                results.errors.push(`Batch ${i / BATCH_SIZE + 1}: ${batchResult.error}`);
+                console.error(`[SendReminder] Batch failed:`, batchResult.error);
+            }
 
-                    if (!result.success) {
-                        results.failed++;
-                        results.errors.push(`${recipient.email}: ${result.error}`);
-                    } else {
-                        results.sent++;
-                    }
-                } catch (err: any) {
-                    results.failed++;
-                    results.errors.push(`${recipient.email}: ${err.message}`);
-                }
-            });
-
-            await Promise.all(batchPromises);
-
-            // Small delay between batches
-            if (i + BATCH_SIZE < recipients.length) {
-                await new Promise(resolve => setTimeout(resolve, 500));
+            // Tiny delay between batches if there are more
+            if (i + BATCH_SIZE < emailPayloads.length) {
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
         }
+
+        console.log('[SendReminder] Complete. Sent:', results.sent, 'Failed:', results.failed);
 
         return NextResponse.json({
             success: true,
