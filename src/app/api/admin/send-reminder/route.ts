@@ -3,47 +3,82 @@ import { createClient } from '@/lib/supabase/server';
 import { render } from '@react-email/render';
 import EventReminderEmail from '@/lib/emails/event-reminder';
 import * as React from 'react';
+import nodemailer from 'nodemailer';
 
 interface TicketHolder {
     email: string;
     name: string;
 }
 
-interface EmailPayload {
-    from: string;
-    to: string[];
-    subject: string;
-    html: string;
+// Check which email provider to use
+function getEmailProvider(): 'gmail' | 'resend' {
+    if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+        return 'gmail';
+    }
+    return 'resend';
 }
 
-// Use Resend Batch API for faster sending (up to 100 emails per request)
-async function sendBatchEmails(
-    emails: EmailPayload[]
-): Promise<{ success: boolean; data?: any; error?: string }> {
+// Gmail SMTP transport
+function createGmailTransport() {
+    return nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.GMAIL_USER,
+            pass: process.env.GMAIL_APP_PASSWORD,
+        },
+    });
+}
+
+// Send via Gmail SMTP
+async function sendViaGmail(
+    to: string,
+    subject: string,
+    html: string,
+    from: string
+): Promise<{ success: boolean; error?: string }> {
     try {
-        const response = await fetch('https://api.resend.com/emails/batch', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(emails),
+        const transporter = createGmailTransport();
+        await transporter.sendMail({
+            from,
+            to,
+            subject,
+            html,
         });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            return { success: false, error: data.message || 'Batch send failed' };
-        }
-
-        return { success: true, data };
+        return { success: true };
     } catch (err: any) {
         return { success: false, error: err.message };
     }
 }
 
-// Single email send (for test mode)
-async function sendSingleEmail(
+// Send batch via Gmail (one by one, but fast)
+async function sendBatchViaGmail(
+    emails: Array<{ to: string; subject: string; html: string; from: string }>
+): Promise<{ sent: number; failed: number; errors: string[] }> {
+    const transporter = createGmailTransport();
+    const results = { sent: 0, failed: 0, errors: [] as string[] };
+
+    // Send all emails in parallel (Gmail handles rate limiting)
+    const promises = emails.map(async (email) => {
+        try {
+            await transporter.sendMail({
+                from: email.from,
+                to: email.to,
+                subject: email.subject,
+                html: email.html,
+            });
+            results.sent++;
+        } catch (err: any) {
+            results.failed++;
+            results.errors.push(`${email.to}: ${err.message}`);
+        }
+    });
+
+    await Promise.all(promises);
+    return results;
+}
+
+// Send via Resend (keeping existing functionality)
+async function sendViaResend(
     to: string,
     subject: string,
     html: string,
@@ -76,10 +111,36 @@ async function sendSingleEmail(
     }
 }
 
+// Resend Batch API
+async function sendBatchViaResend(
+    emails: Array<{ from: string; to: string[]; subject: string; html: string }>
+): Promise<{ success: boolean; data?: any; error?: string }> {
+    try {
+        const response = await fetch('https://api.resend.com/emails/batch', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emails),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return { success: false, error: data.message || 'Batch send failed' };
+        }
+
+        return { success: true, data };
+    } catch (err: any) {
+        return { success: false, error: err.message };
+    }
+}
+
 export async function POST(request: NextRequest) {
     try {
-        console.log('[SendReminder] Starting...');
-        console.log('[SendReminder] RESEND_API_KEY present:', !!process.env.RESEND_API_KEY);
+        const provider = getEmailProvider();
+        console.log('[SendReminder] Starting... Provider:', provider);
 
         const supabase = await createClient();
 
@@ -90,18 +151,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        console.log('[SendReminder] User ID:', user.id);
-
         const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .single();
 
-        console.log('[SendReminder] User role:', profile?.role);
-
         if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
-            console.log('[SendReminder] Access denied - role is not admin/super_admin');
             return NextResponse.json({ error: `Admin access required. Your role: ${profile?.role}` }, { status: 403 });
         }
 
@@ -112,10 +168,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Subject and message are required' }, { status: 400 });
         }
 
-        const fromEmail = getFromEmail();
+        const fromEmail = getFromEmail(provider);
         console.log('[SendReminder] From email:', fromEmail);
 
-        // Test mode - send only to specified email
+        // Test mode
         if (testMode && testEmail) {
             console.log('[SendReminder] Test mode - sending to:', testEmail);
 
@@ -127,18 +183,22 @@ export async function POST(request: NextRequest) {
                 })
             );
 
-            const result = await sendSingleEmail(testEmail, `[TEST] ${subject}`, emailHtml, fromEmail);
-
-            if (!result.success) {
-                console.error('[SendReminder] Resend error:', result.error);
-                return NextResponse.json({ error: `Resend API error: ${result.error}` }, { status: 500 });
+            if (provider === 'gmail') {
+                const result = await sendViaGmail(testEmail, `[TEST] ${subject}`, emailHtml, fromEmail);
+                if (!result.success) {
+                    return NextResponse.json({ error: `Gmail error: ${result.error}` }, { status: 500 });
+                }
+            } else {
+                const result = await sendViaResend(testEmail, `[TEST] ${subject}`, emailHtml, fromEmail);
+                if (!result.success) {
+                    return NextResponse.json({ error: `Resend error: ${result.error}` }, { status: 500 });
+                }
             }
 
-            console.log('[SendReminder] Test email sent, ID:', result.id);
             return NextResponse.json({
                 success: true,
-                message: 'Test email sent',
-                emailId: result.id,
+                message: `Test email sent via ${provider}`,
+                provider,
             });
         }
 
@@ -157,7 +217,6 @@ export async function POST(request: NextRequest) {
             .eq('status', 'paid');
 
         if (ticketsError) {
-            console.error('Error fetching tickets:', ticketsError);
             return NextResponse.json({ error: 'Failed to fetch ticket holders' }, { status: 500 });
         }
 
@@ -190,10 +249,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No ticket holders found' }, { status: 400 });
         }
 
-        console.log('[SendReminder] Sending to', recipients.length, 'recipients');
+        console.log('[SendReminder] Sending to', recipients.length, 'recipients via', provider);
 
-        // Prepare all emails with personalized content
-        const emailPayloads: EmailPayload[] = await Promise.all(
+        // Prepare all emails
+        const emailPayloads = await Promise.all(
             recipients.map(async (recipient) => {
                 const emailHtml = await render(
                     React.createElement(EventReminderEmail, {
@@ -205,39 +264,39 @@ export async function POST(request: NextRequest) {
 
                 return {
                     from: fromEmail,
-                    to: [recipient.email],
+                    to: recipient.email,
                     subject,
                     html: emailHtml,
                 };
             })
         );
 
-        // Send in batches of 100 (Resend batch limit)
-        const BATCH_SIZE = 100;
-        const results = {
-            sent: 0,
-            failed: 0,
-            errors: [] as string[],
-        };
+        let results: { sent: number; failed: number; errors: string[] };
 
-        for (let i = 0; i < emailPayloads.length; i += BATCH_SIZE) {
-            const batch = emailPayloads.slice(i, i + BATCH_SIZE);
-            console.log(`[SendReminder] Sending batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(emailPayloads.length / BATCH_SIZE)}`);
+        if (provider === 'gmail') {
+            // Gmail: Send all in parallel
+            results = await sendBatchViaGmail(emailPayloads);
+        } else {
+            // Resend: Use batch API
+            const resendPayloads = emailPayloads.map(e => ({
+                from: e.from,
+                to: [e.to],
+                subject: e.subject,
+                html: e.html,
+            }));
 
-            const batchResult = await sendBatchEmails(batch);
+            // Send in batches of 100
+            results = { sent: 0, failed: 0, errors: [] };
+            for (let i = 0; i < resendPayloads.length; i += 100) {
+                const batch = resendPayloads.slice(i, i + 100);
+                const batchResult = await sendBatchViaResend(batch);
 
-            if (batchResult.success) {
-                results.sent += batch.length;
-                console.log(`[SendReminder] Batch sent successfully:`, batchResult.data?.data?.length || batch.length);
-            } else {
-                results.failed += batch.length;
-                results.errors.push(`Batch ${i / BATCH_SIZE + 1}: ${batchResult.error}`);
-                console.error(`[SendReminder] Batch failed:`, batchResult.error);
-            }
-
-            // Tiny delay between batches if there are more
-            if (i + BATCH_SIZE < emailPayloads.length) {
-                await new Promise(resolve => setTimeout(resolve, 100));
+                if (batchResult.success) {
+                    results.sent += batch.length;
+                } else {
+                    results.failed += batch.length;
+                    results.errors.push(`Batch ${i / 100 + 1}: ${batchResult.error}`);
+                }
             }
         }
 
@@ -245,6 +304,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
+            provider,
             totalRecipients: recipients.length,
             sent: results.sent,
             failed: results.failed,
@@ -256,13 +316,16 @@ export async function POST(request: NextRequest) {
     }
 }
 
-function getFromEmail(): string {
-    const customFrom = process.env.RESEND_FROM_EMAIL;
+function getFromEmail(provider: 'gmail' | 'resend'): string {
+    if (provider === 'gmail') {
+        const gmailUser = process.env.GMAIL_USER || '';
+        const fromName = process.env.GMAIL_FROM_NAME || 'E-Summit';
+        return `${fromName} <${gmailUser}>`;
+    }
 
-    // Check if using unverified domain
+    const customFrom = process.env.RESEND_FROM_EMAIL;
     if (customFrom && customFrom.includes('esummit26-iiitdm.vercel.app')) {
         return 'E-Summit <onboarding@resend.dev>';
     }
-
     return customFrom || 'E-Summit <onboarding@resend.dev>';
 }
