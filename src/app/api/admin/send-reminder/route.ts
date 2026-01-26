@@ -319,13 +319,13 @@ export async function POST(request: NextRequest) {
 function getFromEmail(provider: 'gmail' | 'resend'): string {
     if (provider === 'gmail') {
         const gmailUser = process.env.GMAIL_USER || '';
-        const fromName = process.env.GMAIL_FROM_NAME || 'E-Summit';
-        return `${fromName} <${gmailUser}>`;
+        const fromName = process.env.GMAIL_FROM_NAME || 'E-Summit IIITDM';
+        return `"${fromName}" <${gmailUser}>`;
     }
 
     const customFrom = process.env.RESEND_FROM_EMAIL;
     if (customFrom && customFrom.includes('esummit26-iiitdm.vercel.app')) {
-        return 'E-Summit <onboarding@resend.dev>';
+        return '"E-Summit IIITDM" <onboarding@resend.dev>';
     }
-    return customFrom || 'E-Summit <onboarding@resend.dev>';
+    return customFrom || '"E-Summit IIITDM" <onboarding@resend.dev>';
 }
