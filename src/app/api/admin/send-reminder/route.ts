@@ -50,15 +50,14 @@ async function sendViaGmail(
     }
 }
 
-// Send batch via Gmail (one by one, but fast)
+// Send batch via Gmail (Sequential with delay to avoid 421 errors)
 async function sendBatchViaGmail(
     emails: Array<{ to: string; subject: string; html: string; from: string }>
 ): Promise<{ sent: number; failed: number; errors: string[] }> {
     const transporter = createGmailTransport();
     const results = { sent: 0, failed: 0, errors: [] as string[] };
 
-    // Send all emails in parallel (Gmail handles rate limiting)
-    const promises = emails.map(async (email) => {
+    for (const email of emails) {
         try {
             await transporter.sendMail({
                 from: email.from,
@@ -67,13 +66,16 @@ async function sendBatchViaGmail(
                 html: email.html,
             });
             results.sent++;
+            // Consistently succeed by waiting 1s between emails
+            await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (err: any) {
             results.failed++;
             results.errors.push(`${email.to}: ${err.message}`);
+            // Wait longer on error
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
-    });
+    }
 
-    await Promise.all(promises);
     return results;
 }
 
