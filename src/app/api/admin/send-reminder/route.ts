@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { render } from '@react-email/render';
-import EventReminderEmail from '@/lib/emails/event-reminder-email';
+import EventReminderEmail from '@/lib/emails/event-reminder';
 import * as React from 'react';
 import nodemailer from 'nodemailer';
 
