@@ -24,17 +24,56 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
 }) => (
     <Html>
         <Head>
-            <meta name="color-scheme" content="dark" />
-            <meta name="supported-color-schemes" content="dark" />
+            <meta name="color-scheme" content="light dark" />
+            <meta name="supported-color-schemes" content="light dark" />
+            <style>{`
+                :root {
+                    color-scheme: light dark;
+                }
+                
+                @media (prefers-color-scheme: light) {
+                    .email-body { background-color: #f5f5f7 !important; }
+                    .email-container { background-color: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; }
+                    .email-header { background: linear-gradient(180deg, rgba(147, 51, 234, 0.05) 0%, transparent 100%) !important; }
+                    .email-logo-text { color: #1a1a1a !important; }
+                    .email-logo-subtext { color: rgba(0,0,0,0.5) !important; }
+                    .email-greeting { color: rgba(0,0,0,0.6) !important; }
+                    .email-headline { color: #1a1a1a !important; }
+                    .email-message { color: rgba(0,0,0,0.7) !important; }
+                    .email-info-section { background-color: rgba(147, 51, 234, 0.04) !important; border-color: rgba(147, 51, 234, 0.12) !important; }
+                    .email-info-label { color: rgba(0,0,0,0.5) !important; }
+                    .email-info-value { color: #1a1a1a !important; }
+                    .email-divider { border-color: rgba(0,0,0,0.08) !important; }
+                    .email-footer-note { color: rgba(0,0,0,0.45) !important; }
+                    .email-copyright { color: rgba(0,0,0,0.35) !important; }
+                }
+                
+                @media (prefers-color-scheme: dark) {
+                    .email-body { background-color: #000000 !important; }
+                    .email-container { background-color: #0c0c0c !important; border-color: rgba(255,255,255,0.08) !important; }
+                    .email-header { background: linear-gradient(180deg, rgba(147, 51, 234, 0.08) 0%, transparent 100%) !important; }
+                    .email-logo-text { color: #ffffff !important; }
+                    .email-logo-subtext { color: rgba(255,255,255,0.4) !important; }
+                    .email-greeting { color: rgba(255,255,255,0.6) !important; }
+                    .email-headline { color: #ffffff !important; }
+                    .email-message { color: rgba(255,255,255,0.75) !important; }
+                    .email-info-section { background-color: rgba(147, 51, 234, 0.06) !important; border-color: rgba(147, 51, 234, 0.15) !important; }
+                    .email-info-label { color: rgba(255,255,255,0.45) !important; }
+                    .email-info-value { color: #ffffff !important; }
+                    .email-divider { border-color: rgba(255,255,255,0.08) !important; }
+                    .email-footer-note { color: rgba(255,255,255,0.35) !important; }
+                    .email-copyright { color: rgba(255,255,255,0.25) !important; }
+                }
+            `}</style>
         </Head>
-        <Body style={styles.body}>
+        <Body className="email-body" style={styles.body}>
             <Container style={styles.wrapper}>
                 {/* Outer Glow Container */}
                 <div style={styles.glowWrapper}>
-                    <Container style={styles.container}>
+                    <Container className="email-container" style={styles.container}>
 
                         {/* ═══════════════ HEADER ═══════════════ */}
-                        <Section style={styles.header}>
+                        <Section className="email-header" style={styles.header}>
                             <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tr>
                                     <td align="center">
@@ -43,12 +82,12 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                                 </tr>
                                 <tr>
                                     <td align="center">
-                                        <Heading style={styles.logoText}>E-SUMMIT'26</Heading>
+                                        <Heading className="email-logo-text" style={styles.logoText}>E-SUMMIT'26</Heading>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td align="center">
-                                        <Text style={styles.logoSubtext}>IIITDM KANCHEEPURAM</Text>
+                                        <Text className="email-logo-subtext" style={styles.logoSubtext}>IIITDM KANCHEEPURAM</Text>
                                     </td>
                                 </tr>
                             </table>
@@ -57,12 +96,12 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                         {/* ═══════════════ MAIN CONTENT ═══════════════ */}
                         <Section style={styles.content}>
                             {/* Greeting */}
-                            <Text style={styles.greeting}>
+                            <Text className="email-greeting" style={styles.greeting}>
                                 Hello, <span style={styles.userName}>{userName}</span>
                             </Text>
 
                             {/* Subject Headline */}
-                            <Heading style={styles.headline}>{subject}</Heading>
+                            <Heading className="email-headline" style={styles.headline}>{subject}</Heading>
 
                             {/* Accent Bar */}
                             <div style={styles.accentBar} />
@@ -70,7 +109,7 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                             {/* Message Body */}
                             <div style={styles.messageBody}>
                                 {message.split('\n').map((line, i) => (
-                                    <Text key={i} style={styles.messageLine}>
+                                    <Text key={i} className="email-message" style={styles.messageLine}>
                                         {line || <>&nbsp;</>}
                                     </Text>
                                 ))}
@@ -89,16 +128,16 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                         </Section>
 
                         {/* ═══════════════ EVENT INFO ═══════════════ */}
-                        <Section style={styles.infoSection}>
+                        <Section className="email-info-section" style={styles.infoSection}>
                             <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tr>
                                     <td width="50%" style={styles.infoCell}>
-                                        <Text style={styles.infoLabel}>📅 WHEN</Text>
-                                        <Text style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
+                                        <Text className="email-info-label" style={styles.infoLabel}>📅 WHEN</Text>
+                                        <Text className="email-info-value" style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
                                     </td>
                                     <td width="50%" style={styles.infoCell}>
-                                        <Text style={styles.infoLabel}>📍 WHERE</Text>
-                                        <Text style={styles.infoValue}>IIITDM Campus</Text>
+                                        <Text className="email-info-label" style={styles.infoLabel}>📍 WHERE</Text>
+                                        <Text className="email-info-value" style={styles.infoValue}>IIITDM Campus</Text>
                                     </td>
                                 </tr>
                             </table>
@@ -106,7 +145,7 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
 
                         {/* ═══════════════ FOOTER ═══════════════ */}
                         <Section style={styles.footer}>
-                            <Hr style={styles.divider} />
+                            <Hr className="email-divider" style={styles.divider} />
 
                             {/* Social Links */}
                             <table width="100%" cellPadding="0" cellSpacing="0">
@@ -121,10 +160,10 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                                 </tr>
                             </table>
 
-                            <Text style={styles.footerNote}>
+                            <Text className="email-footer-note" style={styles.footerNote}>
                                 You received this because you're registered for E-Summit '26
                             </Text>
-                            <Text style={styles.copyright}>
+                            <Text className="email-copyright" style={styles.copyright}>
                                 © 2026 E-Cell IIITDM · Made with 💜 in Chennai
                             </Text>
                         </Section>
@@ -139,13 +178,13 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
 export default EventReminderEmail;
 
 // ════════════════════════════════════════════════════════════════
-// STYLES - Premium Dark Theme
+// STYLES - Default Dark Theme (Light mode overrides via CSS media query)
 // ════════════════════════════════════════════════════════════════
 
 const styles: Record<string, React.CSSProperties> = {
     // Base
     body: {
-        backgroundColor: '#000000',
+        backgroundColor: '#000000', // Dark default
         margin: 0,
         padding: '48px 16px',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
@@ -161,7 +200,7 @@ const styles: Record<string, React.CSSProperties> = {
         padding: '1px',
     },
     container: {
-        backgroundColor: '#0c0c0c',
+        backgroundColor: '#0c0c0c', // Dark default
         borderRadius: '28px',
         border: '1px solid rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
@@ -187,14 +226,14 @@ const styles: Record<string, React.CSSProperties> = {
         boxShadow: '0 8px 32px rgba(147, 51, 234, 0.4)',
     },
     logoText: {
-        color: '#ffffff',
+        color: '#ffffff', // Dark default
         fontSize: '24px',
         fontWeight: '700',
         margin: '0 0 4px 0',
         letterSpacing: '3px',
     },
     logoSubtext: {
-        color: 'rgba(255, 255, 255, 0.4)',
+        color: 'rgba(255, 255, 255, 0.4)', // Dark default
         fontSize: '11px',
         fontWeight: '500',
         letterSpacing: '2px',
@@ -206,7 +245,7 @@ const styles: Record<string, React.CSSProperties> = {
         padding: '40px 40px 48px',
     },
     greeting: {
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: 'rgba(255, 255, 255, 0.6)', // Dark default
         fontSize: '15px',
         fontWeight: '400',
         margin: '0 0 8px 0',
@@ -216,7 +255,7 @@ const styles: Record<string, React.CSSProperties> = {
         fontWeight: '500',
     },
     headline: {
-        color: '#ffffff',
+        color: '#ffffff', // Dark default
         fontSize: '28px',
         fontWeight: '600',
         lineHeight: '1.35',
@@ -233,7 +272,7 @@ const styles: Record<string, React.CSSProperties> = {
         marginBottom: '8px',
     },
     messageLine: {
-        color: 'rgba(255, 255, 255, 0.75)',
+        color: 'rgba(255, 255, 255, 0.75)', // Dark default
         fontSize: '15px',
         lineHeight: '1.7',
         margin: '0 0 8px 0',
@@ -256,7 +295,7 @@ const styles: Record<string, React.CSSProperties> = {
     infoSection: {
         margin: '0 40px 40px',
         padding: '24px',
-        backgroundColor: 'rgba(147, 51, 234, 0.06)',
+        backgroundColor: 'rgba(147, 51, 234, 0.06)', // Dark default
         border: '1px solid rgba(147, 51, 234, 0.15)',
         borderRadius: '16px',
     },
@@ -265,14 +304,14 @@ const styles: Record<string, React.CSSProperties> = {
         padding: '8px',
     },
     infoLabel: {
-        color: 'rgba(255, 255, 255, 0.45)',
+        color: 'rgba(255, 255, 255, 0.45)', // Dark default
         fontSize: '11px',
         fontWeight: '600',
         letterSpacing: '1px',
         margin: '0 0 6px 0',
     },
     infoValue: {
-        color: '#ffffff',
+        color: '#ffffff', // Dark default
         fontSize: '14px',
         fontWeight: '500',
         margin: 0,
@@ -284,7 +323,7 @@ const styles: Record<string, React.CSSProperties> = {
         textAlign: 'center' as const,
     },
     divider: {
-        borderColor: 'rgba(255, 255, 255, 0.08)',
+        borderColor: 'rgba(255, 255, 255, 0.08)', // Dark default
         margin: '0 0 24px 0',
     },
     socialLink: {
@@ -299,12 +338,12 @@ const styles: Record<string, React.CSSProperties> = {
         fontSize: '14px',
     },
     footerNote: {
-        color: 'rgba(255, 255, 255, 0.35)',
+        color: 'rgba(255, 255, 255, 0.35)', // Dark default
         fontSize: '12px',
         margin: '0 0 8px 0',
     },
     copyright: {
-        color: 'rgba(255, 255, 255, 0.25)',
+        color: 'rgba(255, 255, 255, 0.25)', // Dark default
         fontSize: '11px',
         margin: 0,
     },
