@@ -182,7 +182,7 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                                 You received this because you're registered for E-Summit '26
                             </Text>
                             <Text className="email-copyright" style={styles.copyright}>
-                                © 2026 E-Cell IIITDM · Made with 💜 in Chennai
+                                © 2026 E-Cell IIITDM · Made with 💜 in IIIITDM
                             </Text>
                         </Section>
 
