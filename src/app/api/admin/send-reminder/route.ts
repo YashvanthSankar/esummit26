@@ -184,12 +184,12 @@ export async function POST(request: NextRequest) {
             );
 
             if (provider === 'gmail') {
-                const result = await sendViaGmail(testEmail, `[TEST] ${subject}`, emailHtml, fromEmail);
+                const result = await sendViaGmail(testEmail, subject, emailHtml, fromEmail);
                 if (!result.success) {
                     return NextResponse.json({ error: `Gmail error: ${result.error}` }, { status: 500 });
                 }
             } else {
-                const result = await sendViaResend(testEmail, `[TEST] ${subject}`, emailHtml, fromEmail);
+                const result = await sendViaResend(testEmail, subject, emailHtml, fromEmail);
                 if (!result.success) {
                     return NextResponse.json({ error: `Resend error: ${result.error}` }, { status: 500 });
                 }
