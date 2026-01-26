@@ -132,21 +132,29 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
                         </Section>
 
                         {/* ═══════════════ EVENT INFO ═══════════════ */}
-                        <Section className="email-info-section" style={styles.infoSection}>
+                        <Section style={styles.infoWrapper}>
                             <table width="100%" cellPadding="0" cellSpacing="0">
                                 <tr>
-                                    <td width="50%" align="center" valign="middle" style={styles.infoCell}>
-                                        <div style={styles.infoBlock}>
-                                            <span style={styles.infoIcon}>📅</span>
-                                            <Text className="email-info-label" style={styles.infoLabel}>WHEN</Text>
-                                            <Text className="email-info-value" style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
-                                        </div>
-                                    </td>
-                                    <td width="50%" align="center" valign="middle" style={styles.infoCell}>
-                                        <div style={styles.infoBlock}>
-                                            <span style={styles.infoIcon}>📍</span>
-                                            <Text className="email-info-label" style={styles.infoLabel}>WHERE</Text>
-                                            <Text className="email-info-value" style={styles.infoValue}>IIITDM Campus</Text>
+                                    <td style={{ padding: '0 32px 32px 32px' }}>
+                                        <div className="email-info-section" style={styles.infoCard}>
+                                            <table width="100%" cellPadding="0" cellSpacing="0">
+                                                <tr>
+                                                    <td width="50%" align="center" valign="middle" style={styles.infoCell}>
+                                                        <div style={styles.infoBlock}>
+                                                            <span style={styles.infoIcon}>📅</span>
+                                                            <Text className="email-info-label" style={styles.infoLabel}>WHEN</Text>
+                                                            <Text className="email-info-value" style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
+                                                        </div>
+                                                    </td>
+                                                    <td width="50%" align="center" valign="middle" style={styles.infoCell}>
+                                                        <div style={styles.infoBlock}>
+                                                            <span style={styles.infoIcon}>📍</span>
+                                                            <Text className="email-info-label" style={styles.infoLabel}>WHERE</Text>
+                                                            <Text className="email-info-value" style={styles.infoValue}>IIITDM Campus</Text>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
                                         </div>
                                     </td>
                                 </tr>
@@ -282,9 +290,11 @@ const styles: Record<string, React.CSSProperties> = {
         boxShadow: '0 4px 24px rgba(147, 51, 234, 0.35)',
     },
 
-    // Info Section - Centered stacked layout
-    infoSection: {
-        margin: '0 32px 32px',
+    // Info Section - Using table padding for proper spacing
+    infoWrapper: {
+        padding: 0,
+    },
+    infoCard: {
         padding: '24px 16px',
         backgroundColor: 'rgba(147, 51, 234, 0.06)',
         border: '1px solid rgba(147, 51, 234, 0.15)',
