@@ -24,95 +24,113 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
 }) => (
     <Html>
         <Head>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-            `}</style>
+            <meta name="color-scheme" content="dark" />
+            <meta name="supported-color-schemes" content="dark" />
         </Head>
-        <Body style={main}>
-            <Container style={container}>
-                {/* Header */}
-                <Section style={header}>
-                    <Heading style={logo}>E-SUMMIT'26</Heading>
-                    <Text style={tagline}>IIITDM Kancheepuram</Text>
-                </Section>
+        <Body style={styles.body}>
+            <Container style={styles.wrapper}>
+                {/* Outer Glow Container */}
+                <div style={styles.glowWrapper}>
+                    <Container style={styles.container}>
 
-                {/* Main Content */}
-                <Section style={content}>
-                    {/* Badge */}
-                    <div style={badgeContainer}>
-                        <span style={badge}>📢 EVENT UPDATE</span>
-                    </div>
+                        {/* ═══════════════ HEADER ═══════════════ */}
+                        <Section style={styles.header}>
+                            <table width="100%" cellPadding="0" cellSpacing="0">
+                                <tr>
+                                    <td align="center">
+                                        <div style={styles.logoMark}>E</div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <Heading style={styles.logoText}>E-SUMMIT'26</Heading>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <Text style={styles.logoSubtext}>IIITDM KANCHEEPURAM</Text>
+                                    </td>
+                                </tr>
+                            </table>
+                        </Section>
 
-                    {/* Greeting */}
-                    <Heading style={greeting}>
-                        Hey {userName}! 👋
-                    </Heading>
-
-                    {/* Subject */}
-                    <Heading style={headline}>{subject}</Heading>
-
-                    {/* Decorative Line */}
-                    <div style={decorativeLine}></div>
-
-                    {/* Message */}
-                    <div style={messageContainer}>
-                        {message.split('\n').map((line, i) => (
-                            <Text key={i} style={paragraph}>
-                                {line || '\u00A0'}
+                        {/* ═══════════════ MAIN CONTENT ═══════════════ */}
+                        <Section style={styles.content}>
+                            {/* Greeting */}
+                            <Text style={styles.greeting}>
+                                Hello, <span style={styles.userName}>{userName}</span>
                             </Text>
-                        ))}
-                    </div>
 
-                    {/* CTA Button */}
-                    <Section style={ctaSection}>
-                        <Link href="https://esummit26-iiitdm.vercel.app/dashboard" style={ctaButton}>
-                            View Your Pass →
-                        </Link>
-                    </Section>
-                </Section>
+                            {/* Subject Headline */}
+                            <Heading style={styles.headline}>{subject}</Heading>
 
-                {/* Event Info */}
-                <Section style={infoCard}>
-                    <table style={infoTable}>
-                        <tbody>
-                            <tr>
-                                <td style={infoCell}>
-                                    <Text style={infoIcon}>📅</Text>
-                                    <Text style={infoLabel}>DATE</Text>
-                                    <Text style={infoValue}>Jan 30 - Feb 1, 2026</Text>
-                                </td>
-                                <td style={infoCell}>
-                                    <Text style={infoIcon}>📍</Text>
-                                    <Text style={infoLabel}>VENUE</Text>
-                                    <Text style={infoValue}>IIITDM Kancheepuram</Text>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </Section>
+                            {/* Accent Bar */}
+                            <div style={styles.accentBar} />
 
-                {/* Social Links */}
-                <Section style={socialSection}>
-                    <Text style={socialTitle}>Connect with us</Text>
-                    <Text style={socialLinksText}>
-                        <Link href="https://instagram.com/ecell_iiitdm" style={socialLink}>Instagram</Link>
-                        {' • '}
-                        <Link href="https://linkedin.com/company/ecelliiitdm" style={socialLink}>LinkedIn</Link>
-                        {' • '}
-                        <Link href="https://esummit26-iiitdm.vercel.app" style={socialLink}>Website</Link>
-                    </Text>
-                </Section>
+                            {/* Message Body */}
+                            <div style={styles.messageBody}>
+                                {message.split('\n').map((line, i) => (
+                                    <Text key={i} style={styles.messageLine}>
+                                        {line || <>&nbsp;</>}
+                                    </Text>
+                                ))}
+                            </div>
 
-                {/* Footer */}
-                <Section style={footer}>
-                    <Hr style={footerDivider} />
-                    <Text style={footerText}>
-                        You're receiving this because you're registered for E-Summit '26
-                    </Text>
-                    <Text style={copyright}>
-                        © 2026 E-Cell IIITDM Kancheepuram
-                    </Text>
-                </Section>
+                            {/* CTA Button */}
+                            <table width="100%" cellPadding="0" cellSpacing="0" style={{ marginTop: '40px' }}>
+                                <tr>
+                                    <td align="center">
+                                        <Link href="https://esummit26-iiitdm.vercel.app/dashboard" style={styles.ctaButton}>
+                                            Open Dashboard →
+                                        </Link>
+                                    </td>
+                                </tr>
+                            </table>
+                        </Section>
+
+                        {/* ═══════════════ EVENT INFO ═══════════════ */}
+                        <Section style={styles.infoSection}>
+                            <table width="100%" cellPadding="0" cellSpacing="0">
+                                <tr>
+                                    <td width="50%" style={styles.infoCell}>
+                                        <Text style={styles.infoLabel}>📅 WHEN</Text>
+                                        <Text style={styles.infoValue}>Jan 30 – Feb 1, 2026</Text>
+                                    </td>
+                                    <td width="50%" style={styles.infoCell}>
+                                        <Text style={styles.infoLabel}>📍 WHERE</Text>
+                                        <Text style={styles.infoValue}>IIITDM Campus</Text>
+                                    </td>
+                                </tr>
+                            </table>
+                        </Section>
+
+                        {/* ═══════════════ FOOTER ═══════════════ */}
+                        <Section style={styles.footer}>
+                            <Hr style={styles.divider} />
+
+                            {/* Social Links */}
+                            <table width="100%" cellPadding="0" cellSpacing="0">
+                                <tr>
+                                    <td align="center" style={{ paddingBottom: '20px' }}>
+                                        <Link href="https://instagram.com/ecell_iiitdm" style={styles.socialLink}>Instagram</Link>
+                                        <span style={styles.socialDot}>·</span>
+                                        <Link href="https://linkedin.com/company/ecelliiitdm" style={styles.socialLink}>LinkedIn</Link>
+                                        <span style={styles.socialDot}>·</span>
+                                        <Link href="https://esummit26-iiitdm.vercel.app" style={styles.socialLink}>Website</Link>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <Text style={styles.footerNote}>
+                                You received this because you're registered for E-Summit '26
+                            </Text>
+                            <Text style={styles.copyright}>
+                                © 2026 E-Cell IIITDM · Made with 💜 in Chennai
+                            </Text>
+                        </Section>
+
+                    </Container>
+                </div>
             </Container>
         </Body>
     </Html>
@@ -120,201 +138,174 @@ export const EventReminderEmail: React.FC<EventReminderEmailProps> = ({
 
 export default EventReminderEmail;
 
-// ============================================
-// LIGHT THEME STYLES - Clean & Professional
-// ============================================
+// ════════════════════════════════════════════════════════════════
+// STYLES - Premium Dark Theme
+// ════════════════════════════════════════════════════════════════
 
-const main: React.CSSProperties = {
-    backgroundColor: '#f4f4f5',
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    padding: '40px 20px',
-};
+const styles: Record<string, React.CSSProperties> = {
+    // Base
+    body: {
+        backgroundColor: '#000000',
+        margin: 0,
+        padding: '48px 16px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+        WebkitFontSmoothing: 'antialiased',
+    },
+    wrapper: {
+        maxWidth: '560px',
+        margin: '0 auto',
+    },
+    glowWrapper: {
+        background: 'linear-gradient(180deg, rgba(147, 51, 234, 0.15) 0%, transparent 40%)',
+        borderRadius: '28px',
+        padding: '1px',
+    },
+    container: {
+        backgroundColor: '#0c0c0c',
+        borderRadius: '28px',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        overflow: 'hidden',
+    },
 
-const container: React.CSSProperties = {
-    maxWidth: '600px',
-    margin: '0 auto',
-    backgroundColor: '#ffffff',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.03)',
-};
+    // Header
+    header: {
+        padding: '48px 40px 32px',
+        textAlign: 'center' as const,
+        background: 'linear-gradient(180deg, rgba(147, 51, 234, 0.08) 0%, transparent 100%)',
+    },
+    logoMark: {
+        width: '56px',
+        height: '56px',
+        borderRadius: '16px',
+        background: 'linear-gradient(135deg, #9333ea 0%, #7c3aed 100%)',
+        color: '#ffffff',
+        fontSize: '28px',
+        fontWeight: '700',
+        lineHeight: '56px',
+        textAlign: 'center' as const,
+        marginBottom: '16px',
+        boxShadow: '0 8px 32px rgba(147, 51, 234, 0.4)',
+    },
+    logoText: {
+        color: '#ffffff',
+        fontSize: '24px',
+        fontWeight: '700',
+        margin: '0 0 4px 0',
+        letterSpacing: '3px',
+    },
+    logoSubtext: {
+        color: 'rgba(255, 255, 255, 0.4)',
+        fontSize: '11px',
+        fontWeight: '500',
+        letterSpacing: '2px',
+        margin: 0,
+    },
 
-const header: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
-    padding: '36px 32px',
-    textAlign: 'center' as const,
-};
+    // Content
+    content: {
+        padding: '40px 40px 48px',
+    },
+    greeting: {
+        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: '15px',
+        fontWeight: '400',
+        margin: '0 0 8px 0',
+    },
+    userName: {
+        color: '#a78bfa',
+        fontWeight: '500',
+    },
+    headline: {
+        color: '#ffffff',
+        fontSize: '28px',
+        fontWeight: '600',
+        lineHeight: '1.35',
+        margin: '0 0 20px 0',
+    },
+    accentBar: {
+        width: '48px',
+        height: '3px',
+        background: 'linear-gradient(90deg, #9333ea 0%, #7c3aed 100%)',
+        borderRadius: '2px',
+        marginBottom: '28px',
+    },
+    messageBody: {
+        marginBottom: '8px',
+    },
+    messageLine: {
+        color: 'rgba(255, 255, 255, 0.75)',
+        fontSize: '15px',
+        lineHeight: '1.7',
+        margin: '0 0 8px 0',
+    },
 
-const logo: React.CSSProperties = {
-    fontSize: '32px',
-    fontWeight: '800',
-    color: '#ffffff',
-    margin: '0 0 6px 0',
-    letterSpacing: '2px',
-};
+    // CTA
+    ctaButton: {
+        display: 'inline-block',
+        backgroundColor: '#9333ea',
+        color: '#ffffff',
+        padding: '14px 28px',
+        borderRadius: '12px',
+        textDecoration: 'none',
+        fontSize: '14px',
+        fontWeight: '600',
+        boxShadow: '0 4px 24px rgba(147, 51, 234, 0.35)',
+    },
 
-const tagline: React.CSSProperties = {
-    color: 'rgba(255, 255, 255, 0.85)',
-    fontSize: '13px',
-    margin: 0,
-    letterSpacing: '2px',
-    textTransform: 'uppercase' as const,
-};
+    // Info Section
+    infoSection: {
+        margin: '0 40px 40px',
+        padding: '24px',
+        backgroundColor: 'rgba(147, 51, 234, 0.06)',
+        border: '1px solid rgba(147, 51, 234, 0.15)',
+        borderRadius: '16px',
+    },
+    infoCell: {
+        textAlign: 'center' as const,
+        padding: '8px',
+    },
+    infoLabel: {
+        color: 'rgba(255, 255, 255, 0.45)',
+        fontSize: '11px',
+        fontWeight: '600',
+        letterSpacing: '1px',
+        margin: '0 0 6px 0',
+    },
+    infoValue: {
+        color: '#ffffff',
+        fontSize: '14px',
+        fontWeight: '500',
+        margin: 0,
+    },
 
-const content: React.CSSProperties = {
-    padding: '40px 32px',
-};
-
-const badgeContainer: React.CSSProperties = {
-    marginBottom: '20px',
-};
-
-const badge: React.CSSProperties = {
-    display: 'inline-block',
-    backgroundColor: '#f3e8ff',
-    color: '#7c3aed',
-    padding: '8px 16px',
-    borderRadius: '100px',
-    fontSize: '12px',
-    fontWeight: '600',
-    letterSpacing: '1px',
-    textTransform: 'uppercase' as const,
-};
-
-const greeting: React.CSSProperties = {
-    fontSize: '18px',
-    fontWeight: '500',
-    color: '#6b7280',
-    margin: '0 0 8px 0',
-};
-
-const headline: React.CSSProperties = {
-    fontSize: '28px',
-    fontWeight: '700',
-    color: '#111827',
-    margin: '0 0 20px 0',
-    lineHeight: '1.3',
-};
-
-const decorativeLine: React.CSSProperties = {
-    height: '4px',
-    width: '60px',
-    background: 'linear-gradient(90deg, #7c3aed 0%, #a855f7 100%)',
-    borderRadius: '2px',
-    marginBottom: '28px',
-};
-
-const messageContainer: React.CSSProperties = {
-    marginBottom: '28px',
-};
-
-const paragraph: React.CSSProperties = {
-    fontSize: '16px',
-    lineHeight: '1.7',
-    color: '#4b5563',
-    margin: '0 0 10px 0',
-};
-
-const ctaSection: React.CSSProperties = {
-    textAlign: 'center' as const,
-    margin: '32px 0 0 0',
-};
-
-const ctaButton: React.CSSProperties = {
-    display: 'inline-block',
-    background: 'linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)',
-    color: '#ffffff',
-    padding: '16px 32px',
-    borderRadius: '12px',
-    textDecoration: 'none',
-    fontWeight: '600',
-    fontSize: '15px',
-    boxShadow: '0 4px 14px rgba(124, 58, 237, 0.4)',
-};
-
-const infoCard: React.CSSProperties = {
-    margin: '0 32px 28px 32px',
-    padding: '20px',
-    backgroundColor: '#faf5ff',
-    borderRadius: '12px',
-    border: '1px solid #e9d5ff',
-};
-
-const infoTable: React.CSSProperties = {
-    width: '100%',
-};
-
-const infoCell: React.CSSProperties = {
-    textAlign: 'center' as const,
-    padding: '8px',
-    width: '50%',
-};
-
-const infoIcon: React.CSSProperties = {
-    fontSize: '20px',
-    margin: '0 0 4px 0',
-};
-
-const infoLabel: React.CSSProperties = {
-    fontSize: '10px',
-    fontWeight: '600',
-    color: '#9ca3af',
-    letterSpacing: '1px',
-    textTransform: 'uppercase' as const,
-    margin: '0 0 2px 0',
-};
-
-const infoValue: React.CSSProperties = {
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#374151',
-    margin: 0,
-};
-
-const socialSection: React.CSSProperties = {
-    textAlign: 'center' as const,
-    padding: '0 32px 24px 32px',
-};
-
-const socialTitle: React.CSSProperties = {
-    fontSize: '11px',
-    fontWeight: '600',
-    color: '#9ca3af',
-    margin: '0 0 8px 0',
-    textTransform: 'uppercase' as const,
-    letterSpacing: '1px',
-};
-
-const socialLinksText: React.CSSProperties = {
-    margin: 0,
-    fontSize: '14px',
-};
-
-const socialLink: React.CSSProperties = {
-    color: '#7c3aed',
-    textDecoration: 'none',
-    fontWeight: '500',
-};
-
-const footer: React.CSSProperties = {
-    padding: '0 32px 28px 32px',
-    textAlign: 'center' as const,
-};
-
-const footerDivider: React.CSSProperties = {
-    borderColor: '#e5e7eb',
-    borderWidth: '1px',
-    margin: '0 0 20px 0',
-};
-
-const footerText: React.CSSProperties = {
-    fontSize: '13px',
-    color: '#9ca3af',
-    margin: '0 0 4px 0',
-};
-
-const copyright: React.CSSProperties = {
-    fontSize: '12px',
-    color: '#d1d5db',
-    margin: 0,
+    // Footer
+    footer: {
+        padding: '0 40px 40px',
+        textAlign: 'center' as const,
+    },
+    divider: {
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+        margin: '0 0 24px 0',
+    },
+    socialLink: {
+        color: '#a78bfa',
+        textDecoration: 'none',
+        fontSize: '13px',
+        fontWeight: '500',
+    },
+    socialDot: {
+        color: 'rgba(255, 255, 255, 0.2)',
+        margin: '0 10px',
+        fontSize: '14px',
+    },
+    footerNote: {
+        color: 'rgba(255, 255, 255, 0.35)',
+        fontSize: '12px',
+        margin: '0 0 8px 0',
+    },
+    copyright: {
+        color: 'rgba(255, 255, 255, 0.25)',
+        fontSize: '11px',
+        margin: 0,
+    },
 };
