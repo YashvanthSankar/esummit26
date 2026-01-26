@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { render } from '@react-email/render';
-import EventReminderEmail from '@/lib/emails/event-reminder';
+import EventReminderEmail from '@/lib/emails/event-reminder-email';
 import * as React from 'react';
 import nodemailer from 'nodemailer';
 
 interface TicketHolder {
     email: string;
     name: string;
+}
+
+interface EmailPayload {
+    from: string;
+    to: string;
+    subject: string;
+    html: string;
 }
 
 // Check which email provider to use
@@ -52,7 +59,7 @@ async function sendViaGmail(
 
 // Send batch via Gmail (Sequential with delay to avoid 421 errors)
 async function sendBatchViaGmail(
-    emails: Array<{ to: string; subject: string; html: string; from: string }>
+    emails: EmailPayload[]
 ): Promise<{ sent: number; failed: number; errors: string[] }> {
     const transporter = createGmailTransport();
     const results = { sent: 0, failed: 0, errors: [] as string[] };
@@ -66,7 +73,7 @@ async function sendBatchViaGmail(
                 html: email.html,
             });
             results.sent++;
-            // Consistently succeed by waiting 1s between emails
+            // Wait 1s between emails to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (err: any) {
             results.failed++;
@@ -79,7 +86,7 @@ async function sendBatchViaGmail(
     return results;
 }
 
-// Send via Resend (keeping existing functionality)
+// Send via Resend
 async function sendViaResend(
     to: string,
     subject: string,
@@ -160,14 +167,29 @@ export async function POST(request: NextRequest) {
             .single();
 
         if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
-            return NextResponse.json({ error: `Admin access required. Your role: ${profile?.role}` }, { status: 403 });
+            return NextResponse.json(
+                { error: `Admin access required. Your role: ${profile?.role}` },
+                { status: 403 }
+            );
         }
 
-        // Get request body
-        const { subject, message, testMode = false, testEmail } = await request.json();
+        // Get request body with enhanced email data
+        const {
+            subject,
+            message,
+            testMode = false,
+            testEmail,
+            eventDetails,
+            events,
+            speakers,
+            sponsors,
+        } = await request.json();
 
         if (!subject || !message) {
-            return NextResponse.json({ error: 'Subject and message are required' }, { status: 400 });
+            return NextResponse.json(
+                { error: 'Subject and message are required' },
+                { status: 400 }
+            );
         }
 
         const fromEmail = getFromEmail(provider);
@@ -182,18 +204,53 @@ export async function POST(request: NextRequest) {
                     userName: 'Test User',
                     subject,
                     message,
+                    eventDetails: eventDetails || {
+                        name: "E-Summit '26",
+                        dates: 'Jan 30 - Feb 1, 2026',
+                        venue: 'IIITDM Kancheepuram',
+                        prizePool: '₹2,00,000+',
+                        websiteUrl: 'https://esummit26-iiitdm.vercel.app',
+                    },
+                    events: events || [
+                        { name: 'Startup Pitch', date: 'Jan 31', prize: '₹50,000' },
+                        { name: 'Mock IPL Auction', date: 'Jan 30', prize: '₹30,000' },
+                        { name: 'E-Quiz', date: 'Feb 1', prize: '₹15,000' },
+                        { name: 'Crisis Management', date: 'Jan 31', prize: '₹20,000' },
+                    ],
+                    speakers: speakers || [
+                        {
+                            name: 'Harsha Vardhan',
+                            title: 'Founder, Codedale | Ex-SDE Zomato',
+                            image: 'https://yt3.googleusercontent.com/ytc/AIdro_k4k-Gf1X4yHwNjjX4NqJ_1_4X4_4X4_4X4_4X4=s900-c-k-c0x00ffffff-no-rj', // Placeholder or real if available, using a generic placeholder for safety if this link dies, often better to rely on project assets if possible
+                        },
+                        {
+                            name: 'Industry Leaders',
+                            title: 'CXOs & Founders',
+                            image: 'https://ui-avatars.com/api/?name=I+L&background=random',
+                        }
+                    ],
+                    sponsors: sponsors || [
+                        { name: 'Unstop', logo: 'https://d8it4huxumps7.cloudfront.net/uploads/images/unstop/branding-guide/logos/Unstop-Logo-White-min.png' },
+                        { name: 'Resend', logo: 'https://resend.com/static/brand/resend-icon-white.png' },
+                    ],
                 })
             );
 
             if (provider === 'gmail') {
                 const result = await sendViaGmail(testEmail, subject, emailHtml, fromEmail);
                 if (!result.success) {
-                    return NextResponse.json({ error: `Gmail error: ${result.error}` }, { status: 500 });
+                    return NextResponse.json(
+                        { error: `Gmail error: ${result.error}` },
+                        { status: 500 }
+                    );
                 }
             } else {
                 const result = await sendViaResend(testEmail, subject, emailHtml, fromEmail);
                 if (!result.success) {
-                    return NextResponse.json({ error: `Resend error: ${result.error}` }, { status: 500 });
+                    return NextResponse.json(
+                        { error: `Resend error: ${result.error}` },
+                        { status: 500 }
+                    );
                 }
             }
 
@@ -219,7 +276,10 @@ export async function POST(request: NextRequest) {
             .eq('status', 'paid');
 
         if (ticketsError) {
-            return NextResponse.json({ error: 'Failed to fetch ticket holders' }, { status: 500 });
+            return NextResponse.json(
+                { error: 'Failed to fetch ticket holders' },
+                { status: 500 }
+            );
         }
 
         // Build unique email list
@@ -242,18 +302,23 @@ export async function POST(request: NextRequest) {
             }
         });
 
-        const recipients: TicketHolder[] = Array.from(emailMap.entries()).map(([email, name]) => ({
-            email,
-            name,
-        }));
+        const recipients: TicketHolder[] = Array.from(emailMap.entries()).map(
+            ([email, name]) => ({
+                email,
+                name,
+            })
+        );
 
         if (recipients.length === 0) {
-            return NextResponse.json({ error: 'No ticket holders found' }, { status: 400 });
+            return NextResponse.json(
+                { error: 'No ticket holders found' },
+                { status: 400 }
+            );
         }
 
         console.log('[SendReminder] Sending to', recipients.length, 'recipients via', provider);
 
-        // Prepare all emails
+        // Prepare all emails with the enhanced template
         const emailPayloads = await Promise.all(
             recipients.map(async (recipient) => {
                 const emailHtml = await render(
@@ -261,6 +326,16 @@ export async function POST(request: NextRequest) {
                         userName: recipient.name,
                         subject,
                         message,
+                        eventDetails: eventDetails || {
+                            name: 'E-Summit 2026',
+                            dates: '3rd-5th April',
+                            venue: 'IIITDM Campus',
+                            prizePool: '₹2,00,000+',
+                            websiteUrl: 'https://esummit26-iiitdm.vercel.app',
+                        },
+                        events: events || [],
+                        speakers: speakers || [],
+                        sponsors: sponsors || [],
                     })
                 );
 
@@ -276,11 +351,11 @@ export async function POST(request: NextRequest) {
         let results: { sent: number; failed: number; errors: string[] };
 
         if (provider === 'gmail') {
-            // Gmail: Send all in parallel
+            // Gmail: Send sequentially with delays
             results = await sendBatchViaGmail(emailPayloads);
         } else {
             // Resend: Use batch API
-            const resendPayloads = emailPayloads.map(e => ({
+            const resendPayloads = emailPayloads.map((e) => ({
                 from: e.from,
                 to: [e.to],
                 subject: e.subject,
