@@ -29,13 +29,15 @@ function getEmailProvider(): 'gmail' | 'resend' {
     const hasGmail = !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
     const hasResend = !!process.env.RESEND_API_KEY;
 
-    if (hasGmail) {
-        log('INFO', 'Provider: Gmail SMTP');
-        return 'gmail';
-    }
+    // Prioritize Resend for better deliverability and no throttling
     if (hasResend) {
-        log('INFO', 'Provider: Resend API');
+        log('INFO', 'Provider: Resend API (Preferred)');
         return 'resend';
+    }
+
+    if (hasGmail) {
+        log('INFO', 'Provider: Gmail SMTP (Fallback)');
+        return 'gmail';
     }
 
     log('ERROR', 'No email provider configured!');
