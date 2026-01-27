@@ -1,10 +1,10 @@
 import { render } from '@react-email/render';
-import EventReminderEmail from '@/lib/emails/event-reminder';
+import ESummitMail from '@/lib/emails/esummit-mail';
 import React from 'react';
 
 export default async function PreviewPage() {
     const html = await render(
-        <EventReminderEmail
+        <ESummitMail
             userName="Preview User"
             message="This is a preview of the custom message that you can include in the email."
         />

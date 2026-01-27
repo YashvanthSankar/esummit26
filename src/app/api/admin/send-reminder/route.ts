@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { render } from '@react-email/render';
-import EventReminderEmail from '@/lib/emails/event-reminder';
+import ESummitMail from '@/lib/emails/esummit-mail';
 import * as React from 'react';
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer';;
 
 interface TicketHolder {
     email: string;
@@ -344,7 +344,7 @@ export async function POST(request: NextRequest) {
 
             // Render email with all data
             const emailHtml = await render(
-                React.createElement(EventReminderEmail, {
+                React.createElement(ESummitMail, {
                     userName: 'Fellow Innovator',
                     subject,
                     message,
@@ -504,7 +504,7 @@ export async function POST(request: NextRequest) {
         const emailPayloads = await Promise.all(
             recipients.map(async (recipient) => {
                 const emailHtml = await render(
-                    React.createElement(EventReminderEmail, {
+                    React.createElement(ESummitMail, {
                         userName: recipient.name,
                         subject,
                         message,
