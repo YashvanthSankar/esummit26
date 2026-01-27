@@ -78,9 +78,78 @@ export const Checkmark = ({ color = defaultColor, opacity = defaultOpacity, size
     </svg>
 );
 
+
 export const LocationPin = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
         <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         <circle cx="12" cy="10" r="3" stroke={color} strokeWidth="1.5" />
     </svg>
 );
+
+export const CoffeeCup = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
+        <path d="M18 8H19C20.1 8 21 8.9 21 10C21 11.1 20.1 12 19 12H18" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M2 8H18V14C18 16.21 16.21 18 14 18H6C3.79 18 2 16.21 2 14V8Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6 1V3" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M10 1V3" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M14 1V3" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const StarBurst = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
+        <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const MoneyBag = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
+        <path d="M12 12C14.2091 12 16 10.2091 16 8H8C8 10.2091 9.79086 12 12 12Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 1C9.23858 1 7 3.23858 7 6V8H17V6C17 3.23858 14.7614 1 12 1Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5 8H19C20.1046 8 21 8.89543 21 10V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V10C3 8.89543 3.89543 8 5 8Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 15V17" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 19V17M12 17H10M12 17H14" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const Notepad = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
+        <path d="M16 2H8C6.9 2 6 2.9 6 4V20C6 21.1 6.9 22 8 22H16C17.1 22 18 21.1 18 20V4C18 2.9 17.1 2 16 2Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M10 2V4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M14 2V4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 10H15" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 14H15" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 18H13" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const Flame = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
+        <path d="M12 2C9 6 6 8.5 6 12.5C6 15.81 8.69 18.5 12 18.5C15.31 18.5 18 15.81 18 12.5C18 10.5 17 8.5 16 7L14.6 9.8C14.4 10.2 13.9 10.6 13.4 10.6C12.8 10.6 12.3 10.2 12.1 9.7L12 2Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 22C14.7614 22 17 19.7614 17 17" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const BarChart = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
+        <path d="M18 20V10" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 20V4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6 20V14" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const Clock = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ ...style, opacity }}>
+        <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 6V12L16.5 16.5" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
+export const Target = ({ color = defaultColor, opacity = defaultOpacity, size = defaultSize, style }: DoodleProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ ...style, opacity }}>
+        <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.5" />
+        <circle cx="12" cy="12" r="6" stroke={color} strokeWidth="1.5" />
+        <circle cx="12" cy="12" r="2" fill={color} />
+    </svg>
+);
+
