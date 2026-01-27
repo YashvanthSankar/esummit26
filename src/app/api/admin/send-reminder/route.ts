@@ -418,12 +418,14 @@ export async function POST(request: NextRequest) {
             const duration = Date.now() - startTime;
             log('SUCCESS', `Test email sent in ${duration}ms`);
 
+            const msgId = 'messageId' in result ? result.messageId : (result as any).id;
+
             return NextResponse.json({
                 success: true,
                 message: `✅ Test email sent successfully via ${provider}!`,
                 provider,
                 recipient: testEmail,
-                messageId: result.messageId || result.id,
+                messageId: msgId,
                 duration: `${duration}ms`,
                 tip: 'Check inbox and spam folder. If not received, check server logs above for errors.'
             });
