@@ -132,8 +132,8 @@ export const EventReminderEmail = ({
                         </Section>
 
                         <div style={{ textAlign: 'center' }}>
-                            <Link href={`${eventDetails.websiteUrl}/dashboard`} style={yellowButton}>
-                                Download Your Pass
+                            <Link href="https://unstop.com/college-fests/e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-431947" style={yellowButton}>
+                                Register on Unstop
                             </Link>
                         </div>
                     </Section>
@@ -141,19 +141,16 @@ export const EventReminderEmail = ({
                     {/* ════ COMPACT EVENT SCHEDULE ════ */}
                     {events.length > 0 && (
                         <Section style={section}>
-                            <Text style={sectionTitle}>Event Schedule</Text>
+                            <Text style={sectionTitle}>Events & Competitions</Text>
                             <div style={tableContainer}>
                                 {events.map((event, i) => (
                                     <div key={i} style={{
                                         ...eventRow,
                                         borderBottom: i === events.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)'
                                     }}>
-                                        <div style={timeCell}>
-                                            <Text style={eventDateText}>{event.date?.split('•')[0] || ''}</Text>
-                                            <Text style={eventTimeText}>{event.date?.split('•')[1] || ''}</Text>
-                                        </div>
                                         <div style={nameCell}>
                                             <Text style={eventNameText}>{event.name}</Text>
+                                            <Text style={eventHypeText}>{event.date}</Text>
                                         </div>
                                         <div style={prizeCell}>
                                             <Text style={eventPrizeText}>{event.prize}</Text>
@@ -405,28 +402,11 @@ const tableContainer: React.CSSProperties = {
     backgroundColor: '#0e0e0e',
 };
 
+// Event Row removed timeCell styles
 const eventRow: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     padding: '12px 16px',
-};
-
-const timeCell: React.CSSProperties = {
-    width: '100px',
-    flexShrink: 0,
-};
-
-const eventDateText: React.CSSProperties = {
-    fontSize: '11px',
-    color: '#888',
-    margin: 0,
-    fontWeight: '500',
-};
-
-const eventTimeText: React.CSSProperties = {
-    fontSize: '11px',
-    color: '#555',
-    margin: 0,
 };
 
 const nameCell: React.CSSProperties = {
@@ -435,10 +415,19 @@ const nameCell: React.CSSProperties = {
 };
 
 const eventNameText: React.CSSProperties = {
-    fontSize: '13px',
+    fontSize: '14px',
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: '700',
+    margin: '0 0 4px 0',
+};
+
+const eventHypeText: React.CSSProperties = {
+    fontSize: '11px',
+    color: '#a855f7', // Purple accent for hype
+    fontWeight: '500',
     margin: 0,
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
 };
 
 const prizeCell: React.CSSProperties = {
