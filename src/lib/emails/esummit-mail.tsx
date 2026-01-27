@@ -86,100 +86,125 @@ export const ESummitMail = ({
                 <Container style={styles.container}>
                     
                     {/* ═══════════════════════════════════════════════════════════ */}
-                    {/* PREMIUM HERO HEADER                                          */}
+                    {/* HERO HEADER - HIGH IMPACT                                   */}
                     {/* ═══════════════════════════════════════════════════════════ */}
                     <Section style={styles.heroSection}>
-                        {/* Top Bar with E-Summit & E-Cell Logos */}
-                        <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: '100%', marginBottom: '24px' }}>
-                            <tbody>
-                                <tr>
-                                    <td style={{ textAlign: 'left', width: '50%', verticalAlign: 'middle' }}>
-                                        <Img
-                                            src="https://esummit26-iiitdm.vercel.app/esummit26-logo.png"
-                                            alt="E-Summit '26"
-                                            width="40"
-                                            height="40"
-                                            style={{ display: 'inline-block', marginRight: '8px', verticalAlign: 'middle' }}
-                                        />
-                                        <Text style={{ ...styles.topBrandText, display: 'inline', verticalAlign: 'middle' }}>E-SUMMIT</Text>
-                                    </td>
-                                    <td style={{ textAlign: 'right', width: '50%', verticalAlign: 'middle' }}>
-                                        <Text style={{ ...styles.topBrandText, display: 'inline', verticalAlign: 'middle', marginRight: '8px' }}>E-CELL</Text>
-                                        <Img
-                                            src="https://esummit26-iiitdm.vercel.app/ecell.png"
-                                            alt="E-Cell IIITDM"
-                                            width="40"
-                                            height="40"
-                                            style={{ display: 'inline-block', verticalAlign: 'middle' }}
-                                        />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div style={styles.heroCard}>
+                            {/* Top Bar: E-Summit Logo (Left) | E-Cell Logo (Right) */}
+                            <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: '100%', marginBottom: '16px' }}>
+                                <tbody>
+                                    <tr>
+                                        <td style={{ textAlign: 'left', width: '50%', verticalAlign: 'middle' }}>
+                                            <div style={{ display: 'inline-block', backgroundColor: '#1E293B', borderRadius: '10px', padding: '8px' }}>
+                                                <Img
+                                                    src="https://esummit26-iiitdm.vercel.app/esummit26-logo.png"
+                                                    alt="E-Summit '26"
+                                                    width="120"
+                                                    height="40"
+                                                    style={{ display: 'block' }}
+                                                />
+                                            </div>
+                                        </td>
+                                        <td style={{ textAlign: 'right', width: '50%', verticalAlign: 'middle' }}>
+                                            <div style={{ display: 'inline-block', backgroundColor: '#1E293B', borderRadius: '10px', padding: '8px', marginLeft: 'auto' }}>
+                                                <Img
+                                                    src="https://esummit26-iiitdm.vercel.app/ecell.png"
+                                                    alt="E-Cell IIITDM"
+                                                    width="40"
+                                                    height="40"
+                                                    style={{ display: 'block' }}
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-                        {/* Decorative Purple Line */}
-                        <div style={styles.goldLine} />
+                            {/* Date Badge */}
+                            <div style={styles.heroBadge}>{eventDetails.dates} · {eventDetails.venue}</div>
 
-                        {/* Main Logo - Clean, No Circle */}
-                        <div style={{ textAlign: 'center', margin: '32px 0' }}>
-                            <Img
-                                src="https://esummit26-iiitdm.vercel.app/esummit26-logo.png"
-                                alt={`${eventDetails.name} Logo`}
-                                width="140"
-                                height="140"
-                                style={styles.logo}
-                            />
-                        </div>
+                            {/* Event Name */}
+                            <Text style={styles.heroTitle}>{eventDetails.name}</Text>
+                            
+                            {/* Tagline */}
+                            <Text style={styles.heroTagline}>{eventDetails.tagline}</Text>
 
-                        {/* Event Name - Premium Typography */}
-                        <Text style={styles.heroTitle}>{eventDetails.name}</Text>
-                        
-                        {/* Decorative Divider */}
-                        <div style={styles.decorativeDivider}>
-                            <span style={styles.dividerDot}>◆</span>
-                        </div>
-                        
-                        {/* Tagline */}
-                        <Text style={styles.heroTagline}>{eventDetails.tagline}</Text>
-                        
-                        {/* Date & Venue */}
-                        <div style={styles.heroMeta}>
-                            <Text style={styles.heroDate}>
-                                {eventDetails.dates}
-                            </Text>
-                            <Text style={styles.heroVenue}>
-                                {eventDetails.venue}
-                            </Text>
+                            {/* Value Props */}
+                            <div style={styles.heroPills}>
+                                <span style={styles.heroPill}>₹2,00,000+ prize pool</span>
+                                <span style={styles.heroPill}>10+ headline competitions</span>
+                                <span style={styles.heroPill}>500+ founders & builders</span>
+                            </div>
+
+                            {/* CTAs */}
+                            <div style={styles.heroCtas}>
+                                <Link href={eventDetails.registrationUrl} style={styles.primaryHeroCta}>
+                                    Get Your Pass
+                                </Link>
+                                <Link href={eventDetails.websiteUrl} style={styles.ghostHeroCta}>
+                                    See Full Lineup →
+                                </Link>
+                            </div>
+
+                            {/* Proof Row */}
+                            <div style={styles.heroProofRow}>
+                                <div style={styles.heroProofItem}>
+                                    <span style={styles.heroProofIcon}>🚀</span>
+                                    <span style={styles.heroProofText}>VC eyes on top ideas</span>
+                                </div>
+                                <div style={styles.heroProofItem}>
+                                    <span style={styles.heroProofIcon}>🎤</span>
+                                    <span style={styles.heroProofText}>Keynotes from ISRO, YC founders</span>
+                                </div>
+                                <div style={styles.heroProofItem}>
+                                    <span style={styles.heroProofIcon}>🤝</span>
+                                    <span style={styles.heroProofText}>Career fair & networking night</span>
+                                </div>
+                            </div>
                         </div>
                     </Section>
 
                     {/* ═══════════════════════════════════════════════════════════ */}
-                    {/* GREETING SECTION                                             */}
+                    {/* GREETING SECTION                                            */}
                     {/* ═══════════════════════════════════════════════════════════ */}
-                    <Section style={styles.section}>
-                        <div style={styles.greetingCard}>
-                            {/* Greeting */}
-                            <Text style={styles.greetingText}>
-                                Dear <strong style={{ color: COLORS.purple }}>{userName}</strong>,
-                            </Text>
+                    <Section style={styles.greetingSection}>
+                        {/* Greeting Header */}
+                        <Text style={styles.greetingHello}>Hello,</Text>
+                        <Text style={styles.greetingName}>{userName}</Text>
+                        
+                        {/* Divider */}
+                        <div style={styles.greetingDivider} />
 
-                            {/* Custom Message */}
-                            {message && (
-                                <Text style={styles.bodyText}>{message}</Text>
-                            )}
+                        {/* Custom Message */}
+                        {message && (
+                            <Text style={styles.customMessage}>{message}</Text>
+                        )}
 
-                            {/* Intro */}
-                            <Text style={styles.bodyText}>
-                                The <strong style={{ color: COLORS.textPrimary }}>Entrepreneurship Cell of IIITDM Kancheepuram</strong> welcomes you to 
-                                <strong style={{ color: COLORS.purple }}> {eventDetails.name}</strong> — 
-                                South India&apos;s most prestigious entrepreneurship conclave.
-                            </Text>
+                        {/* Main Message */}
+                        <Text style={styles.mainMessage}>
+                            You’re invited to join us at <strong>{eventDetails.name}</strong> — 
+                            South India’s biggest entrepreneurship summit.
+                        </Text>
 
-                            <Text style={styles.bodyText}>
-                                Experience <strong style={{ color: COLORS.textPrimary }}>3 power-packed days</strong> of intense competitions, visionary keynotes, 
-                                startup showcases, and networking with industry titans.
-                            </Text>
-                        </div>
+                        {/* Event Quick Info */}
+                        <table cellPadding="0" cellSpacing="0" role="presentation" style={styles.quickInfoTable}>
+                            <tbody>
+                                <tr>
+                                    <td style={styles.quickInfoItem}>
+                                        <Text style={styles.quickInfoIcon}>📅</Text>
+                                        <Text style={styles.quickInfoText}>Jan 30 – Feb 1</Text>
+                                    </td>
+                                    <td style={styles.quickInfoItem}>
+                                        <Text style={styles.quickInfoIcon}>📍</Text>
+                                        <Text style={styles.quickInfoText}>IIITDM Chennai</Text>
+                                    </td>
+                                    <td style={styles.quickInfoItem}>
+                                        <Text style={styles.quickInfoIcon}>🏆</Text>
+                                        <Text style={styles.quickInfoText}>₹2L+ Prizes</Text>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </Section>
 
                     {/* ═══════════════════════════════════════════════════════════ */}
@@ -251,19 +276,24 @@ export const ESummitMail = ({
                     </Section>
 
                     {/* ═══════════════════════════════════════════════════════════ */}
-                    {/* EVENTS SECTION                                               */}
+                    {/* EVENTS SECTION - UNIFIED CARDS                               */}
                     {/* ═══════════════════════════════════════════════════════════ */}
-                    <Section style={styles.section}>
-                        <div style={styles.sectionHeader}>
-                            <Text style={styles.sectionLabel}>COMPETITIONS</Text>
-                            <Text style={styles.sectionTitle}>Featured Events</Text>
-                            <div style={styles.sectionLine} />
-                        </div>
+                    <Section style={styles.eventsSection}>
+                        <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: '100%', marginBottom: '28px' }}>
+                            <tbody>
+                                <tr>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <Text style={styles.sectionLabel}>COMPETITIONS</Text>
+                                        <Text style={styles.sectionTitle}>Featured Events</Text>
+                                        <div style={styles.sectionLine} />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-                        {/* Flagship Events */}
-                        <Text style={styles.categoryLabel}>⭐ FLAGSHIP EVENTS</Text>
-                        {events.filter(e => e.category === 'Flagship').map((event, i) => (
-                            <div key={i} style={styles.eventCardPremium}>
+                        {/* All Events - Same Design */}
+                        {events.map((event, i) => (
+                            <div key={i} style={styles.eventCard}>
                                 <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: '100%' }}>
                                     <tbody>
                                         <tr>
@@ -278,45 +308,6 @@ export const ESummitMail = ({
                                                         <Text style={styles.prizeBreakdown}>{event.breakdown}</Text>
                                                     )}
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        ))}
-
-                        {/* Formal Events */}
-                        <Text style={{ ...styles.categoryLabel, marginTop: '24px' }}>🎯 FORMAL EVENTS</Text>
-                        {events.filter(e => e.category === 'Formal').map((event, i) => (
-                            <div key={i} style={styles.eventCardStandard}>
-                                <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: '100%' }}>
-                                    <tbody>
-                                        <tr>
-                                            <td style={{ verticalAlign: 'middle' }}>
-                                                <Text style={styles.eventNameSmall}>{event.name}</Text>
-                                                <Text style={styles.eventDescSmall}>{event.description}</Text>
-                                            </td>
-                                            <td style={{ width: '90px', textAlign: 'right', verticalAlign: 'middle' }}>
-                                                <Text style={styles.prizeSmall}>{event.prize}</Text>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        ))}
-
-                        {/* Informal Events */}
-                        <Text style={{ ...styles.categoryLabel, marginTop: '24px' }}>🎉 INFORMAL EVENTS</Text>
-                        {events.filter(e => e.category === 'Informal').map((event, i) => (
-                            <div key={i} style={styles.eventCardLight}>
-                                <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: '100%' }}>
-                                    <tbody>
-                                        <tr>
-                                            <td style={{ verticalAlign: 'middle' }}>
-                                                <Text style={styles.eventNameSmall}>{event.name}</Text>
-                                            </td>
-                                            <td style={{ width: '80px', textAlign: 'right', verticalAlign: 'middle' }}>
-                                                <Text style={styles.prizeLight}>{event.prize}</Text>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -380,26 +371,51 @@ export const ESummitMail = ({
                     </Section>
 
                     {/* ═══════════════════════════════════════════════════════════ */}
-                    {/* SPONSORS (Conditional)                                       */}
+                    {/* SPONSORS - COMPACT HORIZONTAL GRID                          */}
                     {/* ═══════════════════════════════════════════════════════════ */}
                     {sponsors.length > 0 && (
                         <Section style={styles.section}>
-                            <div style={styles.sectionHeader}>
-                                <Text style={styles.sectionLabel}>PARTNERS</Text>
-                                <Text style={styles.sectionTitle}>Our Sponsors</Text>
-                                <div style={styles.sectionLine} />
-                            </div>
+                            <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: '100%', marginBottom: '16px' }}>
+                                <tbody>
+                                    <tr>
+                                        <td style={{ textAlign: 'center' }}>
+                                            <Text style={styles.sectionLabel}>PARTNERS</Text>
+                                            <Text style={{ ...styles.sectionTitle, fontSize: '22px', marginBottom: '12px' }}>Our Sponsors</Text>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-                            <div style={styles.sponsorGrid}>
-                                {sponsors.map((sponsor, i) => (
-                                    <Img
-                                        key={i}
-                                        src={sponsor.logo}
-                                        alt={sponsor.name}
-                                        style={styles.sponsorLogo}
-                                    />
-                                ))}
-                            </div>
+                            <table cellPadding="0" cellSpacing="0" role="presentation" style={styles.sponsorGrid}>
+                                <tbody>
+                                    <tr>
+                                        {sponsors.slice(0, 3).map((sponsor, i) => (
+                                            <td key={i} style={styles.sponsorCell}>
+                                                <Img
+                                                    src={sponsor.logo}
+                                                    alt={sponsor.name}
+                                                    width="80"
+                                                    height="32"
+                                                    style={styles.sponsorLogo}
+                                                />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                    <tr>
+                                        {sponsors.slice(3, 6).map((sponsor, i) => (
+                                            <td key={i} style={styles.sponsorCell}>
+                                                <Img
+                                                    src={sponsor.logo}
+                                                    alt={sponsor.name}
+                                                    width="80"
+                                                    height="32"
+                                                    style={styles.sponsorLogo}
+                                                />
+                                            </td>
+                                        ))}
+                                    </tr>
+                                </tbody>
+                            </table>
                         </Section>
                     )}
 
@@ -494,36 +510,48 @@ export const ESummitMail = ({
 export default ESummitMail;
 
 // ════════════════════════════════════════════════════════════════════════════
-// COLOR PALETTE - DARK LUXURY WITH PURPLE ACCENT
+// COLOR PALETTE - LIGHT & ELEGANT
 // ════════════════════════════════════════════════════════════════════════════
 
 const COLORS = {
-    // Base - Dark Theme
-    darkBase: '#0A0A0F',
-    darkCard: '#12121A',
-    darkElevated: '#1A1A25',
-    darkSurface: '#0F0F14',
+    // Base - Cool Light
+    background: '#FFFFFF',
+    surface: '#F6F8FF',
+    surfaceAlt: '#EEF2FF',
+    cardBg: '#FFFFFF',
     white: '#FFFFFF',
 
-    // Accents - Purple Gradient
-    purple: '#A855F7',
-    purpleDark: '#9333EA',
-    purpleLight: '#C084FC',
-    purpleGlow: 'rgba(168, 85, 247, 0.3)',
-    gradient: 'linear-gradient(135deg, #A855F7 0%, #7C3AED 50%, #6366F1 100%)',
+    // Primary - Indigo Glow
+    primary: '#4338CA',
+    primaryDark: '#312E81',
+    primaryLight: '#A5B4FC',
+    primarySoft: '#EEF2FF',
+    primaryMuted: '#E0E7FF',
 
-    // Gold for Premium
-    gold: '#F59E0B',
-    goldLight: '#FBBF24',
+    // Secondary - Bright Aqua
+    accent: '#0EA5E9',
+    accentLight: '#7DD3FC',
+    accentSoft: '#E0F2FE',
 
-    // Text
-    textPrimary: '#FFFFFF',
-    textSecondary: 'rgba(255, 255, 255, 0.7)',
-    textMuted: 'rgba(255, 255, 255, 0.4)',
+    // Tertiary - Warm Coral
+    coral: '#F97316',
+    coralSoft: '#FFEAD5',
 
-    // Borders
-    border: 'rgba(255, 255, 255, 0.1)',
-    borderPurple: 'rgba(168, 85, 247, 0.3)',
+    // Gold Highlight
+    gold: '#D97706',
+    goldLight: '#FDE68A',
+    goldSoft: '#FFFBEB',
+
+    // Text - Crisp Ink
+    textPrimary: '#0F172A',
+    textSecondary: '#334155',
+    textMuted: '#64748B',
+    textLight: '#94A3B8',
+
+    // Borders - Cool Grays
+    border: '#E2E8F0',
+    borderLight: '#EEF2FF',
+    borderAccent: 'rgba(67, 56, 202, 0.15)',
 };
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -552,11 +580,10 @@ const DEFAULT_EVENT_DETAILS: EventDetails = {
 };
 
 const DEFAULT_EVENTS: EventItem[] = [
-    // Flagship Events
     { 
         name: 'Pitch Perfect', 
         prize: '₹30,000', 
-        breakdown: '₹15K + ₹9K + ₹6K',
+        breakdown: '₹15K + ₹10K + ₹5K',
         category: 'Flagship', 
         description: 'Present your startup idea to top VCs and industry experts' 
     },
@@ -566,59 +593,19 @@ const DEFAULT_EVENTS: EventItem[] = [
         category: 'Flagship', 
         description: 'Model United Nations — Diplomatic debates on global challenges' 
     },
-    // Formal Events
     { 
         name: 'Ideathon', 
-        prize: '₹18,000', 
-        breakdown: '₹9K + ₹6K + ₹3K',
-        category: 'Formal', 
+        prize: '₹24,000', 
+        breakdown: '3 x ₹8K',
+        category: 'Flagship', 
         description: 'Innovative problem-solving for real-world challenges' 
     },
-    { 
-        name: 'BusinessVerse Quiz', 
-        prize: '₹18,000', 
-        category: 'Formal', 
-        description: 'Test your business and general knowledge' 
-    },
-    { 
-        name: 'Case Closed', 
-        prize: '₹15,000', 
-        breakdown: '₹7.5K + ₹5K + ₹2.5K',
-        category: 'Formal', 
-        description: 'Solve real-world business case studies' 
-    },
-    { 
-        name: 'Best Manager', 
-        prize: '₹12,000', 
-        breakdown: '₹6K + ₹4K + ₹2K',
-        category: 'Formal', 
-        description: 'Showcase your leadership and management skills' 
-    },
-    { 
-        name: 'Bid & Build', 
-        prize: '₹12,000', 
-        category: 'Formal', 
-        description: 'Strategic bidding and resource management' 
-    },
-    // Informal Events
     { 
         name: 'IPL Auction', 
         prize: '₹12,000', 
         breakdown: '₹4K × 3 winners',
-        category: 'Informal', 
+        category: 'Flagship', 
         description: 'Experience the thrill of cricket bidding wars' 
-    },
-    { 
-        name: 'Geoguessr', 
-        prize: '₹4,000', 
-        category: 'Informal', 
-        description: 'Test your geography knowledge' 
-    },
-    { 
-        name: 'Kala Bazaar', 
-        prize: '₹4,000', 
-        category: 'Informal', 
-        description: 'Cultural marketplace trading game' 
     },
 ];
 
@@ -665,109 +652,233 @@ const DEFAULT_SPONSORS: Sponsor[] = [
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
-// STYLES - DARK LUXURY AESTHETIC
+// STYLES - LIGHT & ELEGANT
 // ════════════════════════════════════════════════════════════════════════════
 
 const styles: { [key: string]: React.CSSProperties } = {
     // Base
     body: {
-        backgroundColor: COLORS.darkBase,
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        backgroundColor: COLORS.surface,
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
         color: COLORS.textPrimary,
         margin: '0',
-        padding: '0',
+        padding: '24px 16px',
+        WebkitFontSmoothing: 'antialiased',
     },
     container: {
         maxWidth: '600px',
         margin: '0 auto',
-        backgroundColor: COLORS.darkBase,
+        backgroundColor: COLORS.background,
+        backgroundImage: `radial-gradient(ellipse at 0% 0%, rgba(67, 56, 202, 0.06) 0%, transparent 55%), radial-gradient(ellipse at 100% 100%, rgba(14, 165, 233, 0.05) 0%, transparent 55%), radial-gradient(ellipse at 50% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 75%)`,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: '24px',
+        boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.9) inset',
+        overflow: 'hidden',
     },
     section: {
-        padding: '28px 24px',
+        padding: '32px 24px',
     },
 
     // Hero
     heroSection: {
-        backgroundColor: COLORS.darkSurface,
-        padding: '32px 24px 40px',
-        borderBottom: `2px solid ${COLORS.borderPurple}`,
-        backgroundImage: `linear-gradient(180deg, rgba(168, 85, 247, 0.05) 0%, transparent 50%)`,
+        position: 'relative',
+        backgroundColor: 'transparent',
+        padding: '36px 24px 16px',
+        textAlign: 'center',
+        overflow: 'hidden',
     },
-    topBrandText: {
+    heroCard: {
+        position: 'relative',
+        background: `linear-gradient(135deg, ${COLORS.cardBg} 0%, ${COLORS.surfaceAlt} 100%)`,
+        border: `1px solid ${COLORS.border}`,
+        borderRadius: '20px',
+        padding: '28px 22px 24px',
+        boxShadow: '0 18px 40px rgba(28, 25, 23, 0.08)',
+        overflow: 'hidden',
+    },
+    heroBadge: {
+        display: 'inline-block',
+        padding: '8px 14px',
+        borderRadius: '999px',
+        backgroundColor: COLORS.primarySoft,
+        color: COLORS.primaryDark,
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '11px',
-        fontWeight: '700',
-        letterSpacing: '3px',
-        color: COLORS.purple,
-        margin: '0',
-        textTransform: 'uppercase',
+        fontSize: '12px',
+        fontWeight: '600',
+        letterSpacing: '0.2px',
+        marginBottom: '12px',
     },
-    goldLine: {
-        height: '1px',
-        background: `linear-gradient(90deg, transparent, ${COLORS.purple}, transparent)`,
-        margin: '0',
-    },
-    logo: {
-        display: 'block',
+    accentLine: {
+        width: '60px',
+        height: '3px',
+        backgroundColor: COLORS.primary,
         margin: '0 auto',
+        borderRadius: '2px',
     },
     heroTitle: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '42px',
-        fontWeight: '700',
+        fontSize: '34px',
+        fontWeight: '800',
         color: COLORS.textPrimary,
         textAlign: 'center',
-        margin: '0',
-        letterSpacing: '-1px',
-    },
-    decorativeDivider: {
-        textAlign: 'center',
-        margin: '16px 0',
-    },
-    dividerDot: {
-        color: COLORS.purple,
-        fontSize: '12px',
+        margin: '0 0 6px',
+        letterSpacing: '-0.6px',
     },
     heroTagline: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '12px',
+        fontSize: '14px',
         fontWeight: '600',
-        color: COLORS.purple,
+        color: COLORS.textSecondary,
         textAlign: 'center',
-        textTransform: 'uppercase',
-        letterSpacing: '3px',
+        letterSpacing: '0.3px',
+        margin: '0 0 16px',
+    },
+    heroPills: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        justifyContent: 'center',
         margin: '0 0 20px',
     },
-    heroMeta: {
-        textAlign: 'center',
-    },
-    heroDate: {
+    heroPill: {
+        display: 'inline-block',
+        padding: '10px 12px',
+        borderRadius: '12px',
+        backgroundColor: COLORS.surfaceAlt,
+        border: `1px solid ${COLORS.border}`,
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '15px',
+        fontSize: '12px',
         fontWeight: '600',
         color: COLORS.textPrimary,
-        margin: '0 0 4px',
     },
-    heroVenue: {
+    heroCtas: {
+        display: 'flex',
+        gap: '10px',
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: '0 0 18px',
+    },
+    primaryHeroCta: {
+        display: 'inline-block',
+        backgroundColor: COLORS.primary,
+        color: COLORS.white,
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '14px',
+        fontWeight: '700',
+        textDecoration: 'none',
+        padding: '12px 20px',
+        borderRadius: '12px',
+        boxShadow: '0 8px 20px rgba(91, 33, 182, 0.25)',
+    },
+    ghostHeroCta: {
+        display: 'inline-block',
+        backgroundColor: COLORS.surface,
+        color: COLORS.primaryDark,
         fontFamily: "-apple-system, sans-serif",
         fontSize: '13px',
+        fontWeight: '700',
+        textDecoration: 'none',
+        padding: '11px 18px',
+        borderRadius: '12px',
+        border: `1px solid ${COLORS.border}`,
+    },
+    heroProofRow: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '10px',
+        justifyContent: 'center',
+    },
+    heroProofItem: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '8px 10px',
+        borderRadius: '10px',
+        backgroundColor: COLORS.surfaceAlt,
+        border: `1px solid ${COLORS.border}`,
+    },
+    heroProofIcon: {
+        fontSize: '14px',
+    },
+    heroProofText: {
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '12px',
+        fontWeight: '600',
         color: COLORS.textSecondary,
         margin: '0',
     },
 
     // Greeting
-    greetingCard: {
-        backgroundColor: COLORS.darkCard,
-        border: `1px solid ${COLORS.border}`,
-        borderLeft: `4px solid ${COLORS.purple}`,
-        borderRadius: '8px',
-        padding: '24px',
+    // Greeting Section - Clean Minimal
+    greetingSection: {
+        padding: '40px 32px',
+        textAlign: 'left',
     },
-    greetingText: {
+    greetingHello: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '18px',
-        color: COLORS.textPrimary,
+        fontSize: '14px',
+        fontWeight: '500',
+        color: COLORS.textMuted,
+        margin: '0',
+        letterSpacing: '0.5px',
+    },
+    greetingName: {
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '28px',
+        fontWeight: '700',
+        color: COLORS.primary,
+        margin: '4px 0 0',
+        letterSpacing: '-0.5px',
+    },
+    greetingDivider: {
+        width: '40px',
+        height: '3px',
+        backgroundColor: COLORS.primary,
+        margin: '20px 0',
+        borderRadius: '2px',
+    },
+    customMessage: {
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '15px',
+        lineHeight: '1.7',
+        color: COLORS.textSecondary,
         margin: '0 0 16px',
+        padding: '16px',
+        backgroundColor: COLORS.primarySoft,
+        borderRadius: '12px',
+        borderLeft: `3px solid ${COLORS.primary}`,
+    },
+    mainMessage: {
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '16px',
+        lineHeight: '1.7',
+        color: COLORS.textPrimary,
+        margin: '0 0 24px',
+    },
+    quickInfoTable: {
+        width: '100%',
+        backgroundColor: COLORS.surfaceAlt,
+        borderRadius: '12px',
+        overflow: 'hidden',
+    },
+    quickInfoItem: {
+        width: '33.33%',
+        padding: '16px 8px',
+        textAlign: 'center',
+        verticalAlign: 'top',
+    },
+    quickInfoIcon: {
+        fontSize: '20px',
+        margin: '0 0 6px',
+        textAlign: 'center',
+    },
+    quickInfoText: {
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '12px',
+        fontWeight: '600',
+        color: COLORS.textPrimary,
+        margin: '0',
+        textAlign: 'center',
     },
     bodyText: {
         fontFamily: "-apple-system, sans-serif",
@@ -777,13 +888,13 @@ const styles: { [key: string]: React.CSSProperties } = {
         margin: '0 0 12px',
     },
 
-    // Prize Showcase
+    // Prize Showcase - Cinematic
     prizeShowcase: {
-        background: `linear-gradient(135deg, ${COLORS.purple} 0%, ${COLORS.purpleDark} 100%)`,
-        borderRadius: '12px',
-        padding: '36px 24px',
+        background: `linear-gradient(135deg, ${COLORS.primaryDark} 0%, ${COLORS.primary} 50%, #7E22CE 100%)`,
+        borderRadius: '20px',
+        padding: '48px 24px',
         textAlign: 'center',
-        boxShadow: '0 4px 30px rgba(168, 85, 247, 0.25)',
+        boxShadow: '0 8px 32px rgba(91, 33, 182, 0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
     },
     prizeIcon: {
         fontSize: '48px',
@@ -792,53 +903,59 @@ const styles: { [key: string]: React.CSSProperties } = {
     prizeLabel: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '11px',
-        fontWeight: '700',
-        letterSpacing: '3px',
+        fontWeight: '600',
+        letterSpacing: '2px',
         color: 'rgba(255,255,255,0.85)',
         margin: '0 0 8px',
+        textAlign: 'center',
     },
     prizeValue: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '42px',
-        fontWeight: '800',
+        fontSize: '44px',
+        fontWeight: '700',
         color: COLORS.white,
         margin: '0 0 8px',
         letterSpacing: '-1px',
+        textAlign: 'center',
     },
     prizeSubtext: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '14px',
         color: 'rgba(255,255,255,0.9)',
         margin: '0',
+        textAlign: 'center',
     },
 
     // Info Grid
     infoGrid: {
         width: '100%',
         borderCollapse: 'separate',
-        borderSpacing: '8px',
+        borderSpacing: '12px',
     },
     infoCell: {
         width: '50%',
+        verticalAlign: 'top',
     },
     infoCard: {
-        backgroundColor: COLORS.darkCard,
+        backgroundColor: COLORS.surfaceAlt,
         border: `1px solid ${COLORS.border}`,
-        borderRadius: '8px',
-        padding: '18px',
+        borderRadius: '12px',
+        padding: '20px 16px',
         textAlign: 'center',
     },
     infoIcon: {
-        fontSize: '24px',
-        marginBottom: '8px',
+        fontSize: '28px',
+        marginBottom: '10px',
+        textAlign: 'center',
     },
     infoLabel: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '10px',
-        fontWeight: '700',
-        letterSpacing: '2px',
-        color: COLORS.purple,
-        margin: '0 0 4px',
+        fontWeight: '600',
+        letterSpacing: '1.5px',
+        color: COLORS.primary,
+        margin: '0 0 6px',
+        textAlign: 'center',
     },
     infoValue: {
         fontFamily: "-apple-system, sans-serif",
@@ -846,25 +963,26 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontWeight: '600',
         color: COLORS.textPrimary,
         margin: '0',
+        textAlign: 'center',
     },
 
     // CTAs
     primaryCta: {
         display: 'inline-block',
-        backgroundColor: COLORS.purple,
+        backgroundColor: COLORS.primary,
         color: COLORS.white,
         fontFamily: "-apple-system, sans-serif",
         fontSize: '15px',
         fontWeight: '600',
         textDecoration: 'none',
         padding: '14px 40px',
-        borderRadius: '8px',
+        borderRadius: '10px',
     },
     secondaryCta: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '14px',
         fontWeight: '500',
-        color: COLORS.purpleLight,
+        color: COLORS.primary,
         textDecoration: 'none',
     },
 
@@ -876,50 +994,50 @@ const styles: { [key: string]: React.CSSProperties } = {
     sectionLabel: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '11px',
-        fontWeight: '700',
-        letterSpacing: '3px',
-        color: COLORS.purple,
+        fontWeight: '600',
+        letterSpacing: '2px',
+        color: COLORS.primary,
         margin: '0 0 8px',
+        textAlign: 'center',
     },
     sectionTitle: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '28px',
+        fontSize: '26px',
         fontWeight: '700',
         color: COLORS.textPrimary,
-        margin: '0 0 12px',
+        margin: '0 0 16px',
         letterSpacing: '-0.5px',
+        textAlign: 'center',
     },
     sectionLine: {
         width: '50px',
         height: '3px',
-        backgroundColor: COLORS.purple,
+        backgroundColor: COLORS.primary,
         margin: '0 auto',
         borderRadius: '2px',
     },
 
-    // Category Labels
-    categoryLabel: {
-        fontFamily: "-apple-system, sans-serif",
-        fontSize: '12px',
-        fontWeight: '700',
-        letterSpacing: '2px',
-        color: COLORS.textSecondary,
-        margin: '0 0 12px',
+    // Events Section with glassmorphism
+    eventsSection: {
+        padding: '32px 24px',
+        backgroundColor: 'rgba(241, 245, 249, 0.6)',
+        borderTop: `1px solid rgba(124, 58, 237, 0.1)`,
+        borderBottom: `1px solid rgba(124, 58, 237, 0.1)`,
     },
 
-    // Event Cards - Premium (Flagship)
-    eventCardPremium: {
-        backgroundColor: COLORS.darkCard,
-        border: `2px solid ${COLORS.purple}`,
-        borderRadius: '12px',
-        padding: '20px',
+    // Event Cards - UNIFIED Style with glass effect
+    eventCard: {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        border: `1px solid rgba(124, 58, 237, 0.12)`,
+        borderRadius: '14px',
+        padding: '18px 20px',
         marginBottom: '12px',
-        boxShadow: '0 2px 20px rgba(168, 85, 247, 0.15)',
+        boxShadow: '0 2px 8px rgba(124, 58, 237, 0.04)',
     },
     eventName: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '18px',
-        fontWeight: '700',
+        fontSize: '17px',
+        fontWeight: '600',
         color: COLORS.textPrimary,
         margin: '0 0 6px',
     },
@@ -931,7 +1049,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         lineHeight: '1.5',
     },
     prizeTag: {
-        backgroundColor: COLORS.purple,
+        backgroundColor: COLORS.primarySoft,
         borderRadius: '8px',
         padding: '12px 14px',
         textAlign: 'center',
@@ -940,128 +1058,98 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '16px',
         fontWeight: '700',
-        color: COLORS.white,
+        color: COLORS.primary,
         margin: '0',
+        textAlign: 'center',
     },
     prizeBreakdown: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '9px',
-        color: 'rgba(255,255,255,0.85)',
+        fontSize: '10px',
+        color: COLORS.textSecondary,
         margin: '4px 0 0',
-    },
-
-    // Event Cards - Standard (Formal)
-    eventCardStandard: {
-        backgroundColor: COLORS.darkCard,
-        border: `1px solid ${COLORS.border}`,
-        borderRadius: '8px',
-        padding: '16px 18px',
-        marginBottom: '8px',
-    },
-    eventNameSmall: {
-        fontFamily: "-apple-system, sans-serif",
-        fontSize: '15px',
-        fontWeight: '600',
-        color: COLORS.textPrimary,
-        margin: '0 0 2px',
-    },
-    eventDescSmall: {
-        fontFamily: "-apple-system, sans-serif",
-        fontSize: '12px',
-        color: COLORS.textMuted,
-        margin: '0',
-    },
-    prizeSmall: {
-        fontFamily: "-apple-system, sans-serif",
-        fontSize: '14px',
-        fontWeight: '700',
-        color: COLORS.gold,
-        margin: '0',
-    },
-
-    // Event Cards - Light (Informal)
-    eventCardLight: {
-        backgroundColor: COLORS.darkElevated,
-        borderRadius: '6px',
-        padding: '14px 16px',
-        marginBottom: '6px',
-    },
-    prizeLight: {
-        fontFamily: "-apple-system, sans-serif",
-        fontSize: '13px',
-        fontWeight: '600',
-        color: COLORS.purpleLight,
-        margin: '0',
+        textAlign: 'center',
     },
 
     // Speakers
     speakerCell: {
         width: '33.33%',
-        padding: '4px',
+        padding: '6px',
         verticalAlign: 'top',
     },
     speakerCard: {
-        backgroundColor: COLORS.darkCard,
+        backgroundColor: COLORS.cardBg,
         border: `1px solid ${COLORS.border}`,
-        borderRadius: '10px',
-        padding: '18px 10px',
+        borderRadius: '12px',
+        padding: '20px 12px',
         textAlign: 'center',
     },
     speakerImg: {
         borderRadius: '50%',
-        border: `3px solid ${COLORS.purple}`,
+        border: `3px solid ${COLORS.primarySoft}`,
         marginBottom: '12px',
+        display: 'block',
+        margin: '0 auto 12px',
     },
     speakerName: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '12px',
         fontWeight: '600',
         color: COLORS.textPrimary,
-        margin: '0 0 3px',
+        margin: '0 0 4px',
         lineHeight: '1.3',
+        textAlign: 'center',
     },
     speakerRole: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '10px',
         color: COLORS.textSecondary,
         margin: '0 0 2px',
+        textAlign: 'center',
     },
     speakerCompany: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '9px',
-        color: COLORS.purple,
+        fontSize: '10px',
+        color: COLORS.primary,
         margin: '0',
+        textAlign: 'center',
     },
 
-    // Sponsors
+    // Sponsors - Compact Horizontal Grid
     sponsorGrid: {
-        textAlign: 'center',
-        backgroundColor: COLORS.darkCard,
+        width: '100%',
+        borderCollapse: 'separate',
+        borderSpacing: '8px',
+    },
+    sponsorCell: {
+        width: '33.33%',
+        backgroundColor: COLORS.cardBg,
         border: `1px solid ${COLORS.border}`,
         borderRadius: '10px',
-        padding: '24px',
+        padding: '12px 8px',
+        textAlign: 'center',
+        verticalAlign: 'middle',
     },
     sponsorLogo: {
-        maxWidth: '80px',
-        maxHeight: '40px',
-        height: 'auto',
-        margin: '10px 14px',
+        display: 'block',
+        margin: '0 auto',
+        maxHeight: '32px',
+        width: 'auto',
     },
 
     // Final CTA
     finalCta: {
-        backgroundColor: COLORS.darkCard,
-        borderRadius: '12px',
-        padding: '36px 24px',
+        backgroundColor: COLORS.primarySoft,
+        borderRadius: '16px',
+        padding: '40px 24px',
         textAlign: 'center',
-        border: `1px solid ${COLORS.borderPurple}`,
     },
     finalCtaTitle: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '26px',
+        fontSize: '24px',
         fontWeight: '700',
         color: COLORS.textPrimary,
         margin: '0 0 10px',
+        textAlign: 'center',
     },
     finalCtaText: {
         fontFamily: "-apple-system, sans-serif",
@@ -1069,25 +1157,27 @@ const styles: { [key: string]: React.CSSProperties } = {
         color: COLORS.textSecondary,
         margin: '0 0 24px',
         lineHeight: '1.6',
+        textAlign: 'center',
     },
     finalCtaButton: {
         display: 'inline-block',
-        backgroundColor: COLORS.purple,
+        backgroundColor: COLORS.primary,
         color: COLORS.white,
         fontFamily: "-apple-system, sans-serif",
         fontSize: '15px',
         fontWeight: '600',
         textDecoration: 'none',
         padding: '14px 36px',
-        borderRadius: '8px',
+        borderRadius: '10px',
     },
 
     // Footer
     footer: {
-        backgroundColor: COLORS.darkSurface,
-        borderTop: `1px solid ${COLORS.border}`,
-        padding: '36px 24px',
+        backgroundColor: 'rgba(241, 245, 249, 0.7)',
+        borderTop: `1px solid rgba(124, 58, 237, 0.1)`,
+        padding: '40px 24px',
         textAlign: 'center',
+        borderRadius: '0 0 24px 24px',
     },
     footerBrand: {
         fontFamily: "-apple-system, sans-serif",
@@ -1095,15 +1185,18 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontWeight: '600',
         color: COLORS.textPrimary,
         margin: '0',
+        textAlign: 'center',
     },
     footerCollege: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '12px',
         color: COLORS.textSecondary,
         margin: '0 0 16px',
+        textAlign: 'center',
     },
     socialRow: {
         marginBottom: '16px',
+        textAlign: 'center',
     },
     socialLink: {
         display: 'inline-block',
@@ -1112,37 +1205,41 @@ const styles: { [key: string]: React.CSSProperties } = {
         textDecoration: 'none',
     },
     footerDivider: {
-        width: '100px',
+        width: '80px',
         height: '1px',
         backgroundColor: COLORS.border,
         margin: '16px auto',
     },
     footerContact: {
         fontFamily: "-apple-system, sans-serif",
-        fontSize: '12px',
+        fontSize: '13px',
         color: COLORS.textSecondary,
         margin: '0 0 6px',
+        textAlign: 'center',
     },
     footerAddress: {
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '12px',
+        color: COLORS.textMuted,
+        margin: '0',
+        textAlign: 'center',
+    },
+    footerLegal: {
+        fontFamily: "-apple-system, sans-serif",
+        fontSize: '11px',
+        color: COLORS.textMuted,
+        margin: '0 0 8px',
+        textAlign: 'center',
+    },
+    footerLinks: {
         fontFamily: "-apple-system, sans-serif",
         fontSize: '11px',
         color: COLORS.textMuted,
         margin: '0',
-    },
-    footerLegal: {
-        fontFamily: "-apple-system, sans-serif",
-        fontSize: '10px',
-        color: COLORS.textMuted,
-        margin: '0 0 8px',
-    },
-    footerLinks: {
-        fontFamily: "-apple-system, sans-serif",
-        fontSize: '10px',
-        color: COLORS.textMuted,
-        margin: '0',
+        textAlign: 'center',
     },
     footerLink: {
-        color: COLORS.purpleLight,
+        color: COLORS.primary,
         textDecoration: 'none',
     },
 };
