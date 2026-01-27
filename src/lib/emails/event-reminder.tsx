@@ -94,25 +94,28 @@ export const EventReminderEmail = ({
 
                     {/* ════ GREETING & INFO ════ */}
                     <Section style={introSection}>
-                        <Text style={heading}>Hello {userName},</Text>
+                        <Text style={heading}>Hello {userName === 'Test User' ? 'Innovator' : userName},</Text>
                         <Text style={paragraph}>
                             E-Summit '26 is here. We are bringing together the brightest minds for 3 days of innovation, competition, and networking at IIITDM Kancheepuram.
                         </Text>
 
-                        <div style={statsGrid}>
-                            <div style={statItem}>
-                                <Text style={statLabel}>VENUE</Text>
-                                <Text style={statValue}>IIITDM Kancheepuram</Text>
-                            </div>
-                            <div style={statItem}>
-                                <Text style={statLabel}>PRIZE POOL</Text>
-                                <Text style={statValue}>{eventDetails.prizePool}</Text>
-                            </div>
-                            <div style={statItem}>
-                                <Text style={statLabel}>MODE</Text>
-                                <Text style={statValue}>Offline</Text>
-                            </div>
-                        </div>
+                        {/* Stats Grid using Tables for Compatibility */}
+                        <Section style={statsContainer}>
+                            <Row>
+                                <Column style={statItem}>
+                                    <Text style={statLabel}>VENUE</Text>
+                                    <Text style={statValue}>IIITDM Kancheepuram</Text>
+                                </Column>
+                                <Column style={statItem}>
+                                    <Text style={statLabel}>PRIZE POOL</Text>
+                                    <Text style={statValue}>{eventDetails.prizePool}</Text>
+                                </Column>
+                                <Column style={statItem}>
+                                    <Text style={statLabel}>MODE</Text>
+                                    <Text style={statValue}>Offline</Text>
+                                </Column>
+                            </Row>
+                        </Section>
 
                         <Link href={`${eventDetails.websiteUrl}/dashboard`} style={primaryButton}>
                             Download Pass ➞
@@ -130,8 +133,8 @@ export const EventReminderEmail = ({
                                         borderBottom: i === events.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)'
                                     }}>
                                         <div style={timeCell}>
-                                            <Text style={eventDateText}>{event.date.split('•')[0]}</Text>
-                                            <Text style={eventTimeText}>{event.date.split('•')[1] || ''}</Text>
+                                            <Text style={eventDateText}>{event.date?.split('•')[0] || ''}</Text>
+                                            <Text style={eventTimeText}>{event.date?.split('•')[1] || ''}</Text>
                                         </div>
                                         <div style={nameCell}>
                                             <Text style={eventNameText}>{event.name}</Text>
@@ -149,17 +152,32 @@ export const EventReminderEmail = ({
                     {speakers.length > 0 && (
                         <Section style={section}>
                             <Text style={sectionTitle}>Speakers</Text>
-                            <div style={speakersContainer}>
-                                {speakers.map((speaker, i) => (
-                                    <div key={i} style={speakerCompact}>
-                                        <Img src={speaker.image} style={speakerAvatar} />
-                                        <div style={speakerInfo}>
-                                            <Text style={speakerName}>{speaker.name}</Text>
-                                            <Text style={speakerTitle}>{speaker.title}</Text>
-                                        </div>
-                                    </div>
+                            <Section>
+                                {Array.from({ length: Math.ceil(speakers.length / 2) }).map((_, rowIndex) => (
+                                    <Row key={rowIndex} style={{ marginBottom: '12px' }}>
+                                        {speakers.slice(rowIndex * 2, rowIndex * 2 + 2).map((speaker, i) => (
+                                            <Column key={i} style={{ width: '50%', paddingRight: i % 2 === 0 ? '6px' : '0', paddingLeft: i % 2 === 1 ? '6px' : '0' }}>
+                                                <div style={speakerCompact}>
+                                                    <table width="100%" border={0} cellPadding={0} cellSpacing={0}>
+                                                        <tr>
+                                                            <td width="40">
+                                                                <Img src={speaker.image} style={speakerAvatar} />
+                                                            </td>
+                                                            <td style={{ paddingLeft: '10px' }}>
+                                                                <Text style={speakerName}>{speaker.name}</Text>
+                                                                <Text style={speakerTitle}>{speaker.title}</Text>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </Column>
+                                        ))}
+                                        {speakers.slice(rowIndex * 2, rowIndex * 2 + 2).length === 1 && (
+                                            <Column style={{ width: '50%' }} />
+                                        )}
+                                    </Row>
                                 ))}
-                            </div>
+                            </Section>
                         </Section>
                     )}
 
@@ -258,6 +276,14 @@ const paragraph: React.CSSProperties = {
     lineHeight: '1.6',
     color: '#aaa',
     margin: '0 0 24px',
+};
+
+const statsContainer: React.CSSProperties = {
+    marginBottom: '24px',
+    padding: '16px',
+    backgroundColor: '#111',
+    borderRadius: '8px',
+    border: '1px solid #1f1f1f',
 };
 
 const statsGrid: React.CSSProperties = {
