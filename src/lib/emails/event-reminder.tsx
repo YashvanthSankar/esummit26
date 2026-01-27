@@ -61,7 +61,7 @@ export const EventReminderEmail = ({
         <Html>
             <Head>
                 <style>{`
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+                    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
                 `}</style>
             </Head>
             <Preview>{previewText}</Preview>
@@ -87,8 +87,8 @@ export const EventReminderEmail = ({
                             </div>
                         </div>
 
-                        <Text style={heroTitle}>Event Reminder</Text>
-                        <Text style={heroSubtitle}>Your upcoming event notification</Text>
+                        <Text style={heroTitle}>E-SUMMIT '26</Text>
+                        <Text style={heroSubtitle}>THE FUTURE IS HERE</Text>
                     </Section>
 
                     {/* ════ GLASSMORPHIC GREETING CARD ════ */}
@@ -103,7 +103,7 @@ export const EventReminderEmail = ({
                             <div style={priorityContainer}>
                                 <div style={priorityBadgeHigh}>
                                     <span style={priorityDot} />
-                                    <span style={priorityText}>High Priority</span>
+                                    <span style={priorityText}>Official Update</span>
                                 </div>
                             </div>
 
@@ -113,12 +113,12 @@ export const EventReminderEmail = ({
 
                             {/* Neon Glow CTA Button */}
                             <Link href={`${eventDetails.websiteUrl}/dashboard`} style={ctaButton}>
-                                <span style={buttonInner}>Download Your Pass</span>
+                                <span style={buttonInner}>Download Your Pass ➞</span>
                             </Link>
 
-                            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                            <div style={{ textAlign: 'center', marginTop: '20px' }}>
                                 <Link href={eventDetails.websiteUrl} style={secondaryLink}>
-                                    Official Website
+                                    Visit Official Website
                                 </Link>
                             </div>
                         </div>
@@ -210,7 +210,7 @@ export const EventReminderEmail = ({
                     {speakers.length > 0 && (
                         <Section style={speakersSection}>
                             <div style={sectionHeader}>
-                                <Text style={sectionTitle}>Speakers</Text>
+                                <Text style={sectionTitle}>Keynote Speakers</Text>
                                 <div style={sectionUnderline} />
                             </div>
 
@@ -275,6 +275,9 @@ export const EventReminderEmail = ({
                         <Text style={footerSubtext}>
                             Vandalur - Kelambakkam Road, Chennai - 600127
                         </Text>
+                        <Text style={footerSubtextUnsubscribe}>
+                            You received this email because you registered for E-Summit '26.
+                        </Text>
                     </Section>
                 </Container>
             </Body>
@@ -285,12 +288,12 @@ export const EventReminderEmail = ({
 export default EventReminderEmail;
 
 // ════════════════════════════════════════════════════════════════
-// ENHANCED STYLES - Cyber-Corporate with Glassmorphism & Neon
+// ENHANCED STYLES - Premium Dark Aesthetics
 // ════════════════════════════════════════════════════════════════
 
 const main: React.CSSProperties = {
-    backgroundColor: '#0a0118', // Pitch black with purple tint
-    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    backgroundColor: '#050505', // Deep black
+    fontFamily: "'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     minHeight: '100%',
     position: 'relative',
 };
@@ -300,10 +303,10 @@ const auraTopLeft: React.CSSProperties = {
     position: 'absolute',
     top: '-100px',
     left: '-100px',
-    width: '400px',
-    height: '400px',
-    background: 'radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%)',
-    filter: 'blur(60px)',
+    width: '500px',
+    height: '500px',
+    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%)',
+    filter: 'blur(80px)',
     zIndex: 0,
     pointerEvents: 'none',
 };
@@ -312,10 +315,10 @@ const auraBottomRight: React.CSSProperties = {
     position: 'absolute',
     bottom: '-100px',
     right: '-100px',
-    width: '500px',
-    height: '500px',
-    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.15) 50%, transparent 70%)',
-    filter: 'blur(80px)',
+    width: '600px',
+    height: '600px',
+    background: 'radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 70%)',
+    filter: 'blur(100px)',
     zIndex: 0,
     pointerEvents: 'none',
 };
@@ -326,11 +329,8 @@ const backgroundPattern: React.CSSProperties = {
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundImage: `
-        radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 30%),
-        radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.06) 0%, transparent 30%),
-        radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.04) 0%, transparent 40%)
-    `,
+    backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
+    backgroundSize: '40px 40px',
     zIndex: 0,
 };
 
@@ -342,17 +342,17 @@ const container: React.CSSProperties = {
     zIndex: 1,
 };
 
-// Enhanced Hero Section with 3D Icon
+// Enhanced Hero Section
 const heroSection: React.CSSProperties = {
     textAlign: 'center',
-    marginBottom: '40px',
+    marginBottom: '48px',
     padding: '20px',
 };
 
 const iconContainer: React.CSSProperties = {
     position: 'relative',
     display: 'inline-block',
-    marginBottom: '20px',
+    marginBottom: '24px',
 };
 
 const iconGlow: React.CSSProperties = {
@@ -360,48 +360,47 @@ const iconGlow: React.CSSProperties = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '180px',
-    height: '180px',
+    width: '200px',
+    height: '200px',
     background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)',
-    filter: 'blur(30px)',
+    filter: 'blur(40px)',
     zIndex: 0,
 };
 
 const iconWrapper: React.CSSProperties = {
     position: 'relative',
     zIndex: 1,
-    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(168, 85, 247, 0.1))',
+    background: 'rgba(255, 255, 255, 0.03)',
     backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(168, 85, 247, 0.3)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '50%',
     padding: '30px',
     display: 'inline-block',
-    boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
 };
 
 const logoStyle: React.CSSProperties = {
     display: 'block',
-    filter: 'drop-shadow(0 0 25px rgba(168, 85, 247, 0.6))',
+    filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.5))',
 };
 
 const heroTitle: React.CSSProperties = {
-    fontSize: '32px',
+    fontSize: '48px',
     fontWeight: '800',
-    background: 'linear-gradient(135deg, #a855f7 0%, #d946ef 50%, #ec4899 100%)',
+    background: 'linear-gradient(180deg, #ffffff 0%, #a855f7 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
-    marginBottom: '8px',
+    marginBottom: '12px',
     textTransform: 'uppercase',
-    letterSpacing: '2px',
-    filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.3))',
+    letterSpacing: '-2px',
+    lineHeight: '1',
 };
 
 const heroSubtitle: React.CSSProperties = {
     fontSize: '14px',
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontWeight: '500',
-    letterSpacing: '1px',
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontWeight: '600',
+    letterSpacing: '4px',
     textTransform: 'uppercase',
 };
 
@@ -413,35 +412,35 @@ const cardSection: React.CSSProperties = {
 
 const cardContent: React.CSSProperties = {
     position: 'relative',
-    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(168, 85, 247, 0.08))',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(168, 85, 247, 0.4)',
-    borderRadius: '24px',
-    padding: '36px 28px',
+    background: 'rgba(20, 20, 20, 0.6)',
+    backdropFilter: 'blur(40px)',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    borderRadius: '32px',
+    padding: '40px 32px',
     color: '#ffffff',
-    boxShadow: '0 8px 32px rgba(139, 92, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
 };
 
 const greetingText: React.CSSProperties = {
-    fontSize: '22px',
-    fontWeight: '800',
+    fontSize: '24px',
+    fontWeight: '700',
     marginBottom: '16px',
     color: '#ffffff',
-    letterSpacing: '0.5px',
+    letterSpacing: '-0.5px',
 };
 
 const introText: React.CSSProperties = {
-    fontSize: '15px',
-    lineHeight: '1.7',
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginBottom: '24px',
+    fontSize: '16px',
+    lineHeight: '1.8',
+    color: '#a1a1aa',
+    marginBottom: '32px',
     fontWeight: '400',
 };
 
-// Priority Badge (High Priority)
+// Priority Badge
 const priorityContainer: React.CSSProperties = {
-    display: 'inline-block',
-    marginBottom: '20px',
+    textAlign: 'center',
+    marginBottom: '32px',
 };
 
 const priorityBadgeHigh: React.CSSProperties = {
@@ -449,60 +448,54 @@ const priorityBadgeHigh: React.CSSProperties = {
     alignItems: 'center',
     gap: '8px',
     padding: '8px 16px',
-    background: 'rgba(236, 72, 153, 0.15)',
-    border: '1px solid rgba(236, 72, 153, 0.5)',
-    borderRadius: '50px',
-    boxShadow: '0 0 20px rgba(236, 72, 153, 0.3)',
+    background: 'rgba(168, 85, 247, 0.1)',
+    border: '1px solid rgba(168, 85, 247, 0.3)',
+    borderRadius: '100px',
 };
 
 const priorityDot: React.CSSProperties = {
-    width: '8px',
-    height: '8px',
+    width: '6px',
+    height: '6px',
     borderRadius: '50%',
-    backgroundColor: '#ec4899',
-    boxShadow: '0 0 10px rgba(236, 72, 153, 0.8)',
-    animation: 'pulse 2s infinite',
+    backgroundColor: '#a855f7',
+    boxShadow: '0 0 10px #a855f7',
 };
 
 const priorityText: React.CSSProperties = {
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: '700',
-    color: '#ec4899',
+    color: '#a855f7',
     textTransform: 'uppercase',
     letterSpacing: '1px',
 };
 
 const highlightText: React.CSSProperties = {
-    fontSize: '15px',
+    fontSize: '18px',
     textAlign: 'center',
-    marginBottom: '28px',
-    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: '32px',
+    color: '#ffffff',
     lineHeight: '1.6',
+    fontWeight: '500',
 };
 
 const highlightSpan: React.CSSProperties = {
     color: '#fbbf24',
-    fontWeight: '800',
-    textShadow: '0 0 20px rgba(251, 191, 36, 0.5)',
+    textShadow: '0 0 20px rgba(251, 191, 36, 0.4)',
 };
 
-// Neon Glow CTA Button
+// CTA Button
 const ctaButton: React.CSSProperties = {
     display: 'block',
-    background: 'linear-gradient(135deg, #a855f7 0%, #d946ef 100%)',
-    color: '#ffffff',
-    padding: '18px 36px',
-    borderRadius: '50px',
+    background: '#ffffff',
+    color: '#000000',
+    padding: '20px 40px',
+    borderRadius: '100px',
     textAlign: 'center',
     fontWeight: '700',
     fontSize: '16px',
     textDecoration: 'none',
-    boxShadow: '0 0 30px rgba(168, 85, 247, 0.6), 0 4px 15px rgba(168, 85, 247, 0.4)',
-    textTransform: 'uppercase',
-    letterSpacing: '1.5px',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    position: 'relative',
-    overflow: 'hidden',
+    boxShadow: '0 10px 30px rgba(255, 255, 255, 0.15)',
+    border: '1px solid #ffffff',
 };
 
 const buttonInner: React.CSSProperties = {
@@ -512,19 +505,14 @@ const buttonInner: React.CSSProperties = {
 
 const secondaryLink: React.CSSProperties = {
     display: 'inline-block',
-    padding: '12px 28px',
-    background: 'rgba(255, 255, 255, 0.1)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    color: '#ffffff',
-    borderRadius: '50px',
+    color: '#a1a1aa',
     fontSize: '14px',
-    fontWeight: '600',
-    textDecoration: 'none',
-    backdropFilter: 'blur(10px)',
-    letterSpacing: '0.5px',
+    textDecoration: 'underline',
+    textDecorationColor: '#52525b',
+    textUnderlineOffset: '4px',
 };
 
-// Section Headers with Neon Underline
+// Section Headers
 const sectionHeader: React.CSSProperties = {
     textAlign: 'center',
     marginBottom: '32px',
@@ -533,100 +521,87 @@ const sectionHeader: React.CSSProperties = {
 
 const sectionTitle: React.CSSProperties = {
     display: 'inline-block',
-    fontSize: '26px',
-    fontWeight: '800',
-    background: 'linear-gradient(135deg, #a855f7, #d946ef)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    textTransform: 'uppercase',
-    letterSpacing: '3px',
+    fontSize: '24px',
+    fontWeight: '700',
+    color: '#ffffff',
+    letterSpacing: '-1px',
     marginBottom: '12px',
 };
 
 const sectionUnderline: React.CSSProperties = {
-    width: '60px',
-    height: '3px',
-    background: 'linear-gradient(90deg, #a855f7, #d946ef)',
+    width: '40px',
+    height: '4px',
+    background: '#a855f7',
     margin: '0 auto',
     borderRadius: '2px',
-    boxShadow: '0 0 15px rgba(168, 85, 247, 0.6)',
 };
 
-// Enhanced Stats Section with Detail Cards
+// Details Grid
 const statsSection: React.CSSProperties = {
-    padding: '0 20px',
+    padding: '0 10px',
     marginBottom: '40px',
 };
 
 const detailsGrid: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '16px',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '12px',
 };
 
 const detailCard: React.CSSProperties = {
-    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(168, 85, 247, 0.05))',
-    backdropFilter: 'blur(15px)',
-    border: '1px solid rgba(168, 85, 247, 0.25)',
-    borderRadius: '20px',
+    flex: '1 1 40%',
+    background: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '24px',
     padding: '24px 20px',
     textAlign: 'center',
-    boxShadow: '0 4px 16px rgba(139, 92, 246, 0.15)',
 };
 
 const detailIcon: React.CSSProperties = {
-    fontSize: '32px',
+    fontSize: '24px',
     marginBottom: '12px',
-    filter: 'drop-shadow(0 0 10px rgba(168, 85, 247, 0.4))',
 };
 
 const statLabel: React.CSSProperties = {
-    fontSize: '11px',
-    color: 'rgba(168, 85, 247, 0.8)',
+    fontSize: '10px',
+    color: '#71717a',
     textTransform: 'uppercase',
-    letterSpacing: '1.5px',
-    marginBottom: '8px',
+    letterSpacing: '2px',
+    marginBottom: '4px',
     fontWeight: '700',
 };
 
 const statValue: React.CSSProperties = {
-    fontSize: '18px',
-    fontWeight: '800',
+    fontSize: '16px',
+    fontWeight: '600',
     color: '#ffffff',
     margin: 0,
-    letterSpacing: '0.5px',
 };
 
-// Smart Suggestions Chips
+// Chips
 const suggestionsSection: React.CSSProperties = {
     padding: '0 20px',
     marginBottom: '40px',
 };
 
 const chipsContainer: React.CSSProperties = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '12px',
-    justifyContent: 'center',
+    textAlign: 'center',
 };
 
 const chip: React.CSSProperties = {
     display: 'inline-block',
+    margin: '6px',
     padding: '10px 20px',
-    background: 'rgba(139, 92, 246, 0.15)',
-    border: '1px solid rgba(168, 85, 247, 0.4)',
-    borderRadius: '50px',
-    fontSize: '13px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '100px',
+    fontSize: '12px',
     fontWeight: '600',
-    color: '#d4c5f9',
+    color: '#ffffff',
     textDecoration: 'none',
-    backdropFilter: 'blur(10px)',
-    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
-    letterSpacing: '0.5px',
 };
 
-// Enhanced Events Section
+// Events List
 const eventsSection: React.CSSProperties = {
     padding: '0 20px',
     marginBottom: '40px',
@@ -634,75 +609,67 @@ const eventsSection: React.CSSProperties = {
 
 const eventCard: React.CSSProperties = {
     position: 'relative',
-    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(168, 85, 247, 0.05))',
-    backdropFilter: 'blur(15px)',
-    border: '1px solid rgba(168, 85, 247, 0.3)',
-    borderRadius: '20px',
-    padding: '24px 20px',
+    background: 'rgba(20, 20, 20, 0.6)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: '24px',
+    padding: '24px',
     marginBottom: '16px',
-    boxShadow: '0 4px 20px rgba(139, 92, 246, 0.2)',
     overflow: 'hidden',
 };
 
 const eventCardGlow: React.CSSProperties = {
     position: 'absolute',
     top: 0,
-    left: 0,
-    width: '100%',
+    right: 0,
+    width: '100px',
     height: '100%',
-    background: 'radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
+    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03))',
     pointerEvents: 'none',
 };
 
 const eventLeft: React.CSSProperties = {
-    marginBottom: '12px',
+    marginBottom: '16px',
 };
 
 const eventRight: React.CSSProperties = {
-    textAlign: 'right',
+    textAlign: 'left',
 };
 
 const eventName: React.CSSProperties = {
     fontSize: '18px',
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
     margin: '0 0 8px 0',
-    letterSpacing: '0.5px',
 };
 
 const eventDate: React.CSSProperties = {
     fontSize: '13px',
-    color: 'rgba(168, 85, 247, 0.9)',
+    color: '#a1a1aa',
     margin: 0,
-    fontWeight: '600',
+    fontWeight: '500',
 };
 
 const prizeBadge: React.CSSProperties = {
     display: 'inline-block',
-    background: 'rgba(251, 191, 36, 0.15)',
-    border: '1px solid rgba(251, 191, 36, 0.5)',
-    borderRadius: '12px',
-    padding: '8px 16px',
-    boxShadow: '0 0 20px rgba(251, 191, 36, 0.3)',
 };
 
 const eventPrize: React.CSSProperties = {
-    fontSize: '18px',
-    fontWeight: '800',
+    fontSize: '20px',
+    fontWeight: '700',
     color: '#fbbf24',
-    margin: '0 0 2px 0',
-    textShadow: '0 0 15px rgba(251, 191, 36, 0.5)',
+    margin: '0',
+    display: 'inline-block',
+    marginRight: '8px',
 };
 
 const eventPrizeLabel: React.CSSProperties = {
-    fontSize: '10px',
-    color: 'rgba(251, 191, 36, 0.7)',
+    fontSize: '11px',
+    color: '#71717a',
     textTransform: 'uppercase',
     fontWeight: '700',
-    letterSpacing: '1px',
 };
 
-// Enhanced Speakers Section
+// Speakers
 const speakersSection: React.CSSProperties = {
     padding: '0 20px',
     marginBottom: '40px',
@@ -714,16 +681,13 @@ const speakersGrid: React.CSSProperties = {
 
 const speakerCard: React.CSSProperties = {
     display: 'inline-block',
-    width: '45%',
+    width: '140px',
     verticalAlign: 'top',
-    margin: '2%',
-    padding: '20px 16px',
-    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(168, 85, 247, 0.05))',
-    backdropFilter: 'blur(15px)',
-    border: '1px solid rgba(168, 85, 247, 0.25)',
-    borderRadius: '20px',
-    textAlign: 'center',
-    boxShadow: '0 4px 16px rgba(139, 92, 246, 0.15)',
+    margin: '10px',
+    padding: '20px 10px',
+    background: 'rgba(255, 255, 255, 0.02)',
+    border: '1px solid rgba(255, 255, 255, 0.05)',
+    borderRadius: '24px',
 };
 
 const speakerImageWrapper: React.CSSProperties = {
@@ -733,12 +697,11 @@ const speakerImageWrapper: React.CSSProperties = {
 };
 
 const speakerImage: React.CSSProperties = {
-    width: '90px',
-    height: '90px',
+    width: '80px',
+    height: '80px',
     borderRadius: '50%',
-    border: '3px solid rgba(168, 85, 247, 0.6)',
     objectFit: 'cover',
-    boxShadow: '0 0 25px rgba(168, 85, 247, 0.4)',
+    border: '2px solid rgba(255, 255, 255, 0.1)',
 };
 
 const speakerImageGlow: React.CSSProperties = {
@@ -746,37 +709,34 @@ const speakerImageGlow: React.CSSProperties = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '110px',
-    height: '110px',
-    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)',
-    filter: 'blur(15px)',
-    zIndex: -1,
+    width: '90px',
+    height: '90px',
+    borderRadius: '50%',
+    border: '1px solid rgba(168, 85, 247, 0.5)',
+    opacity: 0.5,
 };
 
 const speakerName: React.CSSProperties = {
-    fontSize: '15px',
-    fontWeight: '800',
+    fontSize: '14px',
+    fontWeight: '700',
     color: '#ffffff',
-    margin: '0 0 6px 0',
-    letterSpacing: '0.5px',
+    margin: '0 0 4px 0',
+    lineHeight: '1.2',
 };
 
 const speakerTitle: React.CSSProperties = {
-    fontSize: '12px',
-    color: 'rgba(168, 85, 247, 0.8)',
-    lineHeight: '1.5',
-    fontWeight: '500',
+    fontSize: '10px',
+    color: '#a1a1aa',
+    lineHeight: '1.4',
 };
 
-// Sponsors Section
+// Sponsors
 const sponsorsSection: React.CSSProperties = {
-    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9))',
+    background: '#ffffff',
     borderRadius: '24px',
     padding: '32px 24px',
-    margin: '0 20px 40px',
+    margin: '0 20px 60px',
     textAlign: 'center',
-    border: '1px solid rgba(168, 85, 247, 0.2)',
-    boxShadow: '0 8px 32px rgba(139, 92, 246, 0.15)',
 };
 
 const logoGrid: React.CSSProperties = {
@@ -785,70 +745,66 @@ const logoGrid: React.CSSProperties = {
 
 const sponsorWrapper: React.CSSProperties = {
     display: 'inline-block',
-    margin: '12px 18px',
+    margin: '12px 20px',
     verticalAlign: 'middle',
 };
 
 const sponsorLogo: React.CSSProperties = {
-    height: '28px',
+    height: '24px',
     width: 'auto',
-    opacity: 0.75,
+    opacity: 0.6,
     filter: 'grayscale(100%)',
 };
 
-// Enhanced Footer
+// Footer
 const footer: React.CSSProperties = {
-    textAlign: 'center',
-    padding: '32px 20px 48px',
-    borderTop: '1px solid rgba(168, 85, 247, 0.2)',
     position: 'relative',
+    textAlign: 'center',
+    padding: '40px 20px',
+    backgroundColor: '#000000',
+    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
 };
 
 const footerGlow: React.CSSProperties = {
     position: 'absolute',
-    top: '-50px',
+    top: 0,
     left: '50%',
     transform: 'translateX(-50%)',
-    width: '300px',
-    height: '100px',
-    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
-    filter: 'blur(40px)',
-    zIndex: 0,
+    width: '200px',
+    height: '1px',
+    background: 'linear-gradient(90deg, transparent, #a855f7, transparent)',
+    boxShadow: '0 0 20px #a855f7',
 };
 
 const socialLinks: React.CSSProperties = {
     marginBottom: '24px',
-    position: 'relative',
-    zIndex: 1,
 };
 
 const socialIcon: React.CSSProperties = {
     display: 'inline-block',
     margin: '0 12px',
-    padding: '12px',
-    background: 'rgba(168, 85, 247, 0.1)',
-    borderRadius: '50%',
-    border: '1px solid rgba(168, 85, 247, 0.3)',
-    backdropFilter: 'blur(10px)',
-    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.2)',
+    opacity: 0.6,
 };
 
 const iconFilter: React.CSSProperties = {
-    filter: 'brightness(0) invert(1)',
-    opacity: 0.8,
+    filter: 'invert(1)',
 };
 
 const footerText: React.CSSProperties = {
-    fontSize: '13px',
-    color: 'rgba(255, 255, 255, 0.5)',
-    margin: '0 0 6px 0',
-    fontWeight: '600',
-    letterSpacing: '0.5px',
+    fontSize: '12px',
+    color: '#52525b',
+    margin: '0 0 8px 0',
+    fontWeight: '500',
 };
 
 const footerSubtext: React.CSSProperties = {
-    fontSize: '11px',
-    color: 'rgba(255, 255, 255, 0.3)',
+    fontSize: '12px',
+    color: '#3f3f46',
     margin: 0,
-    fontWeight: '500',
+};
+
+const footerSubtextUnsubscribe: React.CSSProperties = {
+    fontSize: '10px',
+    color: '#27272a',
+    marginTop: '20px',
 };
