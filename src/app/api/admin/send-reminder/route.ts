@@ -330,9 +330,9 @@ export async function POST(request: NextRequest) {
             sponsors
         } = body;
 
-        if (!subject || !message) {
+        if (!subject) {
             return NextResponse.json({
-                error: 'Missing required fields: subject and message are required'
+                error: 'Missing required fields: subject is required'
             }, { status: 400 });
         }
 

@@ -16,7 +16,7 @@ import * as React from 'react';
 interface EventReminderEmailProps {
     userName: string;
     subject: string;
-    message: string;
+    message?: string;
     eventDetails?: {
         name?: string;
         dates?: string;
@@ -92,11 +92,7 @@ export const EventReminderEmail = ({
                                 Hello <strong>{userName}</strong>! The Entrepreneurship Cell of IIITDM Kancheepuram is thrilled to invite you to <strong>E-Summit '26</strong>, our flagship entrepreneurship conclave.
                             </Text>
 
-                            {/* User Message */}
-                            <div style={messageBox}>
-                                <Heading style={messageSubject}>{subject}</Heading>
-                                <Text style={messageBody}>{message}</Text>
-                            </div>
+                            {/* User Message Removed */}
 
                             <Text style={highlightText}>
                                 Compete for a massive prize pool of <span style={highlightSpan}>{eventDetails.prizePool}</span> in a high-stakes environment.
@@ -310,28 +306,7 @@ const introText: React.CSSProperties = {
     marginBottom: '24px',
 };
 
-const messageBox: React.CSSProperties = {
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    borderRadius: '16px',
-    padding: '20px',
-    marginBottom: '24px',
-    borderLeft: '4px solid #d946ef', // Fuchsia accent
-};
 
-const messageSubject: React.CSSProperties = {
-    fontSize: '16px',
-    fontWeight: '700',
-    color: '#d946ef',
-    marginTop: 0,
-    marginBottom: '8px',
-};
-
-const messageBody: React.CSSProperties = {
-    fontSize: '14px',
-    color: '#ffffff',
-    margin: 0,
-    lineHeight: '1.5',
-};
 
 const highlightText: React.CSSProperties = {
     fontSize: '14px',
