@@ -320,7 +320,7 @@ export async function POST(request: NextRequest) {
         // 5. Parse request
         const body = await request.json();
         const {
-            subject = "E-Summit '26: Official Event Reminder",
+            subject = "🚀 E-Summit '26: Your Ultimate Guide - Events, Speakers & Passes!",
             message,
             testMode = false,
             testEmail,
