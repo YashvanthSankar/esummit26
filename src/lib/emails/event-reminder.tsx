@@ -98,11 +98,20 @@ export const EventReminderEmail = ({
                     </Section>
 
                     {/* ════ GREETING & INFO ════ */}
-                    <Section style={introSection}>
-                        <Text style={heading}>Hello {userName === 'Test User' ? 'Innovator' : userName},</Text>
-                        <Text style={paragraph}>
-                            E-Summit '26 is here. We are bringing together the brightest minds for 3 days of innovation, competition, and networking at IIITDM Kancheepuram.
-                        </Text>
+                    {/* ════ GREETING CARD ════ */}
+                    <Section style={{ padding: '0 20px 32px' }}>
+                        <div style={greetingCard}>
+                            <Text style={greetingTitle}>Greetings,</Text>
+                            <Text style={greetingBody}>
+                                Hello <strong>{userName === 'Test User' ? 'Fellow Innovator' : userName}</strong>! The Entrepreneurship Cell of IIITDM Kancheepuram is thrilled to invite you to <strong>{eventDetails.name}</strong>.
+                            </Text>
+                            <Text style={greetingBody}>
+                                Welcome to South India's Premier Entrepreneurship Conclave. Get ready for <strong>30+ hours</strong> of non-stop innovation, high-stakes competitions, and networking with industry titans.
+                            </Text>
+                            <Text style={greetingBody}>
+                                This is your moment to build, pitch, and win. We can't wait to see what you create.
+                            </Text>
+                        </div>
 
                         {/* Stats Grid using Tables for Compatibility */}
                         <Section style={statsContainer}>
@@ -122,9 +131,11 @@ export const EventReminderEmail = ({
                             </Row>
                         </Section>
 
-                        <Link href={`${eventDetails.websiteUrl}/dashboard`} style={primaryButton}>
-                            Download Pass ➞
-                        </Link>
+                        <div style={{ textAlign: 'center' }}>
+                            <Link href={`${eventDetails.websiteUrl}/dashboard`} style={yellowButton}>
+                                Download Your Pass
+                            </Link>
+                        </div>
                     </Section>
 
                     {/* ════ COMPACT EVENT SCHEDULE ════ */}
