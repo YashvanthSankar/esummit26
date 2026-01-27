@@ -216,9 +216,9 @@ export const EventReminderEmail = ({
                     <Section style={footer}>
                         <div style={divider} />
                         <Text style={footerLinks}>
-                            <Link href={`${eventDetails.websiteUrl}/schedule`} style={link}>Schedule</Link> •
-                            <Link href={`${eventDetails.websiteUrl}/events`} style={link}> Events</Link> •
-                            <Link href={`${eventDetails.websiteUrl}/speakers`} style={link}> Speakers</Link> •
+                            <Link href={`${eventDetails.websiteUrl}/#schedule`} style={link}>Schedule</Link> •
+                            <Link href={`${eventDetails.websiteUrl}/#events`} style={link}> Events</Link> •
+                            <Link href={`${eventDetails.websiteUrl}/#speakers`} style={link}> Speakers</Link> •
                             <Link href="https://instagram.com/ecell_iiitdm" style={link}> Instagram</Link>
                         </Text>
                         <Text style={footerLegal}>
