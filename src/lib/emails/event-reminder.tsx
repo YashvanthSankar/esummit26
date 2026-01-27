@@ -285,6 +285,45 @@ const paragraph: React.CSSProperties = {
     margin: '0 0 24px',
 };
 
+const greetingCard: React.CSSProperties = {
+    backgroundColor: '#9333ea', // Purple-600
+    border: '4px solid #ffffff',
+    borderRadius: '24px',
+    padding: '32px',
+    marginBottom: '24px',
+    color: '#ffffff',
+    boxShadow: '0 10px 30px rgba(147, 51, 234, 0.3)',
+};
+
+const greetingTitle: React.CSSProperties = {
+    fontSize: '24px',
+    fontWeight: '800',
+    marginBottom: '24px',
+    color: '#ffffff',
+};
+
+const greetingBody: React.CSSProperties = {
+    fontSize: '15px',
+    lineHeight: '1.6',
+    color: '#ffffff',
+    marginBottom: '16px',
+    fontWeight: '500',
+};
+
+const yellowButton: React.CSSProperties = {
+    display: 'inline-block',
+    backgroundColor: '#FCD34D', // Amber-300
+    color: '#000000',
+    fontSize: '16px',
+    fontWeight: '800',
+    padding: '16px 48px',
+    borderRadius: '50px',
+    textDecoration: 'none',
+    boxShadow: '0 4px 0 #F59E0B', // Amber-500 shadow
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+};
+
 const statsContainer: React.CSSProperties = {
     marginBottom: '24px',
     padding: '16px',
