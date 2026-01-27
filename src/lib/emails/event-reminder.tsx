@@ -133,7 +133,11 @@ export const EventReminderEmail = ({
 
                         <div style={{ textAlign: 'center' }}>
                             <Link href="https://unstop.com/college-fests/e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-431947" style={yellowButton}>
-                                Register on Unstop
+                                Register Now
+                            </Link>
+                            <span style={{ padding: '0 8px', color: '#666' }}>or</span>
+                            <Link href={`${eventDetails.websiteUrl}/dashboard`} style={secondaryButton}>
+                                Download Pass
                             </Link>
                         </div>
                     </Section>
@@ -322,14 +326,30 @@ const yellowButton: React.CSSProperties = {
     display: 'inline-block',
     backgroundColor: '#FCD34D', // Amber-300
     color: '#000000',
-    fontSize: '16px',
+    fontSize: '14px',
     fontWeight: '800',
-    padding: '16px 48px',
+    padding: '14px 28px',
     borderRadius: '50px',
     textDecoration: 'none',
-    boxShadow: '0 4px 0 #F59E0B', // Amber-500 shadow
+    boxShadow: '0 4px 0 #F59E0B',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
+    margin: '0 4px 8px',
+};
+
+const secondaryButton: React.CSSProperties = {
+    display: 'inline-block',
+    backgroundColor: 'transparent',
+    border: '1px solid #ffffff',
+    color: '#ffffff',
+    fontSize: '14px',
+    fontWeight: '700',
+    padding: '13px 28px', // Match height visually
+    borderRadius: '50px',
+    textDecoration: 'none',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    margin: '0 4px 8px',
 };
 
 const statsContainer: React.CSSProperties = {
