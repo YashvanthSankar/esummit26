@@ -517,11 +517,6 @@ export async function POST(request: NextRequest) {
                         ],
                         speakers: speakers || [
                             {
-                                name: 'Harsha Vardhan',
-                                title: 'Founder, Codedale | HarshaVerse',
-                                image: 'https://yt3.googleusercontent.com/ytc/AIdro_k4k-Gf1X4yHwNjjX4NqJ_1_4X4_4X4_4X4_4X4=s900-c-k-c0x00ffffff-no-rj',
-                            },
-                            {
                                 name: 'Dr. Mylswamy Annadurai',
                                 title: 'Moon Man of India',
                                 image: 'https://esummit26-iiitdm.vercel.app/speakers/mylswamy.webp',
@@ -540,6 +535,11 @@ export async function POST(request: NextRequest) {
                                 name: 'Arunabh Parihar',
                                 title: 'Co-Founder, Zoop Money',
                                 image: 'https://esummit26-iiitdm.vercel.app/speakers/arunabh.webp',
+                            },
+                            {
+                                name: 'Harsha Vardhan',
+                                title: 'Founder, Codedale | HarshaVerse',
+                                image: 'https://esummit26-iiitdm.vercel.app/speakers/harsha.webp',
                             }
                         ],
                         sponsors: sponsors || [
