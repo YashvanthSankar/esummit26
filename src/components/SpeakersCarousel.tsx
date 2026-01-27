@@ -98,7 +98,7 @@ export default function SpeakersCarousel() {
                 </motion.div>
 
                 {/* Speakers Horizontal Scroll Container */}
-                <div className="flex overflow-x-auto pb-12 gap-6 px-4 md:px-12 snap-x snap-mandatory scrollbar-hide mask-fade-sides">
+                <div className="flex flex-col md:flex-row md:overflow-x-auto pb-12 gap-6 px-4 md:px-12 md:snap-x md:snap-mandatory scrollbar-hide md:mask-fade-sides">
                     {speakers.map((speaker, index) => (
                         <motion.div
                             key={speaker.id}
@@ -106,7 +106,7 @@ export default function SpeakersCarousel() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1, duration: 0.6 }}
-                            className="group relative cursor-pointer flex-shrink-0 w-[280px] sm:w-[320px] snap-center"
+                            className="group relative cursor-pointer flex-shrink-0 w-full md:w-[320px] md:snap-center"
                             onMouseEnter={() => setHoveredSpeaker(speaker.id)}
                             onMouseLeave={() => setHoveredSpeaker(null)}
                             onClick={() => handleSpeakerClick(speaker)}
