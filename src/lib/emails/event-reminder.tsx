@@ -15,6 +15,8 @@ import * as React from 'react';
 
 interface EventReminderEmailProps {
     userName: string;
+    subject?: string;
+    message?: string;
     eventDetails?: {
         name?: string;
         dates?: string;
@@ -53,6 +55,8 @@ interface EventReminderEmailProps {
 
 export const EventReminderEmail = ({
     userName = 'Fellow Innovator',
+    subject,
+    message,
     eventDetails = {
         name: "E-Summit '26",
         dates: 'January 30 - February 1, 2026',
@@ -143,7 +147,7 @@ export const EventReminderEmail = ({
                     }
                 `}</style>
             </Head>
-            <Preview>{previewText}</Preview>
+            <Preview>{subject || previewText}</Preview>
             <Body style={main}>
                 {/* Subtle Background Pattern */}
                 <div style={backgroundOverlay} />
@@ -195,6 +199,11 @@ export const EventReminderEmail = ({
                             </div>
 
                             <Text style={greetingTitle}>Hello {userName}!</Text>
+                            {message && (
+                                <Text style={greetingBody}>
+                                    {message}
+                                </Text>
+                            )}
                             <Text style={greetingBody}>
                                 The <strong>Entrepreneurship Cell of IIITDM Kancheepuram</strong> is thrilled to present the complete guide to <strong>{eventDetails.name}</strong> — South India's premier entrepreneurship conclave.
                             </Text>
