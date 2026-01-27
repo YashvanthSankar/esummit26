@@ -320,7 +320,7 @@ export async function POST(request: NextRequest) {
         // 5. Parse request
         const body = await request.json();
         const {
-            subject,
+            subject = "E-Summit '26: Official Event Reminder",
             message,
             testMode = false,
             testEmail,
@@ -330,11 +330,6 @@ export async function POST(request: NextRequest) {
             sponsors
         } = body;
 
-        if (!subject) {
-            return NextResponse.json({
-                error: 'Missing required fields: subject is required'
-            }, { status: 400 });
-        }
 
         log('INFO', `Request: ${testMode ? 'TEST MODE' : 'PRODUCTION'}`);
 
