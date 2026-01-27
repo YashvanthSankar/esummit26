@@ -500,7 +500,7 @@ export const EventReminderEmail = ({
     );
 };
 
-export default ComprehensiveESummitEmail;
+export default EventReminderEmail;
 
 // ════════════════════════════════════════════════════════════════
 // DOODLE COMPONENTS (Inline SVG for email compatibility)
