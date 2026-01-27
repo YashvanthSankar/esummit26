@@ -198,6 +198,14 @@ export const EventReminderEmail = ({
                     {/* ════ FOOTER ════ */}
                     <Section style={footer}>
                         <div style={divider} />
+                        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                            <Img
+                                src="https://esummit26-iiitdm.vercel.app/ecell.png"
+                                alt="E-Cell"
+                                width="40"
+                                style={{ opacity: 0.8, display: 'inline-block' }}
+                            />
+                        </div>
                         <Text style={footerLinks}>
                             <Link href={`${eventDetails.websiteUrl}/schedule`} style={link}>Schedule</Link> •
                             <Link href={`${eventDetails.websiteUrl}/events`} style={link}> Events</Link> •
@@ -255,8 +263,10 @@ const headerDate: React.CSSProperties = {
 
 const divider: React.CSSProperties = {
     height: '1px',
-    backgroundColor: '#1f1f1f',
-    marginTop: '16px',
+    background: 'linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.6), transparent)',
+    marginTop: '24px',
+    marginBottom: '24px',
+    border: 'none',
 };
 
 const introSection: React.CSSProperties = {
