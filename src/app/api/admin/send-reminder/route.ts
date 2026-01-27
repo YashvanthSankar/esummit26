@@ -345,7 +345,7 @@ export async function POST(request: NextRequest) {
             // Render email with all data
             const emailHtml = await render(
                 React.createElement(EventReminderEmail, {
-                    userName: 'Test User',
+                    userName: 'Fellow Innovator',
                     subject,
                     message,
                     eventDetails: eventDetails || {
@@ -356,10 +356,16 @@ export async function POST(request: NextRequest) {
                         websiteUrl: 'https://esummit26-iiitdm.vercel.app',
                     },
                     events: events || [
-                        { name: 'Startup Pitch', date: 'Jan 31', prize: '₹30,000' },
-                        { name: 'Model United Nations', date: 'Jan 30-31', prize: '₹30,000' },
-                        { name: 'Ideathon', date: 'Jan 31', prize: '₹18,000' },
-                        { name: 'Mock IPL Auction', date: 'Feb 1', prize: '₹12,000' },
+                        { name: 'Launch of E-Summit', date: 'Jan 30 • 6:50 PM', prize: 'Ceremony' },
+                        { name: 'Bid and Build', date: 'Jan 30 • 7:30 PM', prize: '₹20,000' },
+                        { name: 'Model United Nations', date: 'Jan 31 • 9:00 AM', prize: '₹30,000' },
+                        { name: 'Startup Expo', date: 'Jan 31 • 9:00 AM', prize: 'Exhibit' },
+                        { name: 'Ideathon', date: 'Jan 31 • 10:00 AM', prize: '₹25,000' },
+                        { name: 'BusinessVerse', date: 'Jan 31 • 2:00 PM', prize: '₹15,000' },
+                        { name: 'Mock IPL Auction', date: 'Jan 31 • 6:00 PM', prize: '₹12,000' },
+                        { name: 'Case Closed', date: 'Feb 1 • 9:00 AM', prize: '₹15,000' },
+                        { name: 'Entrepreneur of Day', date: 'Feb 1 • 9:00 AM', prize: '₹10,000' },
+                        { name: 'Pitch On Pitch', date: 'Feb 1 • 2:00 PM', prize: '₹30,000' },
                     ],
                     speakers: speakers || [
                         {
@@ -510,10 +516,16 @@ export async function POST(request: NextRequest) {
                             websiteUrl: 'https://esummit26-iiitdm.vercel.app',
                         },
                         events: events || [
-                            { name: 'Startup Pitch', date: 'Jan 31', prize: '₹30,000' },
-                            { name: 'Model United Nations', date: 'Jan 30-31', prize: '₹30,000' },
-                            { name: 'Ideathon', date: 'Jan 31', prize: '₹18,000' },
-                            { name: 'Mock IPL Auction', date: 'Feb 1', prize: '₹12,000' },
+                            { name: 'Launch of E-Summit', date: 'Jan 30 • 6:50 PM', prize: 'Ceremony' },
+                            { name: 'Bid and Build', date: 'Jan 30 • 7:30 PM', prize: '₹20,000' },
+                            { name: 'Model United Nations', date: 'Jan 31 • 9:00 AM', prize: '₹30,000' },
+                            { name: 'Startup Expo', date: 'Jan 31 • 9:00 AM', prize: 'Exhibit' },
+                            { name: 'Ideathon', date: 'Jan 31 • 10:00 AM', prize: '₹25,000' },
+                            { name: 'BusinessVerse', date: 'Jan 31 • 2:00 PM', prize: '₹15,000' },
+                            { name: 'Mock IPL Auction', date: 'Jan 31 • 6:00 PM', prize: '₹12,000' },
+                            { name: 'Case Closed', date: 'Feb 1 • 9:00 AM', prize: '₹15,000' },
+                            { name: 'Entrepreneur of Day', date: 'Feb 1 • 9:00 AM', prize: '₹10,000' },
+                            { name: 'Pitch On Pitch', date: 'Feb 1 • 2:00 PM', prize: '₹30,000' },
                         ],
                         speakers: speakers || [
                             {

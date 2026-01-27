@@ -8,6 +8,8 @@ import {
     Preview,
     Section,
     Text,
+    Row,
+    Column,
 } from '@react-email/components';
 import * as React from 'react';
 
@@ -27,6 +29,7 @@ interface EventReminderEmailProps {
         logo?: string;
         date?: string;
         prize?: string;
+        type?: string;
     }>;
     speakers?: Array<{
         name: string;
@@ -41,7 +44,7 @@ interface EventReminderEmailProps {
 }
 
 export const EventReminderEmail = ({
-    userName = 'Attendee',
+    userName = 'Innovator',
     subject,
     message,
     eventDetails = {
@@ -57,176 +60,103 @@ export const EventReminderEmail = ({
 }: EventReminderEmailProps) => {
     const previewText = `${subject} - ${eventDetails.name}`;
 
+    // Helper to chunk events for 2-column layout (if we wanted grid, but list is safer for 10 items)
+    // For 10 items, a dense list is better than a massive grid.
+
     return (
         <Html>
             <Head>
                 <style>{`
                     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+                    .event-row:hover { background-color: rgba(255,255,255,0.03) !important; }
                 `}</style>
             </Head>
             <Preview>{previewText}</Preview>
             <Body style={main}>
-                {/* Enhanced Background with Aura Glows */}
-                <div style={auraTopLeft} />
-                <div style={auraBottomRight} />
-                <div style={backgroundPattern} />
-
                 <Container style={container}>
-                    {/* ════ HEADER / HERO with Frosted Icon ════ */}
-                    <Section style={heroSection}>
-                        {/* 3D Bell Icon Container */}
-                        <div style={iconContainer}>
-                            <div style={iconGlow} />
-                            <div style={iconWrapper}>
+                    {/* ════ HEADER ════ */}
+                    <Section style={header}>
+                        <Row>
+                            <Column>
                                 <Img
                                     src="https://esummit26-iiitdm.vercel.app/esummit26-logo.png"
                                     alt="E-Summit Logo"
-                                    width="140"
-                                    style={logoStyle}
+                                    width="40"
+                                    style={logo}
                                 />
-                            </div>
-                        </div>
-
-                        <Text style={heroTitle}>E-SUMMIT '26</Text>
-                        <Text style={heroSubtitle}>THE FUTURE IS HERE</Text>
+                            </Column>
+                            <Column style={{ textAlign: 'right' }}>
+                                <Text style={headerDate}>{eventDetails.dates}</Text>
+                            </Column>
+                        </Row>
+                        <div style={divider} />
                     </Section>
 
-                    {/* ════ GLASSMORPHIC GREETING CARD ════ */}
-                    <Section style={cardSection}>
-                        <div style={cardContent}>
-                            <Text style={greetingText}>Greetings,</Text>
-                            <Text style={introText}>
-                                Hello <strong>{userName}</strong>! The Entrepreneurship Cell of IIITDM Kancheepuram is thrilled to invite you to <strong>E-Summit '26</strong>, our flagship entrepreneurship conclave.
-                            </Text>
+                    {/* ════ GREETING & INFO ════ */}
+                    <Section style={introSection}>
+                        <Text style={heading}>Hello {userName},</Text>
+                        <Text style={paragraph}>
+                            E-Summit '26 is here. We are bringing together the brightest minds for 3 days of innovation, competition, and networking at IIITDM Kancheepuram.
+                        </Text>
 
-                            {/* Priority Badge */}
-                            <div style={priorityContainer}>
-                                <div style={priorityBadgeHigh}>
-                                    <span style={priorityDot} />
-                                    <span style={priorityText}>Official Update</span>
-                                </div>
-                            </div>
-
-                            <Text style={highlightText}>
-                                Compete for a massive prize pool of <span style={highlightSpan}>{eventDetails.prizePool}</span> in a high-stakes environment.
-                            </Text>
-
-                            {/* Neon Glow CTA Button */}
-                            <Link href={`${eventDetails.websiteUrl}/dashboard`} style={ctaButton}>
-                                <span style={buttonInner}>Download Your Pass ➞</span>
-                            </Link>
-
-                            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                                <Link href={eventDetails.websiteUrl} style={secondaryLink}>
-                                    Visit Official Website
-                                </Link>
-                            </div>
-                        </div>
-                    </Section>
-
-                    {/* ════ ENHANCED EVENT DETAILS with Glassmorphism ════ */}
-                    <Section style={statsSection}>
-                        <div style={sectionHeader}>
-                            <Text style={sectionTitle}>Event Details</Text>
-                            <div style={sectionUnderline} />
-                        </div>
-
-                        <div style={detailsGrid}>
-                            <div style={detailCard}>
-                                <div style={detailIcon}>🗓️</div>
-                                <Text style={statLabel}>When</Text>
-                                <Text style={statValue}>{eventDetails.dates}</Text>
-                            </div>
-
-                            <div style={detailCard}>
-                                <div style={detailIcon}>📍</div>
-                                <Text style={statLabel}>Mode</Text>
-                                <Text style={statValue}>In-person</Text>
-                            </div>
-
-                            <div style={detailCard}>
-                                <div style={detailIcon}>💰</div>
-                                <Text style={statLabel}>Prize Pool</Text>
-                                <Text style={statValue}>{eventDetails.prizePool}</Text>
-                            </div>
-
-                            <div style={detailCard}>
-                                <div style={detailIcon}>🏛️</div>
-                                <Text style={statLabel}>Venue</Text>
+                        <div style={statsGrid}>
+                            <div style={statItem}>
+                                <Text style={statLabel}>VENUE</Text>
                                 <Text style={statValue}>IIITDM Kancheepuram</Text>
                             </div>
-                        </div>
-                    </Section>
-
-                    {/* ════ SMART SUGGESTIONS CHIPS ════ */}
-                    <Section style={suggestionsSection}>
-                        <div style={sectionHeader}>
-                            <Text style={sectionTitle}>Quick Actions</Text>
-                        </div>
-
-                        <div style={chipsContainer}>
-                            <Link href={`${eventDetails.websiteUrl}/events`} style={chip}>
-                                ⚡ View Events
-                            </Link>
-                            <Link href={`${eventDetails.websiteUrl}/schedule`} style={chip}>
-                                🕐 Schedule
-                            </Link>
-                            <Link href={`${eventDetails.websiteUrl}/speakers`} style={chip}>
-                                🎤 Speakers
-                            </Link>
-                            <Link href={`${eventDetails.websiteUrl}/register`} style={chip}>
-                                🎯 Register
-                            </Link>
-                        </div>
-                    </Section>
-
-                    {/* ════ FEATURED EVENTS with Enhanced Cards ════ */}
-                    {events.length > 0 && (
-                        <Section style={eventsSection}>
-                            <div style={sectionHeader}>
-                                <Text style={sectionTitle}>Featured Events</Text>
-                                <div style={sectionUnderline} />
+                            <div style={statItem}>
+                                <Text style={statLabel}>PRIZE POOL</Text>
+                                <Text style={statValue}>{eventDetails.prizePool}</Text>
                             </div>
+                            <div style={statItem}>
+                                <Text style={statLabel}>MODE</Text>
+                                <Text style={statValue}>Offline</Text>
+                            </div>
+                        </div>
 
-                            {events.map((event, i) => (
-                                <div key={i} style={eventCard}>
-                                    <div style={eventCardGlow} />
-                                    <div style={eventLeft}>
-                                        <Text style={eventName}>{event.name}</Text>
-                                        <Text style={eventDate}>🕐 {event.date}</Text>
-                                    </div>
-                                    <div style={eventRight}>
-                                        <div style={prizeBadge}>
-                                            <Text style={eventPrize}>{event.prize}</Text>
-                                            <Text style={eventPrizeLabel}>Prize</Text>
+                        <Link href={`${eventDetails.websiteUrl}/dashboard`} style={primaryButton}>
+                            Download Pass ➞
+                        </Link>
+                    </Section>
+
+                    {/* ════ COMPACT EVENT SCHEDULE ════ */}
+                    {events.length > 0 && (
+                        <Section style={section}>
+                            <Text style={sectionTitle}>Event Schedule</Text>
+                            <div style={tableContainer}>
+                                {events.map((event, i) => (
+                                    <div key={i} style={{
+                                        ...eventRow,
+                                        borderBottom: i === events.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.05)'
+                                    }}>
+                                        <div style={timeCell}>
+                                            <Text style={eventDateText}>{event.date.split('•')[0]}</Text>
+                                            <Text style={eventTimeText}>{event.date.split('•')[1] || ''}</Text>
+                                        </div>
+                                        <div style={nameCell}>
+                                            <Text style={eventNameText}>{event.name}</Text>
+                                        </div>
+                                        <div style={prizeCell}>
+                                            <Text style={eventPrizeText}>{event.prize}</Text>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </Section>
                     )}
 
-                    {/* ════ SPEAKERS with Frosted Cards ════ */}
+                    {/* ════ SPEAKERS ════ */}
                     {speakers.length > 0 && (
-                        <Section style={speakersSection}>
-                            <div style={sectionHeader}>
-                                <Text style={sectionTitle}>Keynote Speakers</Text>
-                                <div style={sectionUnderline} />
-                            </div>
-
-                            <div style={speakersGrid}>
+                        <Section style={section}>
+                            <Text style={sectionTitle}>Speakers</Text>
+                            <div style={speakersContainer}>
                                 {speakers.map((speaker, i) => (
-                                    <div key={i} style={speakerCard}>
-                                        <div style={speakerImageWrapper}>
-                                            <Img
-                                                src={speaker.image}
-                                                alt={speaker.name}
-                                                style={speakerImage}
-                                            />
-                                            <div style={speakerImageGlow} />
+                                    <div key={i} style={speakerCompact}>
+                                        <Img src={speaker.image} style={speakerAvatar} />
+                                        <div style={speakerInfo}>
+                                            <Text style={speakerName}>{speaker.name}</Text>
+                                            <Text style={speakerTitle}>{speaker.title}</Text>
                                         </div>
-                                        <Text style={speakerName}>{speaker.name}</Text>
-                                        <Text style={speakerTitle}>{speaker.title}</Text>
                                     </div>
                                 ))}
                             </div>
@@ -235,48 +165,29 @@ export const EventReminderEmail = ({
 
                     {/* ════ SPONSORS ════ */}
                     {sponsors.length > 0 && (
-                        <Section style={sponsorsSection}>
-                            <div style={logoGrid}>
+                        <Section style={{ ...section, borderBottom: 'none' }}>
+                            <Text style={sectionTitle}>Partners</Text>
+                            <Row>
                                 {sponsors.map((sponsor, i) => (
-                                    <div key={i} style={sponsorWrapper}>
-                                        <Img
-                                            src={sponsor.logo}
-                                            alt={sponsor.name}
-                                            style={sponsorLogo}
-                                        />
-                                    </div>
+                                    <Column key={i} style={{ textAlign: 'center', padding: '10px' }}>
+                                        <Img src={sponsor.logo} style={sponsorLogo} />
+                                    </Column>
                                 ))}
-                            </div>
+                            </Row>
                         </Section>
                     )}
 
-                    {/* ════ ENHANCED FOOTER ════ */}
+                    {/* ════ FOOTER ════ */}
                     <Section style={footer}>
-                        <div style={footerGlow} />
-                        <Img
-                            src="https://esummit26-iiitdm.vercel.app/ecell.png"
-                            width="60"
-                            style={{ margin: '0 auto 20px', opacity: 0.9 }}
-                        />
-                        <div style={socialLinks}>
-                            <Link href="https://instagram.com/ecell_iiitdm" style={socialIcon}>
-                                <Img src="https://cdn-icons-png.flaticon.com/512/87/87390.png" width="24" style={iconFilter} />
-                            </Link>
-                            <Link href="https://linkedin.com/company/ecelliiitdm" style={socialIcon}>
-                                <Img src="https://cdn-icons-png.flaticon.com/512/87/87396.png" width="24" style={iconFilter} />
-                            </Link>
-                            <Link href="https://esummit26-iiitdm.vercel.app" style={socialIcon}>
-                                <Img src="https://cdn-icons-png.flaticon.com/512/1006/1006771.png" width="24" style={iconFilter} />
-                            </Link>
-                        </div>
-                        <Text style={footerText}>
-                            © 2026 E-Summit IIITDM Kancheepuram
+                        <div style={divider} />
+                        <Text style={footerLinks}>
+                            <Link href={`${eventDetails.websiteUrl}/schedule`} style={link}>Schedule</Link> •
+                            <Link href={`${eventDetails.websiteUrl}/events`} style={link}> Events</Link> •
+                            <Link href={`${eventDetails.websiteUrl}/speakers`} style={link}> Speakers</Link> •
+                            <Link href="https://instagram.com/ecell_iiitdm" style={link}> Instagram</Link>
                         </Text>
-                        <Text style={footerSubtext}>
-                            Vandalur - Kelambakkam Road, Chennai - 600127
-                        </Text>
-                        <Text style={footerSubtextUnsubscribe}>
-                            You received this email because you registered for E-Summit '26.
+                        <Text style={footerLegal}>
+                            © 2026 E-Summit IIITDM Kancheepuram. All rights reserved.
                         </Text>
                     </Section>
                 </Container>
@@ -288,523 +199,255 @@ export const EventReminderEmail = ({
 export default EventReminderEmail;
 
 // ════════════════════════════════════════════════════════════════
-// ENHANCED STYLES - Premium Dark Aesthetics
+// STYLES - Compact, High-Density, Premium
 // ════════════════════════════════════════════════════════════════
 
 const main: React.CSSProperties = {
-    backgroundColor: '#050505', // Deep black
+    backgroundColor: '#050505',
     fontFamily: "'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-    minHeight: '100%',
-    position: 'relative',
-};
-
-// Aura Glow Effects
-const auraTopLeft: React.CSSProperties = {
-    position: 'absolute',
-    top: '-100px',
-    left: '-100px',
-    width: '500px',
-    height: '500px',
-    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%)',
-    filter: 'blur(80px)',
-    zIndex: 0,
-    pointerEvents: 'none',
-};
-
-const auraBottomRight: React.CSSProperties = {
-    position: 'absolute',
-    bottom: '-100px',
-    right: '-100px',
-    width: '600px',
-    height: '600px',
-    background: 'radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 70%)',
-    filter: 'blur(100px)',
-    zIndex: 0,
-    pointerEvents: 'none',
-};
-
-const backgroundPattern: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
-    backgroundSize: '40px 40px',
-    zIndex: 0,
+    color: '#ffffff',
+    padding: '20px 0',
 };
 
 const container: React.CSSProperties = {
-    maxWidth: '600px',
+    maxWidth: '560px', // Slightly narrower for better readability
     margin: '0 auto',
-    padding: '40px 0',
-    position: 'relative',
-    zIndex: 1,
+    backgroundColor: '#0a0a0a',
+    borderRadius: '12px',
+    border: '1px solid #1f1f1f',
+    overflow: 'hidden',
 };
 
-// Enhanced Hero Section
-const heroSection: React.CSSProperties = {
-    textAlign: 'center',
-    marginBottom: '48px',
-    padding: '20px',
+const header: React.CSSProperties = {
+    padding: '24px 32px 16px',
+    backgroundColor: '#0f0f0f',
 };
 
-const iconContainer: React.CSSProperties = {
-    position: 'relative',
-    display: 'inline-block',
-    marginBottom: '24px',
-};
-
-const iconGlow: React.CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '200px',
-    height: '200px',
-    background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 70%)',
-    filter: 'blur(40px)',
-    zIndex: 0,
-};
-
-const iconWrapper: React.CSSProperties = {
-    position: 'relative',
-    zIndex: 1,
-    background: 'rgba(255, 255, 255, 0.03)',
-    backdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '50%',
-    padding: '30px',
-    display: 'inline-block',
-};
-
-const logoStyle: React.CSSProperties = {
+const logo: React.CSSProperties = {
     display: 'block',
-    filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.5))',
 };
 
-const heroTitle: React.CSSProperties = {
-    fontSize: '48px',
-    fontWeight: '800',
-    background: 'linear-gradient(180deg, #ffffff 0%, #a855f7 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-    marginBottom: '12px',
-    textTransform: 'uppercase',
-    letterSpacing: '-2px',
-    lineHeight: '1',
-};
-
-const heroSubtitle: React.CSSProperties = {
-    fontSize: '14px',
-    color: 'rgba(255, 255, 255, 0.6)',
+const headerDate: React.CSSProperties = {
+    fontSize: '12px',
+    color: '#666',
     fontWeight: '600',
-    letterSpacing: '4px',
-    textTransform: 'uppercase',
+    letterSpacing: '0.5px',
+    margin: 0,
 };
 
-// Enhanced Glassmorphic Card
-const cardSection: React.CSSProperties = {
-    padding: '0 20px',
-    marginBottom: '40px',
+const divider: React.CSSProperties = {
+    height: '1px',
+    backgroundColor: '#1f1f1f',
+    marginTop: '16px',
 };
 
-const cardContent: React.CSSProperties = {
-    position: 'relative',
-    background: 'rgba(20, 20, 20, 0.6)',
-    backdropFilter: 'blur(40px)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    borderRadius: '32px',
-    padding: '40px 32px',
-    color: '#ffffff',
-    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)',
+const introSection: React.CSSProperties = {
+    padding: '32px 32px',
 };
 
-const greetingText: React.CSSProperties = {
-    fontSize: '24px',
+const heading: React.CSSProperties = {
+    fontSize: '20px',
     fontWeight: '700',
-    marginBottom: '16px',
-    color: '#ffffff',
-    letterSpacing: '-0.5px',
+    color: '#fff',
+    margin: '0 0 12px',
+    letterSpacing: '-0.3px',
 };
 
-const introText: React.CSSProperties = {
-    fontSize: '16px',
-    lineHeight: '1.8',
-    color: '#a1a1aa',
-    marginBottom: '32px',
-    fontWeight: '400',
-};
-
-// Priority Badge
-const priorityContainer: React.CSSProperties = {
-    textAlign: 'center',
-    marginBottom: '32px',
-};
-
-const priorityBadgeHigh: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 16px',
-    background: 'rgba(168, 85, 247, 0.1)',
-    border: '1px solid rgba(168, 85, 247, 0.3)',
-    borderRadius: '100px',
-};
-
-const priorityDot: React.CSSProperties = {
-    width: '6px',
-    height: '6px',
-    borderRadius: '50%',
-    backgroundColor: '#a855f7',
-    boxShadow: '0 0 10px #a855f7',
-};
-
-const priorityText: React.CSSProperties = {
-    fontSize: '11px',
-    fontWeight: '700',
-    color: '#a855f7',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-};
-
-const highlightText: React.CSSProperties = {
-    fontSize: '18px',
-    textAlign: 'center',
-    marginBottom: '32px',
-    color: '#ffffff',
-    lineHeight: '1.6',
-    fontWeight: '500',
-};
-
-const highlightSpan: React.CSSProperties = {
-    color: '#fbbf24',
-    textShadow: '0 0 20px rgba(251, 191, 36, 0.4)',
-};
-
-// CTA Button
-const ctaButton: React.CSSProperties = {
-    display: 'block',
-    background: '#ffffff',
-    color: '#000000',
-    padding: '20px 40px',
-    borderRadius: '100px',
-    textAlign: 'center',
-    fontWeight: '700',
-    fontSize: '16px',
-    textDecoration: 'none',
-    boxShadow: '0 10px 30px rgba(255, 255, 255, 0.15)',
-    border: '1px solid #ffffff',
-};
-
-const buttonInner: React.CSSProperties = {
-    position: 'relative',
-    zIndex: 1,
-};
-
-const secondaryLink: React.CSSProperties = {
-    display: 'inline-block',
-    color: '#a1a1aa',
+const paragraph: React.CSSProperties = {
     fontSize: '14px',
-    textDecoration: 'underline',
-    textDecorationColor: '#52525b',
-    textUnderlineOffset: '4px',
+    lineHeight: '1.6',
+    color: '#aaa',
+    margin: '0 0 24px',
 };
 
-// Section Headers
-const sectionHeader: React.CSSProperties = {
-    textAlign: 'center',
-    marginBottom: '32px',
-    position: 'relative',
-};
-
-const sectionTitle: React.CSSProperties = {
-    display: 'inline-block',
-    fontSize: '24px',
-    fontWeight: '700',
-    color: '#ffffff',
-    letterSpacing: '-1px',
-    marginBottom: '12px',
-};
-
-const sectionUnderline: React.CSSProperties = {
-    width: '40px',
-    height: '4px',
-    background: '#a855f7',
-    margin: '0 auto',
-    borderRadius: '2px',
-};
-
-// Details Grid
-const statsSection: React.CSSProperties = {
-    padding: '0 10px',
-    marginBottom: '40px',
-};
-
-const detailsGrid: React.CSSProperties = {
+const statsGrid: React.CSSProperties = {
     display: 'flex',
-    flexWrap: 'wrap',
-    gap: '12px',
+    gap: '16px',
+    marginBottom: '24px',
+    padding: '16px',
+    backgroundColor: '#111',
+    borderRadius: '8px',
+    border: '1px solid #1f1f1f',
 };
 
-const detailCard: React.CSSProperties = {
-    flex: '1 1 40%',
-    background: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '24px',
-    padding: '24px 20px',
-    textAlign: 'center',
-};
-
-const detailIcon: React.CSSProperties = {
-    fontSize: '24px',
-    marginBottom: '12px',
+const statItem: React.CSSProperties = {
+    flex: 1,
 };
 
 const statLabel: React.CSSProperties = {
     fontSize: '10px',
-    color: '#71717a',
-    textTransform: 'uppercase',
-    letterSpacing: '2px',
-    marginBottom: '4px',
+    color: '#555',
     fontWeight: '700',
+    margin: '0 0 4px',
+    letterSpacing: '0.5px',
 };
 
 const statValue: React.CSSProperties = {
-    fontSize: '16px',
+    fontSize: '13px',
+    color: '#fff',
     fontWeight: '600',
-    color: '#ffffff',
     margin: 0,
 };
 
-// Chips
-const suggestionsSection: React.CSSProperties = {
-    padding: '0 20px',
-    marginBottom: '40px',
-};
-
-const chipsContainer: React.CSSProperties = {
-    textAlign: 'center',
-};
-
-const chip: React.CSSProperties = {
+const primaryButton: React.CSSProperties = {
     display: 'inline-block',
-    margin: '6px',
-    padding: '10px 20px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '100px',
-    fontSize: '12px',
-    fontWeight: '600',
-    color: '#ffffff',
-    textDecoration: 'none',
-};
-
-// Events List
-const eventsSection: React.CSSProperties = {
-    padding: '0 20px',
-    marginBottom: '40px',
-};
-
-const eventCard: React.CSSProperties = {
-    position: 'relative',
-    background: 'rgba(20, 20, 20, 0.6)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '24px',
-    padding: '24px',
-    marginBottom: '16px',
-    overflow: 'hidden',
-};
-
-const eventCardGlow: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: '100px',
-    height: '100%',
-    background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03))',
-    pointerEvents: 'none',
-};
-
-const eventLeft: React.CSSProperties = {
-    marginBottom: '16px',
-};
-
-const eventRight: React.CSSProperties = {
-    textAlign: 'left',
-};
-
-const eventName: React.CSSProperties = {
-    fontSize: '18px',
-    fontWeight: '700',
-    color: '#ffffff',
-    margin: '0 0 8px 0',
-};
-
-const eventDate: React.CSSProperties = {
+    backgroundColor: '#fff',
+    color: '#000',
     fontSize: '13px',
-    color: '#a1a1aa',
+    fontWeight: '600',
+    padding: '10px 20px',
+    borderRadius: '6px',
+    textDecoration: 'none',
+    transition: 'opacity 0.2s',
+};
+
+const section: React.CSSProperties = {
+    padding: '24px 32px',
+    borderTop: '1px solid #161616',
+};
+
+const sectionTitle: React.CSSProperties = {
+    fontSize: '11px',
+    textTransform: 'uppercase',
+    color: '#666',
+    fontWeight: '700',
+    letterSpacing: '1px',
+    marginBottom: '16px',
+};
+
+// Compact Event List
+const tableContainer: React.CSSProperties = {
+    border: '1px solid #1f1f1f',
+    borderRadius: '8px',
+    backgroundColor: '#0e0e0e',
+};
+
+const eventRow: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '12px 16px',
+};
+
+const timeCell: React.CSSProperties = {
+    width: '100px',
+    flexShrink: 0,
+};
+
+const eventDateText: React.CSSProperties = {
+    fontSize: '11px',
+    color: '#888',
     margin: 0,
     fontWeight: '500',
 };
 
-const prizeBadge: React.CSSProperties = {
-    display: 'inline-block',
-};
-
-const eventPrize: React.CSSProperties = {
-    fontSize: '20px',
-    fontWeight: '700',
-    color: '#fbbf24',
-    margin: '0',
-    display: 'inline-block',
-    marginRight: '8px',
-};
-
-const eventPrizeLabel: React.CSSProperties = {
+const eventTimeText: React.CSSProperties = {
     fontSize: '11px',
-    color: '#71717a',
-    textTransform: 'uppercase',
-    fontWeight: '700',
+    color: '#555',
+    margin: 0,
 };
 
-// Speakers
-const speakersSection: React.CSSProperties = {
-    padding: '0 20px',
-    marginBottom: '40px',
+const nameCell: React.CSSProperties = {
+    flex: 1,
+    paddingRight: '12px',
 };
 
-const speakersGrid: React.CSSProperties = {
-    textAlign: 'center',
+const eventNameText: React.CSSProperties = {
+    fontSize: '13px',
+    color: '#fff',
+    fontWeight: '600',
+    margin: 0,
 };
 
-const speakerCard: React.CSSProperties = {
-    display: 'inline-block',
-    width: '140px',
-    verticalAlign: 'top',
-    margin: '10px',
-    padding: '20px 10px',
-    background: 'rgba(255, 255, 255, 0.02)',
-    border: '1px solid rgba(255, 255, 255, 0.05)',
-    borderRadius: '24px',
+const prizeCell: React.CSSProperties = {
+    textAlign: 'right',
+    flexShrink: 0,
 };
 
-const speakerImageWrapper: React.CSSProperties = {
-    position: 'relative',
-    display: 'inline-block',
-    marginBottom: '16px',
+const eventPrizeText: React.CSSProperties = {
+    fontSize: '11px',
+    color: '#a855f7', // Purple accent
+    fontWeight: '600',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+    padding: '2px 6px',
+    borderRadius: '4px',
+    margin: 0,
 };
 
-const speakerImage: React.CSSProperties = {
-    width: '80px',
-    height: '80px',
+// Speakers Compact
+const speakersContainer: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '12px',
+};
+
+const speakerCompact: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    padding: '10px',
+    backgroundColor: '#111',
+    border: '1px solid #1f1f1f',
+    borderRadius: '8px',
+};
+
+const speakerAvatar: React.CSSProperties = {
+    width: '36px',
+    height: '36px',
     borderRadius: '50%',
     objectFit: 'cover',
-    border: '2px solid rgba(255, 255, 255, 0.1)',
 };
 
-const speakerImageGlow: React.CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '90px',
-    height: '90px',
-    borderRadius: '50%',
-    border: '1px solid rgba(168, 85, 247, 0.5)',
-    opacity: 0.5,
+const speakerInfo: React.CSSProperties = {
+    flex: 1,
+    overflow: 'hidden',
 };
 
 const speakerName: React.CSSProperties = {
-    fontSize: '14px',
-    fontWeight: '700',
-    color: '#ffffff',
-    margin: '0 0 4px 0',
-    lineHeight: '1.2',
+    fontSize: '12px',
+    color: '#fff',
+    fontWeight: '600',
+    margin: '0 0 2px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
 };
 
 const speakerTitle: React.CSSProperties = {
     fontSize: '10px',
-    color: '#a1a1aa',
-    lineHeight: '1.4',
+    color: '#666',
+    margin: 0,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
 };
 
 // Sponsors
-const sponsorsSection: React.CSSProperties = {
-    background: '#ffffff',
-    borderRadius: '24px',
-    padding: '32px 24px',
-    margin: '0 20px 60px',
-    textAlign: 'center',
-};
-
-const logoGrid: React.CSSProperties = {
-    textAlign: 'center',
-};
-
-const sponsorWrapper: React.CSSProperties = {
-    display: 'inline-block',
-    margin: '12px 20px',
-    verticalAlign: 'middle',
-};
-
 const sponsorLogo: React.CSSProperties = {
-    height: '24px',
-    width: 'auto',
-    opacity: 0.6,
+    height: '20px',
+    opacity: 0.5,
     filter: 'grayscale(100%)',
 };
 
 // Footer
 const footer: React.CSSProperties = {
-    position: 'relative',
+    padding: '0 32px 32px',
     textAlign: 'center',
-    padding: '40px 20px',
-    backgroundColor: '#000000',
-    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
 };
 
-const footerGlow: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '200px',
-    height: '1px',
-    background: 'linear-gradient(90deg, transparent, #a855f7, transparent)',
-    boxShadow: '0 0 20px #a855f7',
-};
-
-const socialLinks: React.CSSProperties = {
-    marginBottom: '24px',
-};
-
-const socialIcon: React.CSSProperties = {
-    display: 'inline-block',
-    margin: '0 12px',
-    opacity: 0.6,
-};
-
-const iconFilter: React.CSSProperties = {
-    filter: 'invert(1)',
-};
-
-const footerText: React.CSSProperties = {
+const footerLinks: React.CSSProperties = {
     fontSize: '12px',
-    color: '#52525b',
-    margin: '0 0 8px 0',
-    fontWeight: '500',
+    color: '#666',
+    marginBottom: '12px',
 };
 
-const footerSubtext: React.CSSProperties = {
-    fontSize: '12px',
-    color: '#3f3f46',
+const link: React.CSSProperties = {
+    color: '#888',
+    textDecoration: 'none',
+    margin: '0 4px',
+};
+
+const footerLegal: React.CSSProperties = {
+    fontSize: '11px',
+    color: '#444',
     margin: 0,
-};
-
-const footerSubtextUnsubscribe: React.CSSProperties = {
-    fontSize: '10px',
-    color: '#27272a',
-    marginTop: '20px',
 };
