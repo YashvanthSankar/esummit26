@@ -6,12 +6,12 @@ import { Linkedin } from 'lucide-react';
 
 const speakers = [
     {
-        id: 5,
-        name: 'Harsha Vardhan',
-        role: 'Founder, Codedale | HarshaVerse',
+        id: 2,
+        name: 'Dr. Mylswamy Annadurai',
+        role: 'Moon Man of India',
         company: '',
-        image: '/speakers/harsha.webp',
-        linkedin: '',
+        image: '/speakers/mylswamy.webp',
+        linkedin: 'https://www.linkedin.com/in/mylswamy-annadurai-63aab431/',
     },
     {
         id: 1,
@@ -20,14 +20,6 @@ const speakers = [
         company: '',
         image: '/speakers/suresh.webp',
         linkedin: 'https://www.linkedin.com/in/cocreator/',
-    },
-    {
-        id: 2,
-        name: 'Dr. Mylswamy Annadurai',
-        role: 'Moon Man of India',
-        company: '',
-        image: '/speakers/mylswamy.webp',
-        linkedin: 'https://www.linkedin.com/in/mylswamy-annadurai-63aab431/',
     },
     {
         id: 3,
@@ -44,6 +36,14 @@ const speakers = [
         company: '',
         image: '/speakers/arunabh.webp',
         linkedin: 'https://www.linkedin.com/in/arunabhparihar/',
+    },
+    {
+        id: 5,
+        name: 'Harsha Vardhan',
+        role: 'Founder, Codedale | HarshaVerse',
+        company: '',
+        image: '/speakers/harsha.webp',
+        linkedin: '',
     },
 ];
 
@@ -81,13 +81,13 @@ export default function SpeakersCarousel() {
                 </motion.div>
             )}
 
-            <div className="max-w-7xl mx-auto relative z-10">
+            <div className="max-w-full mx-auto relative z-10">
                 {/* Section Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mb-16"
+                    className="mb-16 text-center"
                 >
                     <p className="font-mono text-xs text-[#a855f7]/70 tracking-[0.3em] mb-4">
                         LEARN FROM THE BEST
@@ -97,16 +97,16 @@ export default function SpeakersCarousel() {
                     </h2>
                 </motion.div>
 
-                {/* Speakers Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+                {/* Speakers Horizontal Scroll Container */}
+                <div className="flex overflow-x-auto pb-12 gap-6 px-4 md:px-12 snap-x snap-mandatory scrollbar-hide mask-fade-sides">
                     {speakers.map((speaker, index) => (
                         <motion.div
                             key={speaker.id}
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, x: 50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1, duration: 0.6 }}
-                            className="group relative cursor-pointer"
+                            className="group relative cursor-pointer flex-shrink-0 w-[280px] sm:w-[320px] snap-center"
                             onMouseEnter={() => setHoveredSpeaker(speaker.id)}
                             onMouseLeave={() => setHoveredSpeaker(null)}
                             onClick={() => handleSpeakerClick(speaker)}
