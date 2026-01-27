@@ -363,7 +363,7 @@ export async function POST(request: NextRequest) {
                         {
                             name: 'Harsha Vardhan',
                             title: 'Founder, Codedale | HarshaVerse',
-                            image: 'https://yt3.googleusercontent.com/ytc/AIdro_k4k-Gf1X4yHwNjjX4NqJ_1_4X4_4X4_4X4_4X4=s900-c-k-c0x00ffffff-no-rj',
+                            image: 'https://esummit26-iiitdm.vercel.app/speakers/harsha.webp',
                         },
                         {
                             name: 'Dr. Mylswamy Annadurai',

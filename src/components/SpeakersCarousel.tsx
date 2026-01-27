@@ -6,6 +6,14 @@ import { Linkedin } from 'lucide-react';
 
 const speakers = [
     {
+        id: 5,
+        name: 'Harsha Vardhan',
+        role: 'Founder, Codedale | HarshaVerse',
+        company: '',
+        image: '/speakers/harsha.webp',
+        linkedin: '',
+    },
+    {
         id: 1,
         name: 'Suresh Narasimha',
         role: 'CoCreate Ventures',
