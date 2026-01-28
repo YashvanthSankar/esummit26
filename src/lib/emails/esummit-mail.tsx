@@ -39,15 +39,24 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           * { color-scheme: light !important; }
           body { background-color: #F9F7F2 !important; }
           
-          /* Logo switching for dark mode */
-          .logo-light { display: inline-block !important; }
-          .logo-dark { display: none !important; }
+          /* Logo switching for dark mode - email client specific */
+          .logo-light { display: inline-block !important; max-height: 42px; }
+          .logo-dark { display: none !important; max-height: 0; }
           
           @media (prefers-color-scheme: dark) {
             * { color-scheme: light !important; }
             body { background-color: #F9F7F2 !important; }
-            .logo-light { display: none !important; }
-            .logo-dark { display: inline-block !important; }
+            .logo-light { display: none !important; max-height: 0 !important; }
+            .logo-dark { display: inline-block !important; max-height: 42px !important; }
+          }
+          
+          /* Gmail dark mode support */
+          [data-ogsc] .logo-light { display: none !important; max-height: 0 !important; }
+          [data-ogsc] .logo-dark { display: inline-block !important; max-height: 42px !important; }
+          
+          /* Outlook dark mode */
+          [data-ogsb] .logo-light { display: none !important; }
+          [data-ogsb] .logo-dark { display: inline-block !important; }
           }
           @media only screen and (max-width: 600px) {
             .mobile-full-width { width: 100% !important; }
