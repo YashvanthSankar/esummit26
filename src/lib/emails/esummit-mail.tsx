@@ -411,7 +411,18 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                     <Text style={speakerTitle}>Founder & CEO</Text>
                     <Text style={speakerOrg}>Codedale</Text>
                   </td>
-                  <td style={{ width: "33.33%", padding: "16px" }}></td>
+                  <td style={{ width: "33.33%", padding: "16px", textAlign: "center" as const, verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/speakers/raja.webp`}
+                      alt="Dr. Raja Singh"
+                      width="96"
+                      height="96"
+                      style={speakerImage}
+                    />
+                    <Text style={speakerName}>Dr. Raja Singh</Text>
+                    <Text style={speakerTitle}>Former Deputy Director</Text>
+                    <Text style={speakerOrg}>BrahMos Missile</Text>
+                  </td>
                 </tr>
               </tbody>
             </table>

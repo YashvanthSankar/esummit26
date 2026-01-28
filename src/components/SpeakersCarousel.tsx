@@ -45,6 +45,14 @@ const speakers = [
         image: '/speakers/harsha.webp',
         linkedin: '',
     },
+    {
+        id: 6,
+        name: 'Dr. Raja Singh',
+        role: 'Former Deputy Director',
+        company: 'BrahMos Missile',
+        image: '/speakers/raja.webp',
+        linkedin: '',
+    },
 ];
 
 export default function SpeakersCarousel() {
