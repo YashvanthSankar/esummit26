@@ -344,60 +344,7 @@ export async function POST(request: NextRequest) {
             // Render email with all data
             const emailHtml = await render(
                 React.createElement(ESummitMail, {
-                    userName: 'Fellow Innovator',
-                    subject,
-                    eventDetails: eventDetails || {
-                        name: "E-Summit '26",
-                        dates: 'Jan 30 - Feb 1, 2026',
-                        venue: 'IIITDM Kancheepuram',
-                        prizePool: '₹2,00,000+',
-                        websiteUrl: 'https://esummit26-iiitdm.vercel.app',
-                    },
-                    events: events || [
-                        { name: 'Launch of E-Summit', date: 'The Grand Opening', prize: 'Ceremony' },
-                        { name: 'Bid and Build', date: 'High Stakes Auction', prize: '₹20,000' },
-                        { name: 'Model United Nations', date: 'Diplomacy & Debate', prize: '₹30,000' },
-                        { name: 'Startup Expo', date: 'Innovation Showcase', prize: 'Exhibit' },
-                        { name: 'Ideathon', date: 'Pitch Your Idea', prize: '₹25,000' },
-                        { name: 'BusinessVerse', date: 'Virtual Economy', prize: '₹15,000' },
-                        { name: 'Mock IPL Auction', date: 'Strategic Bidding', prize: '₹12,000' },
-                        { name: 'Case Closed', date: 'Solve the Mystery', prize: '₹15,000' },
-                        { name: 'Entrepreneur of Day', date: 'Real-world Sales', prize: '₹10,000' },
-                        { name: 'Pitch On Pitch', date: 'Ultimate Pitching', prize: '₹30,000' },
-                    ],
-                    speakers: speakers || [
-                        {
-                            name: 'Dr. Mylswamy Annadurai',
-                            title: 'Moon Man of India',
-                            image: 'https://esummit26-iiitdm.vercel.app/speakers/mylswamy.webp',
-                        },
-                        {
-                            name: 'Suresh Narasimha',
-                            title: 'CoCreate Ventures',
-                            image: 'https://esummit26-iiitdm.vercel.app/speakers/suresh.webp',
-                        },
-                        {
-                            name: 'Nagaraja Prakasam',
-                            title: 'Angel Investor | Author',
-                            image: 'https://esummit26-iiitdm.vercel.app/speakers/nagaraja.webp',
-                        },
-                        {
-                            name: 'Arunabh Parihar',
-                            title: 'Co-Founder, Zoop Money',
-                            image: 'https://esummit26-iiitdm.vercel.app/speakers/arunabh.webp',
-                        },
-                        {
-                            name: 'Harsha Vardhan',
-                            title: 'Founder, Codedale | HarshaVerse',
-                            image: 'https://esummit26-iiitdm.vercel.app/speakers/harsha.webp',
-                        }
-                    ],
-                    sponsors: sponsors || [
-                        { name: 'Unstop', logo: 'https://d8it4huxumps7.cloudfront.net/uploads/images/unstop/branding-guide/logos/Unstop-Logo-White-min.png' },
-                        { name: 'StockGro', logo: 'https://esummit26-iiitdm.vercel.app/sponsors/stockgro.png' },
-                        { name: 'GeeksforGeeks', logo: 'https://esummit26-iiitdm.vercel.app/sponsors/gfg.png' },
-                        { name: 'StartupNews.fyi', logo: 'https://esummit26-iiitdm.vercel.app/sponsors/startupnewsfyi.png' },
-                    ],
+                    recipientName: 'Fellow Innovator',
                 })
             );
 
@@ -503,7 +450,7 @@ export async function POST(request: NextRequest) {
             recipients.map(async (recipient) => {
                 const emailHtml = await render(
                     React.createElement(ESummitMail, {
-                        userName: recipient.name,
+                        recipientName: recipient.name,
                         subject,
                         eventDetails: eventDetails || {
                             name: "E-Summit '26",

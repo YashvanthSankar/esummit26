@@ -40,7 +40,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <Column align="left" style={{ width: "50%" }}>
                 <Section style={logoContainer}>
                   <Img
-                    src={`${baseUrl}/esummit-black.png`}
+                    src={`${baseUrl}/esummit26-logo.png`}
                     alt="E-Summit '26"
                     height="42"
                     style={{ display: "block" }}
@@ -50,7 +50,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <Column align="right" style={{ width: "50%" }}>
                 <Section style={logoContainerSmall}>
                   <Img
-                    src={`${baseUrl}/ecell-black.png`}
+                    src={`${baseUrl}/ecell.png`}
                     alt="E-Cell"
                     height="38"
                     width="38"
@@ -296,93 +296,91 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
             <Text style={sectionLabel}>KEYNOTE SPEAKERS</Text>
             <Text style={sectionHeading}>Learn from Architects of Innovation</Text>
 
-            <Row style={{ marginTop: "48px" }}>
-              <Column style={speakerCard}>
-                <Img
-                  src={`${baseUrl}/speakers/mylswamy.webp`}
-                  alt="Dr. Mylswamy Annadurai"
-                  width="96"
-                  height="96"
-                  style={speakerImage}
-                />
-                <Text style={speakerName}>Dr. Mylswamy Annadurai</Text>
-                <Text style={speakerTitle}>The Moon Man of India</Text>
-                <Text style={speakerOrg}>Former Director, ISRO</Text>
-              </Column>
-              <Column style={speakerCard}>
-                <Img
-                  src={`${baseUrl}/speakers/suresh.webp`}
-                  alt="Suresh Narasimha"
-                  width="96"
-                  height="96"
-                  style={speakerImage}
-                />
-                <Text style={speakerName}>Suresh Narasimha</Text>
-                <Text style={speakerTitle}>Founder & Investor</Text>
-                <Text style={speakerOrg}>CoCreate Ventures</Text>
-              </Column>
-              <Column style={speakerCard}>
-                <Img
-                  src={`${baseUrl}/speakers/nagaraja.webp`}
-                  alt="Nagaraja Prakasam"
-                  width="96"
-                  height="96"
-                  style={speakerImage}
-                />
-                <Text style={speakerName}>Nagaraja Prakasam</Text>
-                <Text style={speakerTitle}>Angel Investor</Text>
-                <Text style={speakerOrg}>Strategic Advisor</Text>
-              </Column>
-            </Row>
-
-            <Row style={{ marginTop: "24px" }}>
-              <Column style={speakerCard}>
-                <Img
-                  src={`${baseUrl}/speakers/arunabh.webp`}
-                  alt="Arunabh Parihar"
-                  width="96"
-                  height="96"
-                  style={speakerImage}
-                />
-                <Text style={speakerName}>Arunabh Parihar</Text>
-                <Text style={speakerTitle}>Co-Founder</Text>
-                <Text style={speakerOrg}>Zoop Money</Text>
-              </Column>
-              <Column style={speakerCard}>
-                <Img
-                  src={`${baseUrl}/speakers/harsha.webp`}
-                  alt="Harsha Vardhan"
-                  width="96"
-                  height="96"
-                  style={speakerImage}
-                />
-                <Text style={speakerName}>Harsha Vardhan</Text>
-                <Text style={speakerTitle}>Founder & CEO</Text>
-                <Text style={speakerOrg}>Codedale</Text>
-              </Column>
-              <Column style={{ width: "33%" }} />
-            </Row>
+            <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: "100%", marginTop: "48px" }}>
+              <tbody>
+                <tr>
+                  <td style={{ width: "33.33%", padding: "16px", textAlign: "center" as const, verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/speakers/mylswamy.webp`}
+                      alt="Dr. Mylswamy Annadurai"
+                      width="96"
+                      height="96"
+                      style={speakerImage}
+                    />
+                    <Text style={speakerName}>Dr. Mylswamy Annadurai</Text>
+                    <Text style={speakerTitle}>The Moon Man of India</Text>
+                    <Text style={speakerOrg}>Former Director, ISRO</Text>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "16px", textAlign: "center" as const, verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/speakers/suresh.webp`}
+                      alt="Suresh Narasimha"
+                      width="96"
+                      height="96"
+                      style={speakerImage}
+                    />
+                    <Text style={speakerName}>Suresh Narasimha</Text>
+                    <Text style={speakerTitle}>Founder & Investor</Text>
+                    <Text style={speakerOrg}>CoCreate Ventures</Text>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "16px", textAlign: "center" as const, verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/speakers/nagaraja.webp`}
+                      alt="Nagaraja Prakasam"
+                      width="96"
+                      height="96"
+                      style={speakerImage}
+                    />
+                    <Text style={speakerName}>Nagaraja Prakasam</Text>
+                    <Text style={speakerTitle}>Angel Investor</Text>
+                    <Text style={speakerOrg}>Strategic Advisor</Text>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ width: "33.33%", padding: "16px", textAlign: "center" as const, verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/speakers/arunabh.webp`}
+                      alt="Arunabh Parihar"
+                      width="96"
+                      height="96"
+                      style={speakerImage}
+                    />
+                    <Text style={speakerName}>Arunabh Parihar</Text>
+                    <Text style={speakerTitle}>Co-Founder</Text>
+                    <Text style={speakerOrg}>Zoop Money</Text>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "16px", textAlign: "center" as const, verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/speakers/harsha.webp`}
+                      alt="Harsha Vardhan"
+                      width="96"
+                      height="96"
+                      style={speakerImage}
+                    />
+                    <Text style={speakerName}>Harsha Vardhan</Text>
+                    <Text style={speakerTitle}>Founder & CEO</Text>
+                    <Text style={speakerOrg}>Codedale</Text>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "16px" }}></td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           {/* Urgency - Refined */}
           <Section style={urgencySection}>
             <Section style={urgencyCard}>
               <Text style={urgencyLabel}>TIME-SENSITIVE</Text>
-              <Text style={urgencyTitle}>Registration Closes Shortly</Text>
+              <Text style={urgencyTitle}>Register Now</Text>
               <Text style={urgencyText}>
-                Capacity is intentionally limited to ensure meaningful interactions. Once filled, registration closes permanently.
+                Capacity is intentionally limited to ensure meaningful interactions. Reserve your place today before registration closes permanently.
               </Text>
               
-              <Row style={{ marginTop: "32px" }}>
-                <Column style={{ textAlign: "center" as const }}>
-                  <Text style={urgencyNumber}>487</Text>
-                  <Text style={urgencySubtext}>Places Reserved</Text>
-                </Column>
-                <Column style={{ textAlign: "center" as const }}>
-                  <Text style={urgencyNumber}>13</Text>
-                  <Text style={urgencySubtext}>Remaining Seats</Text>
-                </Column>
-              </Row>
+              <Section style={{ textAlign: "center" as const, marginTop: "32px" }}>
+                <Link href={unstopUrl} style={secondaryButton}>
+                  Secure Your Spot
+                </Link>
+              </Section>
             </Section>
           </Section>
 
@@ -390,28 +388,44 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           <Section style={sponsorsSection}>
             <Text style={sponsorsLabel}>SUPPORTED BY INDUSTRY PARTNERS</Text>
             
-            <Row style={{ marginTop: "32px" }}>
-              <Column style={sponsorBox}>
-                <Img src={`${baseUrl}/sponsors/unstop.png`} alt="Unstop" height="36" style={sponsorLogo} />
-              </Column>
-              <Column style={sponsorBox}>
-                <Img src={`${baseUrl}/sponsors/stockgro.png`} alt="StockGro" height="36" style={sponsorLogo} />
-              </Column>
-              <Column style={sponsorBox}>
-                <Img src={`${baseUrl}/sponsors/gfg.png`} alt="GeeksforGeeks" height="36" style={sponsorLogo} />
-              </Column>
-            </Row>
-            <Row style={{ marginTop: "16px" }}>
-              <Column style={sponsorBox}>
-                <Img src={`${baseUrl}/sponsors/startupnewsfyi.png`} alt="StartupNews.fyi" height="36" style={sponsorLogo} />
-              </Column>
-              <Column style={sponsorBox}>
-                <Img src={`${baseUrl}/sponsors/2iim.png`} alt="2IIM" height="36" style={sponsorLogo} />
-              </Column>
-              <Column style={sponsorBox}>
-                <Img src={`${baseUrl}/sponsors/rikun.png`} alt="RiKun" height="36" style={sponsorLogo} />
-              </Column>
-            </Row>
+            <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: "100%", marginTop: "32px" }}>
+              <tbody>
+                <tr>
+                  <td style={{ width: "33.33%", padding: "12px" }}>
+                    <Section style={sponsorBox}>
+                      <Img src={`${baseUrl}/sponsors/unstop.png`} alt="Unstop" height="36" style={sponsorLogo} />
+                    </Section>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "12px" }}>
+                    <Section style={sponsorBox}>
+                      <Img src={`${baseUrl}/sponsors/stockgro.png`} alt="StockGro" height="36" style={sponsorLogo} />
+                    </Section>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "12px" }}>
+                    <Section style={sponsorBox}>
+                      <Img src={`${baseUrl}/sponsors/gfg.png`} alt="GeeksforGeeks" height="36" style={sponsorLogo} />
+                    </Section>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ width: "33.33%", padding: "12px" }}>
+                    <Section style={sponsorBox}>
+                      <Img src={`${baseUrl}/sponsors/startupnewsfyi.png`} alt="StartupNews.fyi" height="36" style={sponsorLogo} />
+                    </Section>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "12px" }}>
+                    <Section style={sponsorBox}>
+                      <Img src={`${baseUrl}/sponsors/2iim.png`} alt="2IIM" height="36" style={sponsorLogo} />
+                    </Section>
+                  </td>
+                  <td style={{ width: "33.33%", padding: "12px" }}>
+                    <Section style={sponsorBox}>
+                      <Img src={`${baseUrl}/sponsors/rikun.png`} alt="RiKun" height="36" style={sponsorLogo} />
+                    </Section>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           {/* Final CTA - Elegant */}
@@ -446,6 +460,21 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
             <Text style={footerLocation}>Kancheepuram, Chennai</Text>
 
             <Section style={footerDivider} />
+
+            <Section style={{ textAlign: "center" as const, marginBottom: "32px" }}>
+              <Link href="https://instagram.com/ecell_iiitdm" style={{ margin: "0 12px" }}>
+                <Img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="28" height="28" style={{ display: "inline-block" }} />
+              </Link>
+              <Link href="https://linkedin.com/company/ecelliiitdm" style={{ margin: "0 12px" }}>
+                <Img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn" width="28" height="28" style={{ display: "inline-block" }} />
+              </Link>
+              <Link href="https://twitter.com/ecell_iiitdm" style={{ margin: "0 12px" }}>
+                <Img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter" width="28" height="28" style={{ display: "inline-block" }} />
+              </Link>
+              <Link href={baseUrl} style={{ margin: "0 12px" }}>
+                <Img src="https://cdn-icons-png.flaticon.com/512/1006/1006771.png" alt="Website" width="28" height="28" style={{ display: "inline-block" }} />
+              </Link>
+            </Section>
 
             <Text style={footerContact}>
               ecell@iiitdm.ac.in • esummit26-iiitdm.vercel.app
@@ -883,6 +912,9 @@ const speakerImage: React.CSSProperties = {
   border: `3px solid ${COLORS.white}`,
   marginBottom: "20px",
   boxShadow: "0 4px 16px rgba(45, 36, 36, 0.08)",
+  display: "block",
+  marginLeft: "auto",
+  marginRight: "auto",
 };
 
 const speakerName: React.CSSProperties = {
