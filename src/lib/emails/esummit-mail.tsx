@@ -77,37 +77,41 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
             <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: 0, padding: 0 }}>
               <tbody>
                 <tr>
-                  <td align="left" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
+                  <td align="left" valign="middle" style={{ width: "50%", verticalAlign: "middle" }}>
                     {/* E-Summit logo with light background for dark mode visibility */}
                     <div style={{ 
                       display: "inline-block", 
-                      backgroundColor: "#F9F7F2", 
+                      backgroundColor: "#FFFFFF", 
                       borderRadius: "8px", 
-                      padding: "6px 10px"
+                      padding: "6px 10px",
+                      verticalAlign: "middle",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
                     }}>
                       <Img
                         src={`${baseUrl}/esummit-black.png`}
                         alt="E-Summit '26"
-                        width="150"
-                        height="42"
-                        style={{ display: "block", verticalAlign: "top" }}
+                        width="178"
+                        height="50"
+                        style={{ display: "block", verticalAlign: "middle" }}
                       />
                     </div>
                   </td>
-                  <td align="right" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
+                  <td align="right" valign="middle" style={{ width: "50%", verticalAlign: "middle" }}>
                     {/* E-Cell logo with light background for dark mode visibility */}
                     <div style={{ 
                       display: "inline-block", 
-                      backgroundColor: "#F9F7F2", 
+                      backgroundColor: "#FFFFFF", 
                       borderRadius: "8px", 
-                      padding: "6px"
+                      padding: "6px",
+                      verticalAlign: "middle",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
                     }}>
                       <Img
                         src={`${baseUrl}/ecell-black.png`}
                         alt="E-Cell"
-                        height="57"
-                        width="57"
-                        style={{ display: "block", verticalAlign: "top" }}
+                        height="50"
+                        width="50"
+                        style={{ display: "block", verticalAlign: "middle" }}
                       />
                     </div>
                   </td>
