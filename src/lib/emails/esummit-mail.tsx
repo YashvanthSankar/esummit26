@@ -83,6 +83,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                       className="logo-light"
                       src={`${baseUrl}/esummit-black.png`}
                       alt="E-Summit '26"
+                      width="150"
                       height="42"
                       style={{ display: "inline-block", verticalAlign: "top" }}
                     />
@@ -91,6 +92,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                       className="logo-dark"
                       src={`${baseUrl}/esummit26-logo.png`}
                       alt="E-Summit '26"
+                      width="150"
                       height="42"
                       style={{ display: "none", verticalAlign: "top" }}
                     />
