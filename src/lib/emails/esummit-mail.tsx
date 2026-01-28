@@ -52,8 +52,8 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                   <Img
                     src={`${baseUrl}/ecell-black.png`}
                     alt="E-Cell"
-                    height="38"
-                    width="38"
+                    height="57"
+                    width="57"
                     style={{ display: "block" }}
                   />
                 </Section>
@@ -448,14 +448,18 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
 
           {/* Footer - Minimal & Elegant */}
           <Section style={footer}>
-            <Row style={{ marginBottom: "32px" }}>
-              <Column align="center">
-                <Img src={`${baseUrl}/ecell-black.png`} alt="E-Cell IIITDM" height="48" style={{ marginRight: "16px", opacity: 0.7 }} />
-                <Img src={`${baseUrl}/iiitdm.png`} alt="IIITDM" height="48" style={{ marginLeft: "16px", opacity: 0.7 }} />
-              </Column>
-            </Row>
+            <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: "100%", marginBottom: "32px" }}>
+              <tbody>
+                <tr>
+                  <td align="center">
+                    <Img src={`${baseUrl}/ecell-black.png`} alt="E-Cell IIITDM" height="52" style={{ marginRight: "24px", opacity: 0.7, display: "inline-block", verticalAlign: "middle" }} />
+                    <Img src={`${baseUrl}/iiitdm.png`} alt="IIITDM" height="52" style={{ marginLeft: "24px", opacity: 0.7, display: "inline-block", verticalAlign: "middle" }} />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-            <Text style={footerBrand}>Entrepreneurship-Cell</Text>
+            <Text style={footerBrand}>E-Cell IIITDM</Text>
             <Text style={footerInstitution}>Indian Institute of Information Technology Design & Manufacturing</Text>
             <Text style={footerLocation}>Kancheepuram, Chennai</Text>
 
@@ -730,7 +734,8 @@ const sectionHeading: React.CSSProperties = {
   fontSize: "40px",
   fontWeight: 700,
   color: COLORS.espresso,
-  marginBottom: "8px",
+  marginBottom: "24px",
+  lineHeight: 1.3,
 };
 
 const valueCard: React.CSSProperties = {
@@ -1048,6 +1053,7 @@ const finalTitle: React.CSSProperties = {
   fontWeight: 700,
   color: COLORS.white,
   marginBottom: "24px",
+  lineHeight: 1.3,
 };
 
 const finalText: React.CSSProperties = {
@@ -1057,7 +1063,7 @@ const finalText: React.CSSProperties = {
   color: "rgba(255, 255, 255, 0.85)",
   lineHeight: 1.8,
   maxWidth: "480px",
-  margin: "0 auto",
+  margin: "0 auto 32px auto",
 };
 
 const finalFootnote: React.CSSProperties = {
@@ -1065,7 +1071,7 @@ const finalFootnote: React.CSSProperties = {
   fontSize: "13px",
   fontWeight: 500,
   color: "rgba(255, 255, 255, 0.7)",
-  marginTop: "32px",
+  margin: "32px 0 0 0",
   letterSpacing: "0.3px",
 };
 
