@@ -558,6 +558,11 @@ const COLORS = {
 
 const main: React.CSSProperties = {
   backgroundColor: COLORS.cream,
+  backgroundImage: `
+    radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(199, 109, 80, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 40% 70%, rgba(166, 162, 146, 0.05) 0%, transparent 40%)
+  `,
   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
   padding: "40px 16px",
 };
@@ -567,9 +572,19 @@ const container: React.CSSProperties = {
   width: "100%",
   margin: "0 auto",
   backgroundColor: COLORS.white,
+  backgroundImage: `
+    linear-gradient(135deg, rgba(249, 247, 242, 0.3) 0%, transparent 100%),
+    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(235, 229, 222, 0.1) 35px, rgba(235, 229, 222, 0.1) 70px)
+  `,
   borderRadius: "24px",
   overflow: "hidden",
-  boxShadow: "0 10px 40px -10px rgba(45, 36, 36, 0.08)",
+  boxShadow: `
+    0 10px 40px -10px rgba(45, 36, 36, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.8),
+    inset 0 0 0 1px rgba(212, 175, 55, 0.15),
+    0 0 60px -15px rgba(199, 109, 80, 0.1)
+  `,
+  border: "2px solid rgba(255, 255, 255, 0.6)",
 };
 
 // Header
