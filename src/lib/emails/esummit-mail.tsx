@@ -448,12 +448,14 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
 
           {/* Footer - Minimal & Elegant */}
           <Section style={footer}>
-            <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: "100%", marginBottom: "32px" }}>
+            <table cellPadding="0" cellSpacing="0" role="presentation" style={{ margin: "0 auto 32px auto" }}>
               <tbody>
                 <tr>
-                  <td align="center">
-                    <Img src={`${baseUrl}/ecell-black.png`} alt="E-Cell IIITDM" height="52" style={{ marginRight: "24px", opacity: 0.7, display: "inline-block", verticalAlign: "middle" }} />
-                    <Img src={`${baseUrl}/iiitdm.png`} alt="IIITDM" height="52" style={{ marginLeft: "24px", opacity: 0.7, display: "inline-block", verticalAlign: "middle" }} />
+                  <td style={{ padding: "0 12px" }}>
+                    <Img src={`${baseUrl}/ecell-black.png`} alt="E-Cell IIITDM" height="52" style={{ opacity: 0.7, display: "block" }} />
+                  </td>
+                  <td style={{ padding: "0 12px" }}>
+                    <Img src={`${baseUrl}/iiitdm.png`} alt="IIITDM" height="52" style={{ opacity: 0.7, display: "block" }} />
                   </td>
                 </tr>
               </tbody>
