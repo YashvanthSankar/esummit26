@@ -441,7 +441,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                 </Link>
               </Section>
               <Text style={finalFootnote}>
-                Complimentary Entry • Instant Confirmation • January 30 - February 1, 2026
+                Complimentary Entry • January 30 - February 1, 2026
               </Text>
             </Section>
           </Section>
@@ -490,8 +490,6 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <Link href={`${baseUrl}/privacy`} style={footerLink}>Privacy Policy</Link>
               {" • "}
               <Link href={`${baseUrl}/terms`} style={footerLink}>Terms of Service</Link>
-              {" • "}
-              <Link href="#" style={footerLink}>Unsubscribe</Link>
             </Text>
 
             <Text style={footerCopyright}>
