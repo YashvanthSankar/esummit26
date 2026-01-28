@@ -35,9 +35,20 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           /* Force light mode colors */
           * { color-scheme: light !important; }
           body { background-color: #F9F7F2 !important; }
+          
+          /* Ensure logo cards stay light in dark mode */
+          .logo-card {
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.95) !important;
+          }
+          
           @media (prefers-color-scheme: dark) {
             * { color-scheme: light !important; }
             body { background-color: #F9F7F2 !important; }
+            .logo-card {
+              background: rgba(255, 255, 255, 0.95) !important;
+              border: 1px solid rgba(255, 255, 255, 0.98) !important;
+            }
           }
           @media only screen and (max-width: 600px) {
             .mobile-full-width { width: 100% !important; }
@@ -59,14 +70,14 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <tbody>
                 <tr>
                   <td align="left" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    <div style={{
+                    <div className="logo-card" style={{
                       display: "inline-block",
-                      background: "rgba(255, 255, 255, 0.8)",
+                      background: "rgba(255, 255, 255, 0.9)",
                       backdropFilter: "blur(10px)",
                       WebkitBackdropFilter: "blur(10px)",
                       padding: "12px 16px",
                       borderRadius: "12px",
-                      border: "1px solid rgba(255, 255, 255, 0.9)",
+                      border: "1px solid rgba(255, 255, 255, 0.95)",
                       boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(212, 175, 55, 0.1)"
                     }}>
                       <Img
@@ -78,14 +89,14 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                     </div>
                   </td>
                   <td align="right" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    <div style={{
+                    <div className="logo-card" style={{
                       display: "inline-block",
-                      background: "rgba(255, 255, 255, 0.8)",
+                      background: "rgba(255, 255, 255, 0.9)",
                       backdropFilter: "blur(10px)",
                       WebkitBackdropFilter: "blur(10px)",
                       padding: "12px",
                       borderRadius: "12px",
-                      border: "1px solid rgba(255, 255, 255, 0.9)",
+                      border: "1px solid rgba(255, 255, 255, 0.95)",
                       boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(212, 175, 55, 0.1)"
                     }}>
                       <Img
