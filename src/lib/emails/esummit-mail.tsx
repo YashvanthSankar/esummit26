@@ -419,7 +419,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
             <Section style={finalCard}>
               <Text style={finalTitle}>Your Journey Begins Here</Text>
               <Text style={finalText}>
-                This is your invitation to join South India's most distinguished gathering of entrepreneurs, innovators, and visionaries. Reserve your place among the 500 who will shape what comes next.
+                This is your invitation to join South India&apos;s most distinguished gathering of entrepreneurs, innovators, and visionaries. Reserve your place among the 500 who will shape what comes next.
               </Text>
               <Section style={{ textAlign: "center" as const, marginTop: "40px" }}>
                 <Link href={unstopUrl} style={primaryButton}>
