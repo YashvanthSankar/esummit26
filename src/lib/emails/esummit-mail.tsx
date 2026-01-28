@@ -59,21 +59,43 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <tbody>
                 <tr>
                   <td align="left" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    <Img
-                      src={`${baseUrl}/esummit-black.png`}
-                      alt="E-Summit '26"
-                      height="42"
-                      style={{ display: "block", verticalAlign: "top" }}
-                    />
+                    <div style={{
+                      display: "inline-block",
+                      background: "rgba(255, 255, 255, 0.8)",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
+                      padding: "12px 16px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255, 255, 255, 0.9)",
+                      boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(212, 175, 55, 0.1)"
+                    }}>
+                      <Img
+                        src={`${baseUrl}/esummit-black.png`}
+                        alt="E-Summit '26"
+                        height="42"
+                        style={{ display: "block", verticalAlign: "top" }}
+                      />
+                    </div>
                   </td>
                   <td align="right" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    <Img
-                      src={`${baseUrl}/ecell-black.png`}
-                      alt="E-Cell"
-                      height="57"
-                      width="57"
-                      style={{ display: "block", verticalAlign: "top" }}
-                    />
+                    <div style={{
+                      display: "inline-block",
+                      background: "rgba(255, 255, 255, 0.8)",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: "1px solid rgba(255, 255, 255, 0.9)",
+                      boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(212, 175, 55, 0.1)"
+                    }}>
+                      <Img
+                        src={`${baseUrl}/ecell-black.png`}
+                        alt="E-Cell"
+                        height="57"
+                        width="57"
+                        style={{ display: "block", verticalAlign: "top" }}
+                      />
+                    </div>
                   </td>
                 </tr>
               </tbody>

@@ -23,7 +23,7 @@ function log(level: 'INFO' | 'ERROR' | 'SUCCESS', message: string, data?: any) {
     const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
     console.log(`${emoji} [${timestamp}] ${message}`, data || '');
 }
-
+wil
 // Check which email provider to use
 function getEmailProvider(): 'gmail' | 'resend' {
     const hasGmail = !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
