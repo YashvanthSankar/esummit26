@@ -24,11 +24,23 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
   return (
     <Html lang="en">
       <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="x-apple-disable-message-reformatting" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <meta name="color-scheme" content="light only" />
         <meta name="supported-color-schemes" content="light only" />
+        <style>{`
+          @media only screen and (max-width: 600px) {
+            .mobile-full-width { width: 100% !important; }
+            .mobile-padding { padding: 32px 20px !important; }
+            .mobile-text-small { font-size: 14px !important; }
+            .mobile-heading { font-size: 32px !important; }
+            .mobile-hide { display: none !important; }
+            .mobile-center { text-align: center !important; }
+          }
+        `}</style>
       </Head>
       <Preview>E-Summit &apos;26 — An Invitation to Shape the Future | ₹2,00,000+ Prize Pool | January 30 - February 1</Preview>
       <Body style={main}>
@@ -540,11 +552,12 @@ const COLORS = {
 const main: React.CSSProperties = {
   backgroundColor: COLORS.cream,
   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif",
-  padding: "60px 24px",
+  padding: "40px 16px",
 };
 
 const container: React.CSSProperties = {
   maxWidth: "680px",
+  width: "100%",
   margin: "0 auto",
   backgroundColor: COLORS.white,
   borderRadius: "24px",
@@ -597,7 +610,7 @@ const heroBadge: React.CSSProperties = {
 
 const heroTitle: React.CSSProperties = {
   fontFamily: "'Playfair Display', Georgia, serif",
-  fontSize: "52px",
+  fontSize: "42px",
   fontWeight: 700,
   color: COLORS.espresso,
   lineHeight: 1.2,
@@ -657,10 +670,12 @@ const primaryButton: React.CSSProperties = {
   fontSize: "15px",
   fontWeight: 600,
   textDecoration: "none",
-  padding: "16px 48px",
+  padding: "16px 40px",
   borderRadius: "999px",
   letterSpacing: "0.3px",
   boxShadow: "0 4px 16px rgba(199, 109, 80, 0.2)",
+  minWidth: "200px",
+  textAlign: "center" as const,
 };
 
 const secondaryButton: React.CSSProperties = {
@@ -717,7 +732,7 @@ const emphasis: React.CSSProperties = {
 
 // Value Section
 const valueSection: React.CSSProperties = {
-  padding: "80px 56px",
+  padding: "56px 32px",
   textAlign: "center" as const,
 };
 
@@ -733,7 +748,7 @@ const sectionLabel: React.CSSProperties = {
 
 const sectionHeading: React.CSSProperties = {
   fontFamily: "'Playfair Display', Georgia, serif",
-  fontSize: "40px",
+  fontSize: "36px",
   fontWeight: 700,
   color: COLORS.espresso,
   marginBottom: "24px",
@@ -773,7 +788,7 @@ const valueText: React.CSSProperties = {
 
 // Prize Section
 const prizeSection: React.CSSProperties = {
-  padding: "80px 56px",
+  padding: "56px 32px",
   backgroundColor: COLORS.cream,
 };
 
@@ -799,8 +814,9 @@ const prizeAmount: React.CSSProperties = {
   fontSize: "72px",
   fontWeight: 700,
   color: COLORS.white,
-  marginBottom: "16px",
+  marginBottom: "24px",
   letterSpacing: "-2px",
+  lineHeight: 1.2,
 };
 
 const prizeDescription: React.CSSProperties = {
@@ -838,7 +854,7 @@ const prizeBreakdownLabel: React.CSSProperties = {
 
 // Competitions Section
 const competitionsSection: React.CSSProperties = {
-  padding: "80px 56px",
+  padding: "56px 32px",
   textAlign: "center" as const,
 };
 
@@ -903,7 +919,7 @@ const competitionCta: React.CSSProperties = {
 
 // Speakers Section
 const speakersSection: React.CSSProperties = {
-  padding: "80px 56px",
+  padding: "56px 32px",
   backgroundColor: COLORS.cream,
   textAlign: "center" as const,
 };
@@ -950,7 +966,7 @@ const speakerOrg: React.CSSProperties = {
 
 // Urgency Section
 const urgencySection: React.CSSProperties = {
-  padding: "80px 56px",
+  padding: "56px 32px",
 };
 
 const urgencyCard: React.CSSProperties = {
@@ -1007,7 +1023,7 @@ const urgencySubtext: React.CSSProperties = {
 
 // Sponsors Section
 const sponsorsSection: React.CSSProperties = {
-  padding: "80px 56px",
+  padding: "56px 32px",
   backgroundColor: COLORS.cream,
   textAlign: "center" as const,
 };
@@ -1039,7 +1055,7 @@ const sponsorLogo: React.CSSProperties = {
 
 // Final Section
 const finalSection: React.CSSProperties = {
-  padding: "80px 56px",
+  padding: "56px 32px",
 };
 
 const finalCard: React.CSSProperties = {
