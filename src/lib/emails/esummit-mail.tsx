@@ -39,24 +39,46 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           * { color-scheme: light !important; }
           body { background-color: #F9F7F2 !important; }
           
-          /* Logo switching for dark mode - email client specific */
-          .logo-light { display: inline-block !important; max-height: 999px !important; overflow: visible !important; }
-          .logo-dark { display: none !important; max-height: 0 !important; max-width: 0 !important; overflow: hidden !important; }
+          /* Force white background for logo containers in all modes */
+          .logo-container { 
+            background-color: rgba(255, 255, 255, 0.8) !important; 
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color-scheme: light !important;
+          }
           
+          /* Dark mode overrides - force glass effect */
           @media (prefers-color-scheme: dark) {
             * { color-scheme: light !important; }
             body { background-color: #F9F7F2 !important; }
-            .logo-light { display: none !important; max-height: 0 !important; max-width: 0 !important; overflow: hidden !important; }
-            .logo-dark { display: inline-block !important; max-height: 999px !important; max-width: 999px !important; overflow: visible !important; }
+            .logo-container { 
+              background-color: rgba(255, 255, 255, 0.9) !important; 
+              background: rgba(255, 255, 255, 0.9) !important;
+              backdrop-filter: blur(15px) !important;
+              -webkit-backdrop-filter: blur(15px) !important;
+              border: 1px solid rgba(255, 255, 255, 0.4) !important;
+              color-scheme: light !important;
+            }
           }
           
           /* Gmail dark mode support */
-          [data-ogsc] .logo-light { display: none !important; max-height: 0 !important; max-width: 0 !important; overflow: hidden !important; }
-          [data-ogsc] .logo-dark { display: inline-block !important; max-height: 999px !important; max-width: 999px !important; overflow: visible !important; }
+          [data-ogsc] .logo-container { 
+            background-color: rgba(255, 255, 255, 0.9) !important; 
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(15px) !important;
+            -webkit-backdrop-filter: blur(15px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+            color-scheme: light !important;
+          }
           
           /* Outlook dark mode */
-          [data-ogsb] .logo-light { display: none !important; max-height: 0 !important; }
-          [data-ogsb] .logo-dark { display: inline-block !important; max-height: 999px !important; }
+          [data-ogsb] .logo-container { 
+            background-color: rgba(255, 255, 255, 0.9) !important; 
+            background: rgba(255, 255, 255, 0.9) !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important;
+          }
           
           @media only screen and (max-width: 600px) {
             .mobile-full-width { width: 100% !important; }
@@ -79,13 +101,18 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                 <tr>
                   <td align="left" valign="middle" style={{ width: "50%", verticalAlign: "middle" }}>
                     {/* E-Summit logo with light background for dark mode visibility */}
-                    <div style={{ 
+                    <div className="logo-container" style={{ 
                       display: "inline-block", 
-                      backgroundColor: "#FFFFFF", 
-                      borderRadius: "8px", 
-                      padding: "6px 10px",
+                      backgroundColor: "rgba(255, 255, 255, 0.8)", 
+                      background: "rgba(255, 255, 255, 0.8)",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.3)",
+                      borderRadius: "12px", 
+                      padding: "8px 12px",
                       verticalAlign: "middle",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+                      boxShadow: "0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)",
+                      colorScheme: "light"
                     }}>
                       <Img
                         src={`${baseUrl}/esummit-black.png`}
@@ -98,13 +125,18 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                   </td>
                   <td align="right" valign="middle" style={{ width: "50%", verticalAlign: "middle" }}>
                     {/* E-Cell logo with light background for dark mode visibility */}
-                    <div style={{ 
+                    <div className="logo-container" style={{ 
                       display: "inline-block", 
-                      backgroundColor: "#FFFFFF", 
-                      borderRadius: "8px", 
-                      padding: "6px",
+                      backgroundColor: "rgba(255, 255, 255, 0.8)", 
+                      background: "rgba(255, 255, 255, 0.8)",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
+                      border: "1px solid rgba(255, 255, 255, 0.3)",
+                      borderRadius: "12px", 
+                      padding: "8px",
                       verticalAlign: "middle",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)"
+                      boxShadow: "0 4px 16px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)",
+                      colorScheme: "light"
                     }}>
                       <Img
                         src={`${baseUrl}/ecell-black.png`}
