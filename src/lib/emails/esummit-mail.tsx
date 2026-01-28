@@ -28,6 +28,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
         <meta name="x-apple-disable-message-reformatting" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <meta name="color-scheme" content="light" />
         <meta name="supported-color-schemes" content="light" />
@@ -36,19 +37,15 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           * { color-scheme: light !important; }
           body { background-color: #F9F7F2 !important; }
           
-          /* Ensure logo cards stay light in dark mode */
-          .logo-card {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border: 1px solid rgba(255, 255, 255, 0.95) !important;
-          }
+          /* Logo switching for dark mode */
+          .logo-light { display: inline-block !important; }
+          .logo-dark { display: none !important; }
           
           @media (prefers-color-scheme: dark) {
             * { color-scheme: light !important; }
             body { background-color: #F9F7F2 !important; }
-            .logo-card {
-              background: rgba(255, 255, 255, 0.95) !important;
-              border: 1px solid rgba(255, 255, 255, 0.98) !important;
-            }
+            .logo-light { display: none !important; }
+            .logo-dark { display: inline-block !important; }
           }
           @media only screen and (max-width: 600px) {
             .mobile-full-width { width: 100% !important; }
@@ -70,43 +67,42 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <tbody>
                 <tr>
                   <td align="left" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    <div className="logo-card" style={{
-                      display: "inline-block",
-                      background: "rgba(255, 255, 255, 0.9)",
-                      backdropFilter: "blur(10px)",
-                      WebkitBackdropFilter: "blur(10px)",
-                      padding: "12px 16px",
-                      borderRadius: "12px",
-                      border: "1px solid rgba(255, 255, 255, 0.95)",
-                      boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(212, 175, 55, 0.1)"
-                    }}>
-                      <Img
-                        src={`${baseUrl}/esummit-black.png`}
-                        alt="E-Summit '26"
-                        height="42"
-                        style={{ display: "block", verticalAlign: "top" }}
-                      />
-                    </div>
+                    {/* Black logo for light mode */}
+                    <Img
+                      className="logo-light"
+                      src={`${baseUrl}/esummit-black.png`}
+                      alt="E-Summit '26"
+                      height="42"
+                      style={{ display: "inline-block", verticalAlign: "top" }}
+                    />
+                    {/* White logo for dark mode */}
+                    <Img
+                      className="logo-dark"
+                      src={`${baseUrl}/esummit26-logo.png`}
+                      alt="E-Summit '26"
+                      height="42"
+                      style={{ display: "none", verticalAlign: "top" }}
+                    />
                   </td>
                   <td align="right" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    <div className="logo-card" style={{
-                      display: "inline-block",
-                      background: "rgba(255, 255, 255, 0.9)",
-                      backdropFilter: "blur(10px)",
-                      WebkitBackdropFilter: "blur(10px)",
-                      padding: "12px",
-                      borderRadius: "12px",
-                      border: "1px solid rgba(255, 255, 255, 0.95)",
-                      boxShadow: "0 4px 15px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(212, 175, 55, 0.1)"
-                    }}>
-                      <Img
-                        src={`${baseUrl}/ecell-black.png`}
-                        alt="E-Cell"
-                        height="57"
-                        width="57"
-                        style={{ display: "block", verticalAlign: "top" }}
-                      />
-                    </div>
+                    {/* Black logo for light mode */}
+                    <Img
+                      className="logo-light"
+                      src={`${baseUrl}/ecell-black.png`}
+                      alt="E-Cell"
+                      height="57"
+                      width="57"
+                      style={{ display: "inline-block", verticalAlign: "top" }}
+                    />
+                    {/* White logo for dark mode */}
+                    <Img
+                      className="logo-dark"
+                      src={`${baseUrl}/ecell.png`}
+                      alt="E-Cell"
+                      height="57"
+                      width="57"
+                      style={{ display: "none", verticalAlign: "top" }}
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -626,16 +622,6 @@ const header: React.CSSProperties = {
   borderBottom: `1px solid ${COLORS.borderLight}`,
 };
 
-const logoContainer: React.CSSProperties = {
-  display: "inline-block",
-  verticalAlign: "middle",
-};
-
-const logoContainerSmall: React.CSSProperties = {
-  display: "inline-block",
-  verticalAlign: "middle",
-};
-
 // Hero Section
 const heroSection: React.CSSProperties = {
   padding: "64px 56px",
@@ -1058,24 +1044,6 @@ const urgencyText: React.CSSProperties = {
   fontWeight: 400,
   color: COLORS.taupe,
   lineHeight: 1.7,
-};
-
-const urgencyNumber: React.CSSProperties = {
-  fontFamily: "'Playfair Display', Georgia, serif",
-  fontSize: "56px",
-  fontWeight: 700,
-  color: COLORS.terracotta,
-  marginBottom: "8px",
-  margin: "0 0 8px 0",
-};
-
-const urgencySubtext: React.CSSProperties = {
-  fontFamily: "'Inter', sans-serif",
-  fontSize: "13px",
-  fontWeight: 500,
-  color: COLORS.taupe,
-  letterSpacing: "0.5px",
-  margin: 0,
 };
 
 // Sponsors Section

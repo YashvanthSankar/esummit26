@@ -18,12 +18,12 @@ interface EmailPayload {
 }
 
 // Enhanced logging
-function log(level: 'INFO' | 'ERROR' | 'SUCCESS', message: string, data?: any) {
+function log(level: 'INFO' | 'ERROR' | 'SUCCESS', message: string, data?: unknown) {
     const emoji = level === 'SUCCESS' ? '✅' : level === 'ERROR' ? '❌' : '📋';
     const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
     console.log(`${emoji} [${timestamp}] ${message}`, data || '');
 }
-wil
+
 // Check which email provider to use
 function getEmailProvider(): 'gmail' | 'resend' {
     const hasGmail = !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD);
@@ -87,13 +87,14 @@ async function sendViaGmail(
         log('SUCCESS', `Sent to ${to}`);
         return { success: true, messageId: info.messageId };
 
-    } catch (err: any) {
-        log('ERROR', `Failed to ${to}: ${err.message}`);
+    } catch (err: unknown) {
+        const error = err as Error & { code?: string };
+        log('ERROR', `Failed to ${to}: ${error.message}`);
 
         // User-friendly error messages
-        let errorMessage = err.message;
+        let errorMessage = error.message;
 
-        if (err.message.includes('Invalid login') || err.code === 'EAUTH') {
+        if (error.message.includes('Invalid login') || error.code === 'EAUTH') {
             errorMessage = 'Gmail authentication failed. You must use an App Password (not your regular password).\n\n' +
                 'Steps to fix:\n' +
                 '1. Go to https://myaccount.google.com/security\n' +
@@ -102,11 +103,11 @@ async function sendViaGmail(
                 '4. Generate password for "Mail"\n' +
                 '5. Copy the 16-character code (remove spaces)\n' +
                 '6. Set as GMAIL_APP_PASSWORD in .env';
-        } else if (err.message.includes('Timeout')) {
-            errorMessage = 'Email sending timed out. Check your internet connection or try Resend instead.';
-        } else if (err.code === 'ESOCKET' || err.code === 'ETIMEDOUT') {
-            errorMessage = 'Network connection failed. Check firewall settings or internet connection.';
-        } else if (err.code === 'ECONNECTION') {
+        } else if (error.message.includes('Timeout')) {
+            errorMessage = '⏱️ Email sending timed out. Check your internet connection or try Resend instead.';
+        } else if (error.code === 'ESOCKET' || error.code === 'ETIMEDOUT') {
+            errorMessage = '🔌 Network connection failed. Check firewall settings or internet connection.';
+        } else if (error.code === 'ECONNECTION') {
             errorMessage = 'Cannot connect to Gmail servers. Check network or try again later.';
         }
 
@@ -142,9 +143,10 @@ async function sendBatchViaGmail(
             if (i < emails.length - 1) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as Error;
             results.failed++;
-            const errorMsg = `${email.to}: ${err.message}`;
+            const errorMsg = `${email.to}: ${error.message}`;
             results.errors.push(errorMsg);
             log('ERROR', `${progress} Failed: ${email.to}`);
 
@@ -201,16 +203,17 @@ async function sendViaResend(
         log('SUCCESS', `Sent to ${to} via Resend`);
         return { success: true, id: data.id };
 
-    } catch (err: any) {
-        log('ERROR', `Resend exception: ${err.message}`);
-        return { success: false, error: err.message };
+    } catch (err: unknown) {
+        const error = err as Error;
+        log('ERROR', `Resend exception: ${error.message}`);
+        return { success: false, error: error.message };
     }
 }
 
 // Batch send via Resend
 async function sendBatchViaResend(
     emails: Array<{ from: string; to: string[]; subject: string; html: string }>
-): Promise<{ success: boolean; data?: any; error?: string }> {
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
     try {
         if (!process.env.RESEND_API_KEY) {
             throw new Error('RESEND_API_KEY not configured');
@@ -235,9 +238,10 @@ async function sendBatchViaResend(
         log('SUCCESS', `Batch sent via Resend: ${emails.length} emails`);
         return { success: true, data };
 
-    } catch (err: any) {
-        log('ERROR', `Resend batch exception: ${err.message}`);
-        return { success: false, error: err.message };
+    } catch (err: unknown) {
+        const error = err as Error;
+        log('ERROR', `Resend batch exception: ${error.message}`);
+        return { success: false, error: error.message };
     }
 }
 
@@ -278,9 +282,10 @@ export async function POST(request: NextRequest) {
             } else {
                 user = userData.user;
             }
-        } catch (e: any) {
+        } catch (e: unknown) {
+            const error = e as Error;
             // Catch fetch failed exceptions directly
-            log('ERROR', `Auth Exception (Bypassing): ${e.message}`);
+            log('ERROR', `Auth Exception (Bypassing): ${error.message}`);
             user = { id: 'debug-user', email: 'debug@esummit.in' };
         }
 
@@ -325,10 +330,6 @@ export async function POST(request: NextRequest) {
             subject = "🚀 E-Summit '26: Your Ultimate Guide - Events, Speakers & Passes!",
             testMode = false,
             testEmail,
-            eventDetails: _eventDetails,
-            events: _events,
-            speakers: _speakers,
-            sponsors: _sponsors
         } = body;
 
 
@@ -371,7 +372,7 @@ export async function POST(request: NextRequest) {
             const duration = Date.now() - startTime;
             log('SUCCESS', `Test email sent in ${duration}ms`);
 
-            const msgId = 'messageId' in result ? result.messageId : (result as any).id;
+            const msgId = 'messageId' in result ? result.messageId : (result as { id?: string }).id;
 
             return NextResponse.json({
                 success: true,
@@ -413,16 +414,24 @@ export async function POST(request: NextRequest) {
         // Build unique recipient list
         const emailMap = new Map<string, string>();
 
-        tickets?.forEach((ticket: any) => {
+        tickets?.forEach((ticket: unknown) => {
+            const t = ticket as { 
+                user_id: string; 
+                ticket_type?: string; 
+                is_paid?: boolean;
+                profiles?: { email: string; full_name?: string };
+                pending_email?: string;
+                pending_name?: string;
+            };
             let email: string | null = null;
             let name: string = 'Attendee';
 
-            if (ticket.profiles?.email) {
-                email = ticket.profiles.email;
-                name = ticket.profiles.full_name || 'Attendee';
-            } else if (ticket.pending_email) {
-                email = ticket.pending_email;
-                name = ticket.pending_name || 'Attendee';
+            if (t.profiles?.email) {
+                email = t.profiles.email;
+                name = t.profiles.full_name || 'Attendee';
+            } else if (t.pending_email) {
+                email = t.pending_email;
+                name = t.pending_name || 'Attendee';
             }
 
             if (email && !emailMap.has(email)) {
@@ -516,14 +525,15 @@ export async function POST(request: NextRequest) {
             summary: `Successfully sent ${results.sent} out of ${recipients.length} emails via ${provider}`,
         });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const err = error as Error;
         const duration = Date.now() - startTime;
-        log('ERROR', `Fatal error after ${duration}ms: ${error.message}`);
+        log('ERROR', `Fatal error after ${duration}ms: ${err.message}`);
 
         return NextResponse.json({
-            error: error.message,
+            error: err.message,
             duration: `${duration}ms`,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
             tip: 'Check the server logs above for detailed error information'
         }, { status: 500 });
     }

@@ -52,6 +52,8 @@ import ClientProviders from "@/components/ClientProviders";
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: "--font-bricolage",
+  display: 'swap',
+  fallback: ['system-ui', 'arial'],
 });
 
 export default function RootLayout({
