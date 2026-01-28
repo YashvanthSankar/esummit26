@@ -323,7 +323,6 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const {
             subject = "🚀 E-Summit '26: Your Ultimate Guide - Events, Speakers & Passes!",
-            message,
             testMode = false,
             testEmail,
             eventDetails,
@@ -347,7 +346,6 @@ export async function POST(request: NextRequest) {
                 React.createElement(ESummitMail, {
                     userName: 'Fellow Innovator',
                     subject,
-                    message,
                     eventDetails: eventDetails || {
                         name: "E-Summit '26",
                         dates: 'Jan 30 - Feb 1, 2026',
@@ -507,7 +505,6 @@ export async function POST(request: NextRequest) {
                     React.createElement(ESummitMail, {
                         userName: recipient.name,
                         subject,
-                        message,
                         eventDetails: eventDetails || {
                             name: "E-Summit '26",
                             dates: 'Jan 30 - Feb 1, 2026',

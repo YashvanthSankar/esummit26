@@ -5,8 +5,8 @@ import React from 'react';
 export default async function PreviewPage() {
     const html = await render(
         <ESummitMail
-            userName="Preview User"
-            message="This is a preview of the custom message that you can include in the email."
+            userName="Fellow Innovator"
+            subject="🚀 E-Summit '26 - Your Ultimate Guide!"
         />
     );
 
