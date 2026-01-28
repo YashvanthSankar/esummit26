@@ -57,7 +57,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           /* Outlook dark mode */
           [data-ogsb] .logo-light { display: none !important; }
           [data-ogsb] .logo-dark { display: inline-block !important; }
-          }
+          
           @media only screen and (max-width: 600px) {
             .mobile-full-width { width: 100% !important; }
             .mobile-padding { padding: 32px 20px !important; }
