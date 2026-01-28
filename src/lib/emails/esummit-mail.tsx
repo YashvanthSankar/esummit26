@@ -81,7 +81,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                     {/* Black logo for light mode */}
                     <Img
                       className="logo-light"
-                      src={`${baseUrl}/esummit-black.webp`}
+                      src={`${baseUrl}/esummit-black.png`}
                       alt="E-Summit '26"
                       height="42"
                       style={{ display: "inline-block", verticalAlign: "top" }}
@@ -89,7 +89,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                     {/* White logo for dark mode */}
                     <Img
                       className="logo-dark"
-                      src={`${baseUrl}/esummit26-logo.webp`}
+                      src={`${baseUrl}/esummit26-logo.png`}
                       alt="E-Summit '26"
                       height="42"
                       style={{ display: "none", verticalAlign: "top" }}
@@ -99,7 +99,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                     {/* Black logo for light mode */}
                     <Img
                       className="logo-light"
-                      src={`${baseUrl}/ecell-black.webp`}
+                      src={`${baseUrl}/ecell-black.png`}
                       alt="E-Cell"
                       height="57"
                       width="57"
@@ -108,7 +108,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                     {/* White logo for dark mode */}
                     <Img
                       className="logo-dark"
-                      src={`${baseUrl}/ecell.webp`}
+                      src={`${baseUrl}/ecell.png`}
                       alt="E-Cell"
                       height="57"
                       width="57"
