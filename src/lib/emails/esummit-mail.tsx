@@ -40,7 +40,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <Column align="left" style={{ width: "50%" }}>
                 <Section style={logoContainer}>
                   <Img
-                    src={`${baseUrl}/esummit26-logo.png`}
+                    src={`${baseUrl}/esummit-black.png`}
                     alt="E-Summit '26"
                     height="42"
                     style={{ display: "block" }}
@@ -50,7 +50,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <Column align="right" style={{ width: "50%" }}>
                 <Section style={logoContainerSmall}>
                   <Img
-                    src={`${baseUrl}/ecell.png`}
+                    src={`${baseUrl}/ecell-black.png`}
                     alt="E-Cell"
                     height="38"
                     width="38"
@@ -450,12 +450,12 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           <Section style={footer}>
             <Row style={{ marginBottom: "32px" }}>
               <Column align="center">
-                <Img src={`${baseUrl}/ecell.png`} alt="E-Cell IIITDM" height="48" style={{ marginRight: "16px", opacity: 0.7 }} />
+                <Img src={`${baseUrl}/ecell-black.png`} alt="E-Cell IIITDM" height="48" style={{ marginRight: "16px", opacity: 0.7 }} />
                 <Img src={`${baseUrl}/iiitdm.png`} alt="IIITDM" height="48" style={{ marginLeft: "16px", opacity: 0.7 }} />
               </Column>
             </Row>
 
-            <Text style={footerBrand}>Entrepreneurship Cell</Text>
+            <Text style={footerBrand}>Entrepreneurship-Cell</Text>
             <Text style={footerInstitution}>Indian Institute of Information Technology Design & Manufacturing</Text>
             <Text style={footerLocation}>Kancheepuram, Chennai</Text>
 
