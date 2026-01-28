@@ -40,23 +40,23 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           body { background-color: #F9F7F2 !important; }
           
           /* Logo switching for dark mode - email client specific */
-          .logo-light { display: inline-block !important; max-height: 42px; }
-          .logo-dark { display: none !important; max-height: 0; }
+          .logo-light { display: inline-block !important; max-height: 999px !important; overflow: visible !important; }
+          .logo-dark { display: none !important; max-height: 0 !important; max-width: 0 !important; overflow: hidden !important; }
           
           @media (prefers-color-scheme: dark) {
             * { color-scheme: light !important; }
             body { background-color: #F9F7F2 !important; }
-            .logo-light { display: none !important; max-height: 0 !important; }
-            .logo-dark { display: inline-block !important; max-height: 42px !important; }
+            .logo-light { display: none !important; max-height: 0 !important; max-width: 0 !important; overflow: hidden !important; }
+            .logo-dark { display: inline-block !important; max-height: 999px !important; max-width: 999px !important; overflow: visible !important; }
           }
           
           /* Gmail dark mode support */
-          [data-ogsc] .logo-light { display: none !important; max-height: 0 !important; }
-          [data-ogsc] .logo-dark { display: inline-block !important; max-height: 42px !important; }
+          [data-ogsc] .logo-light { display: none !important; max-height: 0 !important; max-width: 0 !important; overflow: hidden !important; }
+          [data-ogsc] .logo-dark { display: inline-block !important; max-height: 999px !important; max-width: 999px !important; overflow: visible !important; }
           
           /* Outlook dark mode */
-          [data-ogsb] .logo-light { display: none !important; }
-          [data-ogsb] .logo-dark { display: inline-block !important; }
+          [data-ogsb] .logo-light { display: none !important; max-height: 0 !important; }
+          [data-ogsb] .logo-dark { display: inline-block !important; max-height: 999px !important; }
           
           @media only screen and (max-width: 600px) {
             .mobile-full-width { width: 100% !important; }
