@@ -20,6 +20,8 @@ interface ESummitMailProps {
 export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailProps) => {
   const baseUrl = "https://esummit26-iiitdm.vercel.app";
   const unstopUrl = "https://unstop.com/college-fests/e-summit-2026-indian-institute-of-information-technology-design-and-manufacturing-iiitdm-kancheepuram-431947";
+  const passUrl = `${baseUrl}/dashboard/pass`;
+  const merchUrl = `${baseUrl}/dashboard/merch`;
 
   return (
     <Html lang="en">
@@ -152,8 +154,8 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
 
               {/* Primary CTA - Pill Button */}
               <Section style={{ textAlign: "center" as const, marginTop: "40px" }}>
-                <Link href={unstopUrl} style={primaryButton}>
-                  Reserve Your Place
+                <Link href={passUrl} style={primaryButton}>
+                  Secure Your E-Summit Pass
                 </Link>
               </Section>
 
@@ -426,7 +428,7 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               
               <Section style={{ textAlign: "center" as const, marginTop: "32px" }}>
                 <Link href={unstopUrl} style={secondaryButton}>
-                  Secure Your Spot
+                  Register on Unstop
                 </Link>
               </Section>
             </Section>
@@ -484,8 +486,8 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
                 This is your invitation to join South India&apos;s most distinguished gathering of entrepreneurs, innovators, and visionaries. Reserve your place among the 500 who will shape what comes next.
               </Text>
               <Section style={{ textAlign: "center" as const, marginTop: "40px" }}>
-                <Link href={unstopUrl} style={primaryButton}>
-                  Confirm Your Attendance
+                <Link href={merchUrl} style={primaryButton}>
+                  Shop Exclusive Merch
                 </Link>
               </Section>
               <Text style={finalFootnote}>
