@@ -78,44 +78,38 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
               <tbody>
                 <tr>
                   <td align="left" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    {/* Black logo for light mode */}
-                    <Img
-                      className="logo-light"
-                      src={`${baseUrl}/esummit-black.png`}
-                      alt="E-Summit '26"
-                      width="150"
-                      height="42"
-                      style={{ display: "inline-block", verticalAlign: "top" }}
-                    />
-                    {/* White logo for dark mode */}
-                    <Img
-                      className="logo-dark"
-                      src={`${baseUrl}/esummit26-logo.png`}
-                      alt="E-Summit '26"
-                      width="150"
-                      height="42"
-                      style={{ display: "none", verticalAlign: "top" }}
-                    />
+                    {/* E-Summit logo with light background for dark mode visibility */}
+                    <div style={{ 
+                      display: "inline-block", 
+                      backgroundColor: "#F9F7F2", 
+                      borderRadius: "8px", 
+                      padding: "6px 10px"
+                    }}>
+                      <Img
+                        src={`${baseUrl}/esummit-black.png`}
+                        alt="E-Summit '26"
+                        width="150"
+                        height="42"
+                        style={{ display: "block", verticalAlign: "top" }}
+                      />
+                    </div>
                   </td>
                   <td align="right" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
-                    {/* Black logo for light mode */}
-                    <Img
-                      className="logo-light"
-                      src={`${baseUrl}/ecell-black.png`}
-                      alt="E-Cell"
-                      height="57"
-                      width="57"
-                      style={{ display: "inline-block", verticalAlign: "top" }}
-                    />
-                    {/* White logo for dark mode */}
-                    <Img
-                      className="logo-dark"
-                      src={`${baseUrl}/ecell.png`}
-                      alt="E-Cell"
-                      height="57"
-                      width="57"
-                      style={{ display: "none", verticalAlign: "top" }}
-                    />
+                    {/* E-Cell logo with light background for dark mode visibility */}
+                    <div style={{ 
+                      display: "inline-block", 
+                      backgroundColor: "#F9F7F2", 
+                      borderRadius: "8px", 
+                      padding: "6px"
+                    }}>
+                      <Img
+                        src={`${baseUrl}/ecell-black.png`}
+                        alt="E-Cell"
+                        height="57"
+                        width="57"
+                        style={{ display: "block", verticalAlign: "top" }}
+                      />
+                    </div>
                   </td>
                 </tr>
               </tbody>
