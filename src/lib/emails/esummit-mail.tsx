@@ -29,9 +29,16 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <meta name="color-scheme" content="light only" />
-        <meta name="supported-color-schemes" content="light only" />
+        <meta name="color-scheme" content="light" />
+        <meta name="supported-color-schemes" content="light" />
         <style>{`
+          /* Force light mode colors */
+          * { color-scheme: light !important; }
+          body { background-color: #F9F7F2 !important; }
+          @media (prefers-color-scheme: dark) {
+            * { color-scheme: light !important; }
+            body { background-color: #F9F7F2 !important; }
+          }
           @media only screen and (max-width: 600px) {
             .mobile-full-width { width: 100% !important; }
             .mobile-padding { padding: 32px 20px !important; }
@@ -48,29 +55,29 @@ export const ESummitMail = ({ recipientName = "Fellow Innovator" }: ESummitMailP
           
           {/* Elegant Header */}
           <Section style={header}>
-            <Row>
-              <Column align="left" style={{ width: "50%" }}>
-                <Section style={logoContainer}>
-                  <Img
-                    src={`${baseUrl}/esummit-black.png`}
-                    alt="E-Summit '26"
-                    height="42"
-                    style={{ display: "block" }}
-                  />
-                </Section>
-              </Column>
-              <Column align="right" style={{ width: "50%" }}>
-                <Section style={logoContainerSmall}>
-                  <Img
-                    src={`${baseUrl}/ecell-black.png`}
-                    alt="E-Cell"
-                    height="57"
-                    width="57"
-                    style={{ display: "block" }}
-                  />
-                </Section>
-              </Column>
-            </Row>
+            <table cellPadding="0" cellSpacing="0" border={0} width="100%" style={{ margin: 0, padding: 0 }}>
+              <tbody>
+                <tr>
+                  <td align="left" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/esummit-black.png`}
+                      alt="E-Summit '26"
+                      height="42"
+                      style={{ display: "block", verticalAlign: "top" }}
+                    />
+                  </td>
+                  <td align="right" valign="top" style={{ width: "50%", verticalAlign: "top" }}>
+                    <Img
+                      src={`${baseUrl}/ecell-black.png`}
+                      alt="E-Cell"
+                      height="57"
+                      width="57"
+                      style={{ display: "block", verticalAlign: "top" }}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </Section>
 
           {/* Hero Section - Editorial Style */}
@@ -573,10 +580,12 @@ const header: React.CSSProperties = {
 
 const logoContainer: React.CSSProperties = {
   display: "inline-block",
+  verticalAlign: "middle",
 };
 
 const logoContainerSmall: React.CSSProperties = {
   display: "inline-block",
+  verticalAlign: "middle",
 };
 
 // Hero Section
