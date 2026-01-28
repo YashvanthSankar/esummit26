@@ -4,10 +4,7 @@ import React from 'react';
 
 export default async function PreviewPage() {
     const html = await render(
-        <ESummitMail
-            userName="Fellow Innovator"
-            subject="🚀 E-Summit '26 - Your Ultimate Guide!"
-        />
+        <ESummitMail />
     );
 
     return (
