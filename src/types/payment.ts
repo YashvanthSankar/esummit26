@@ -1,6 +1,6 @@
 export const UPI_CONFIG = {
-    VPA: 'asmitsd2023@okaxis',
-    NAME: 'Asmit Kumar Sahoo',
+    VPA: '8000146235@ybl',
+    NAME: 'Vishal Singh',
 };
 
 export const TICKET_PRICES: Record<string, { amount: number; pax: number; label: string }> = {
